@@ -10,13 +10,6 @@
     {
         private HttpClient logClient;
             
-        public Distributor()
-        {
-            logClient = new HttpClient();
-            logClient.DefaultRequestHeaders.Accept.Clear();
-            logClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        }
-
         public async Task<Step> RunAsync(Step step)
         {
             if (step == null)
@@ -28,7 +21,7 @@
             {
                 throw new Exception(CreateMessage(step, "Run Name is missing."));
             }
-            
+
             if (string.IsNullOrWhiteSpace(step.StepName))
             {
                 throw new Exception(CreateMessage(step, "Step Name is missing."));
@@ -39,25 +32,32 @@
                 throw new Exception(CreateMessage(step, "Log Url is missing."));
             }
 
+            logClient = new HttpClient();
+            logClient.DefaultRequestHeaders.Accept.Clear();
+            logClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             logClient.BaseAddress = new Uri(step.LogUrl);
 
-            return await Task.Run<Step>(() => ProcessStep(step)).ConfigureAwait(false);
+            return await ProcessStep(step).ConfigureAwait(false);
         }
 
-        private Step ProcessStep(Step step)
+        private async Task<Step> ProcessStep(Step step)
         {
-            if (InitialiseStep(step))
+            var initialised = await InitialiseStepAsync(step).ConfigureAwait(false);
+
+            if (initialised)
             {
-                if (RunStep(step))
+                var success = await RunStepAsync(step).ConfigureAwait(false);
+
+                if (success)
                 {
-                    CompleteStep(step);
+                    var completed = await CompleteStepAsync(step).ConfigureAwait(false);
                 }
             }
 
             return step;
         }
 
-        private bool InitialiseStep(Step step)
+        private async Task<bool> InitialiseStepAsync(Step step)
         {
             try
             {               
@@ -72,7 +72,7 @@
                     return true;
                 }
 
-                return DownloadDependencies(step);
+                return await DownloadDependenciesAsync(step).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -81,7 +81,7 @@
             }
         }
 
-        private bool DownloadDependencies(Step step)
+        private async Task<bool> DownloadDependenciesAsync(Step step)
         {
             try
             {
@@ -94,6 +94,8 @@
 
                     Directory.CreateDirectory(targetDirectory);
                 }
+
+                // TODO: make async...
 
                 foreach (var filePath in step.Dependencies)
                 {
@@ -110,13 +112,15 @@
             }
         }
 
-        private bool RunStep(Step step)
+        private async Task<bool> RunStepAsync(Step step)
         {
             try
             {
                 step.Status = StepStatus.InProgress;
 
                 Log(step);
+
+                // TODO: Make async...
 
                 // TODO: Load assembly here...
 
@@ -131,7 +135,7 @@
             }
         }
 
-        private void CompleteStep(Step step)
+        private async Task<bool> CompleteStepAsync(Step step)
         {
             try
             {
@@ -139,18 +143,24 @@
 
                 Log(step);
 
-                // TODO: Run transitions...
+                // TODO: Run transitions asynchronously...
+
+                return true;
             }
             catch (Exception ex)
             {
                 Log(step, ex.ToString());
+                return false;
             }
         }
 
         private void Log(Step step, string message = "")
         {
-            var logMessage = CreateMessage(step, message);
-            logClient.PostAsync("api/log", new StringContent(logMessage));
+            Task.Run(() =>
+            {
+                var logMessage = CreateMessage(step, message);
+                logClient.PostAsync("api/log", new StringContent(logMessage));
+            });
         }
 
         private string CreateMessage(string message)
