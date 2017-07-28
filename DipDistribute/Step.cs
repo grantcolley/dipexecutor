@@ -12,6 +12,7 @@
         public Step[] SubSteps { get; set; }
         public Step[] Transitions { get; set; }
         public string Url { get; set; }
+        public string LogUrl { get; set; }
         public string[] UrlFarm { get; set; }
         public StepStatus Status { get; set; }
     }

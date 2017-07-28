@@ -2,12 +2,45 @@
 {
     using System;
     using System.IO;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Threading.Tasks;
 
     public class Distributor : IDistributor
     {
+        private HttpClient logClient;
+            
+        public Distributor()
+        {
+            logClient = new HttpClient();
+            logClient.DefaultRequestHeaders.Accept.Clear();
+            logClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        }
+
         public async Task<Step> RunAsync(Step step)
         {
+            if (step == null)
+            {
+                throw new Exception(CreateMessage($"Step is null. Machine Name: {Environment.MachineName}"));
+            }
+
+            if (string.IsNullOrWhiteSpace(step.RunName))
+            {
+                throw new Exception(CreateMessage(step, "Run Name is missing."));
+            }
+            
+            if (string.IsNullOrWhiteSpace(step.StepName))
+            {
+                throw new Exception(CreateMessage(step, "Step Name is missing."));
+            }
+
+            if (string.IsNullOrWhiteSpace(step.LogUrl))
+            {
+                throw new Exception(CreateMessage(step, "Log Url is missing."));
+            }
+
+            logClient.BaseAddress = new Uri(step.LogUrl);
+
             return await Task.Run<Step>(() => ProcessStep(step)).ConfigureAwait(false);
         }
 
@@ -27,15 +60,7 @@
         private bool InitialiseStep(Step step)
         {
             try
-            {
-                if (step == null)
-                {
-                    Log(new Step(), $"Step is null. Machine Name: {Environment.MachineName}");
-                    return false;
-                }
-
-                // TODO: Check for other minimum requirements for a step to continue e.g. Name etc...
-                
+            {               
                 step.Status = StepStatus.Initialise;
 
                 Log(step);
@@ -70,9 +95,10 @@
                     Directory.CreateDirectory(targetDirectory);
                 }
 
-                foreach (var file in step.Dependencies)
+                foreach (var filePath in step.Dependencies)
                 {
-                    // TODO: Download each dependency...
+                    var file = new FileInfo(filePath);
+                    File.Copy(file.FullName, Path.Combine(targetDirectory, file.Name));
                 }
 
                 return true;
@@ -123,14 +149,25 @@
 
         private void Log(Step step, string message = "")
         {
-            var log = $"RunId: {step.RunId}; Run Name: {step.RunName}; StepId: {step.StepId}; Step Name: {step.StepName}; Step Status: {step.Status}";
+            var logMessage = CreateMessage(step, message);
+            logClient.PostAsync("api/log", new StringContent(logMessage));
+        }
+
+        private string CreateMessage(string message)
+        {
+            return CreateMessage(new Step(), message);
+        }
+
+        private string CreateMessage(Step step, string message)
+        {
+            var logMessage = $"RunId: {step.RunId}; Run Name: {step.RunName}; StepId: {step.StepId}; Step Name: {step.StepName}; Step Status: {step.Status}";
 
             if (!string.IsNullOrWhiteSpace(message))
             {
-                log += $"; Message: {message}";
+                logMessage += $"; Message: {message}";
             }
 
-            // TODO: log here...
+            return logMessage;
         }
     }
 }
