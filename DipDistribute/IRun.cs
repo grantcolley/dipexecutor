@@ -2,8 +2,6 @@
 {
     public interface IRun
     {
-        void Initialise();
-        void Run();
-        void Cleanup();
+        void Run(Step step);
     }
 }
