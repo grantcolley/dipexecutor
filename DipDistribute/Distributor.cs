@@ -1,15 +1,16 @@
-﻿namespace DipDistribute
-{
-    using System;
-    using System.IO;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
+namespace DipDistribute
+{
     public class Distributor : IDistributor
     {
         private HttpClient logClient;
-            
+        private string dependencyDirectory;
+
         public async Task<Step> RunAsync(Step step)
         {
             if (step == null)
@@ -65,6 +66,14 @@
 
                 Log(step);
 
+                dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), step.RunName);
+                if (!Directory.Exists(dependencyDirectory))
+                {
+                    Log(step, $"Create directory {dependencyDirectory}");
+
+                    Directory.CreateDirectory(dependencyDirectory);
+                }
+
                 if (step.Dependencies == null
                     || step.Dependencies.Length == 0)
                 {
@@ -87,20 +96,23 @@
             {
                 Log(step, "Downloading dependencies...");
 
-                var targetDirectory = Path.Combine(Directory.GetCurrentDirectory(), step.RunName);
-                if (!Directory.Exists(targetDirectory))
-                {
-                    Log(step, $"Create directory {targetDirectory}");
-
-                    Directory.CreateDirectory(targetDirectory);
-                }
-
-                // TODO: make async...
-
                 foreach (var filePath in step.Dependencies)
                 {
-                    var file = new FileInfo(filePath);
-                    File.Copy(file.FullName, Path.Combine(targetDirectory, file.Name));
+                    var client = new HttpClient();
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    var uri = new Uri($"http://localhost:60915/api/distributor/getdependency?file={filePath}");
+                    var stream = client.GetStreamAsync(uri);
+
+                    var fileName = filePath.Split('\\');
+                    var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]));
+
+                    byte[] buffer = new byte[8 * 1024];
+                    int len;
+                    while ((len = stream.Result.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        file.Write(buffer, 0, len);
+                    }
                 }
 
                 return true;
@@ -120,11 +132,12 @@
 
                 Log(step);
 
-                // TODO: Make async...
+                var assemblyLoader = new AssemblyLoader(dependencyDirectory);
+                var assembly = assemblyLoader.LoadFromAssemblyPath(Path.Combine(dependencyDirectory, step.TargetAssembly));
 
-                // TODO: Load assembly here...
-
-                // TODO: Execute Run here...
+                var type = assembly.GetType(step.TargetType);
+                dynamic obj = Activator.CreateInstance(type);
+                obj.Run(step);
 
                 return true;
             }
@@ -159,7 +172,7 @@
             Task.Run(() =>
             {
                 var logMessage = CreateMessage(step, message);
-                logClient.PostAsync("api/log", new StringContent(logMessage));
+                logClient.PutAsync("api/distributor/log", new StringContent(logMessage));
             });
         }
 
