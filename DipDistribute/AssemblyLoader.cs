@@ -1,8 +1,8 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyModel;
-using System.IO;
 
 namespace DipDistribute
 {
