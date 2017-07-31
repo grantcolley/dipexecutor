@@ -7,7 +7,8 @@
         public int StepId{ get; set; }
         public string StepName { get; set; }
         public string Payload { get; set; }
-        public string Target { get; set; }
+        public string TargetType { get; set; }
+        public string TargetAssembly { get; set; }
         public string[] Dependencies { get; set; }
         public Step[] SubSteps { get; set; }
         public Step[] Transitions { get; set; }
