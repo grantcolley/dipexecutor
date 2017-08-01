@@ -1,7 +1,9 @@
-﻿namespace DipDistribute
+﻿using System.Threading.Tasks;
+
+namespace DipDistribute
 {
     public interface IRun
     {
-        void Run(Step step);
+        Task<Step> RunAsync(Step step);
     }
 }

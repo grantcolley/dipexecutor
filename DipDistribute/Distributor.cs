@@ -102,14 +102,14 @@ namespace DipDistribute
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     var uri = new Uri($"http://localhost:60915/api/distributor/getdependency?file={filePath}");
-                    var stream = client.GetStreamAsync(uri);
+                    var stream = await client.GetStreamAsync(uri);
 
                     var fileName = filePath.Split('\\');
                     var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]));
 
                     byte[] buffer = new byte[8 * 1024];
                     int len;
-                    while ((len = stream.Result.Read(buffer, 0, buffer.Length)) > 0)
+                    while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         file.Write(buffer, 0, len);
                     }
@@ -137,7 +137,7 @@ namespace DipDistribute
 
                 var type = assembly.GetType(step.TargetType);
                 dynamic obj = Activator.CreateInstance(type);
-                obj.Run(step);
+                var result = await obj.RunAsync(step);
 
                 return true;
             }
@@ -167,13 +167,10 @@ namespace DipDistribute
             }
         }
 
-        private void Log(Step step, string message = "")
+        private async void Log(Step step, string message = "")
         {
-            Task.Run(() =>
-            {
                 var logMessage = CreateMessage(step, message);
-                logClient.PutAsync("api/distributor/log", new StringContent(logMessage));
-            });
+                await logClient.PutAsync("api/distributor/log", new StringContent(logMessage));
         }
 
         private string CreateMessage(string message)

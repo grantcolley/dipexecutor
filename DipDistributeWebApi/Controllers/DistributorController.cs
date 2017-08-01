@@ -35,7 +35,7 @@ namespace DipDistributeWebApi.Controllers
         // PUT api/distributor/log
         [HttpPut]
         [Route("Log")]
-        public void Log([FromBody]string value)
+        public async void Log([FromBody]string value)
         {
             // TODO: write to log...
         }
