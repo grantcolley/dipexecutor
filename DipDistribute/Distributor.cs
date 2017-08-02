@@ -28,7 +28,7 @@ namespace DipDistribute
                 throw new Exception(CreateMessage(step, "Step Name is missing."));
             }
 
-            if (string.IsNullOrWhiteSpace(step.LogUrl))
+            if (string.IsNullOrWhiteSpace(step.LogUri))
             {
                 throw new Exception(CreateMessage(step, "Log Url is missing."));
             }
@@ -36,7 +36,7 @@ namespace DipDistribute
             logClient = new HttpClient();
             logClient.DefaultRequestHeaders.Accept.Clear();
             logClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            logClient.BaseAddress = new Uri(step.LogUrl);
+            logClient.BaseAddress = new Uri(step.LogUri);
 
             return await ProcessStep(step).ConfigureAwait(false);
         }
@@ -101,17 +101,21 @@ namespace DipDistribute
                     var client = new HttpClient();
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    var uri = new Uri($"http://localhost:60915/api/distributor/getdependency?file={filePath}");
+                    var uri = new Uri($"{step.DependencyUri}?file={filePath}");
                     var stream = await client.GetStreamAsync(uri);
 
                     var fileName = filePath.Split('\\');
-                    var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]));
-
-                    byte[] buffer = new byte[8 * 1024];
-                    int len;
-                    while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    using (var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1])))
                     {
-                        file.Write(buffer, 0, len);
+                        byte[] buffer = new byte[8 * 1024];
+                        int len;
+                        while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            file.Write(buffer, 0, len);
+                        }
+
+                        stream.Dispose();
+                        stream = null;
                     }
                 }
 
