@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -136,7 +137,21 @@ namespace DipDistribute
 
                 Log(step);
 
-                var assemblyLoader = new AssemblyLoader(dependencyDirectory);
+                if (string.IsNullOrWhiteSpace(step.TargetAssembly))
+                {
+                    Log(step, "TargetAssembly is missing.");
+                    return true;
+                }
+
+                if (string.IsNullOrWhiteSpace(step.TargetType))
+                {
+                    Log(step, "TargetType is missing.");
+                    return true;
+                }
+
+                var dependencies = GetDependencyAssemblyNames(step);
+
+                var assemblyLoader = new AssemblyLoader(dependencyDirectory, dependencies);
                 var assembly = assemblyLoader.LoadFromAssemblyPath(Path.Combine(dependencyDirectory, step.TargetAssembly));
 
                 var type = assembly.GetType(step.TargetType);
@@ -169,6 +184,20 @@ namespace DipDistribute
                 Log(step, ex.ToString());
                 return false;
             }
+        }
+
+        private IList<string> GetDependencyAssemblyNames(Step step)
+        {
+            var dependencies = new List<string>();
+            foreach (string filePath in step.Dependencies)
+            {
+                var filePathSplit = filePath.Split('\\');
+                var fileName = filePathSplit[filePathSplit.Length - 1];
+                var name = fileName.Substring(0, fileName.LastIndexOf('.'));
+                dependencies.Add(name);
+            }
+
+            return dependencies;
         }
 
         private async void Log(Step step, string message = "")
