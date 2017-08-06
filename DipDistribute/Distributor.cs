@@ -97,27 +97,48 @@ namespace DipDistribute
             {
                 Log(step, "Downloading dependencies...");
 
-                foreach (var filePath in step.Dependencies)
+                // TODO: increase MaxResponseContentBufferSize = 1000000, the default buffer size is 65,536.
+                // https://msdn.microsoft.com/en-us/library/hh696703(v=vs.110).aspx
+
+                // Also checkout thi:
+                // https://msdn.microsoft.com/en-us/library/hh556530(v=vs.110).aspx
+
+                var client = new HttpClient() { MaxResponseContentBufferSize = 1000000 };
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                //foreach (var filePath in step.Dependencies)
+                //{
+                //    var uri = new Uri($"{step.DependencyUri}?file={filePath}");
+                //    var stream = await client.GetStreamAsync(uri);
+
+                //    var fileName = filePath.Split('\\');
+                //    using (var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1])))
+                //    {
+                //        byte[] buffer = new byte[8 * 1024];
+                //        int len;
+                //        while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                //        {
+                //            file.Write(buffer, 0, len);
+                //        }
+
+                //        stream.Dispose();
+                //        stream = null;
+                //    }
+                //}
+
+                var dependencies = new Task<long>[step.Dependencies.Length];
+
+                for(int i = 0; i < dependencies.Length; i++)
                 {
-                    var client = new HttpClient();
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    var uri = new Uri($"{step.DependencyUri}?file={filePath}");
-                    var stream = await client.GetStreamAsync(uri);
+                    dependencies[i] = DownloadDependencyAsync(client, step.DependencyUri, step.Dependencies[i]);
+                }
 
-                    var fileName = filePath.Split('\\');
-                    using (var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1])))
-                    {
-                        byte[] buffer = new byte[8 * 1024];
-                        int len;
-                        while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
-                        {
-                            file.Write(buffer, 0, len);
-                        }
+                var downloads = new long[step.Dependencies.Length];
 
-                        stream.Dispose();
-                        stream = null;
-                    }
+                for(int i = 0; i < downloads.Length; i++)
+                {
+                    downloads[i] = await dependencies[i];
                 }
 
                 return true;
@@ -127,6 +148,29 @@ namespace DipDistribute
                 Log(step, ex.ToString());
                 return false;
             }
+        }
+
+        private async Task<long> DownloadDependencyAsync(HttpClient client, string dependencyUri, string filePath)
+        {
+            var uri = new Uri($"{dependencyUri}?file={filePath}");
+            var stream = await client.GetStreamAsync(uri);
+            var length = stream.Length;
+
+            var fileName = filePath.Split('\\');
+            using (var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1])))
+            {
+                byte[] buffer = new byte[8 * 1024];
+                int len;
+                while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    file.Write(buffer, 0, len);
+                }
+
+                stream.Dispose();
+                stream = null;
+            }
+
+            return length;
         }
 
         private async Task<bool> RunStepAsync(Step step)
