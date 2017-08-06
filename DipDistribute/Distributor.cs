@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DipDistribute
@@ -75,13 +77,6 @@ namespace DipDistribute
                     Directory.CreateDirectory(dependencyDirectory);
                 }
 
-                if (step.Dependencies == null
-                    || step.Dependencies.Length == 0)
-                {
-                    Log(step, "No dependencies");
-                    return true;
-                }
-
                 return await DownloadDependenciesAsync(step).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -95,53 +90,29 @@ namespace DipDistribute
         {
             try
             {
+                if (step.Dependencies == null
+                    || step.Dependencies.Length == 0)
+                {
+                    Log(step, "No dependencies");
+                    return true;
+                }
+
                 Log(step, "Downloading dependencies...");
-
-                // TODO: increase MaxResponseContentBufferSize = 1000000, the default buffer size is 65,536.
-                // https://msdn.microsoft.com/en-us/library/hh696703(v=vs.110).aspx
-
-                // Also checkout thi:
-                // https://msdn.microsoft.com/en-us/library/hh556530(v=vs.110).aspx
 
                 var client = new HttpClient() { MaxResponseContentBufferSize = 1000000 };
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                //foreach (var filePath in step.Dependencies)
-                //{
-                //    var uri = new Uri($"{step.DependencyUri}?file={filePath}");
-                //    var stream = await client.GetStreamAsync(uri);
+                var dependencies = new List<string>(step.Dependencies);
+                IEnumerable<Task<bool>> downloadQuery = from dependency in step.Dependencies select DownloadDependencyAsync(client, step.DependencyUri, dependency);
 
-                //    var fileName = filePath.Split('\\');
-                //    using (var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1])))
-                //    {
-                //        byte[] buffer = new byte[8 * 1024];
-                //        int len;
-                //        while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
-                //        {
-                //            file.Write(buffer, 0, len);
-                //        }
+                // Use ToArray to execute the query and start the download tasks.
+                Task<bool>[] downloads = downloadQuery.ToArray();
 
-                //        stream.Dispose();
-                //        stream = null;
-                //    }
-                //}
+                // Await the completion of all the running tasks. 
+                var results = await Task.WhenAll(downloads);
 
-                var dependencies = new Task<long>[step.Dependencies.Length];
-
-                for(int i = 0; i < dependencies.Length; i++)
-                {
-                    dependencies[i] = DownloadDependencyAsync(client, step.DependencyUri, step.Dependencies[i]);
-                }
-
-                var downloads = new long[step.Dependencies.Length];
-
-                for(int i = 0; i < downloads.Length; i++)
-                {
-                    downloads[i] = await dependencies[i];
-                }
-
-                return true;
+                return results.All(r => r == true);
             }
             catch (Exception ex)
             {
@@ -150,27 +121,33 @@ namespace DipDistribute
             }
         }
 
-        private async Task<long> DownloadDependencyAsync(HttpClient client, string dependencyUri, string filePath)
+        private async Task<bool> DownloadDependencyAsync(HttpClient client, string dependencyUri, string filePath)
         {
-            var uri = new Uri($"{dependencyUri}?file={filePath}");
-            var stream = await client.GetStreamAsync(uri);
-            var length = stream.Length;
-
-            var fileName = filePath.Split('\\');
-            using (var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1])))
+            try
             {
-                byte[] buffer = new byte[8 * 1024];
-                int len;
-                while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                var uri = new Uri($"{dependencyUri}?file={filePath}");
+                var stream = await client.GetStreamAsync(uri);
+
+                var fileName = filePath.Split('\\');
+                using (var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1])))
                 {
-                    file.Write(buffer, 0, len);
+                    byte[] buffer = new byte[8 * 1024];
+                    int len;
+                    while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        file.Write(buffer, 0, len);
+                    }
+
+                    stream.Dispose();
+                    stream = null;
                 }
 
-                stream.Dispose();
-                stream = null;
+                return true;
             }
-
-            return length;
+            catch(Exception e)
+            {
+                return false;
+            }
         }
 
         private async Task<bool> RunStepAsync(Step step)
@@ -209,6 +186,50 @@ namespace DipDistribute
                 Log(step, ex.ToString());
                 return false;
             }
+        }
+
+        private async Task<bool> RunSubStepsAsync(Step step)
+        {
+            try
+            {
+                if (step.SubSteps.Any())
+                {
+                    Log(step, "No sub steps");
+                    return true;
+                }
+
+                Log(step, "Running sub steps");
+
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                var dependencies = new List<string>(step.Dependencies);
+                IEnumerable<Task<bool>> downloadQuery = from dependency in step.Dependencies select DownloadDependencyAsync(client, step.DependencyUri, dependency);
+
+                // Use ToArray to execute the query and start the download tasks.
+                Task<bool>[] downloads = downloadQuery.ToArray();
+
+                // Await the completion of all the running tasks. 
+                var results = await Task.WhenAll(downloads);
+                                
+                return results.All(r => r == true);
+            }
+            catch(Exception ex)
+            {
+                Log(step, ex.ToString());
+                return false;
+            }
+        }
+
+        private async Task<Step> DistributeStep(Step step)
+        {
+            throw new NotImplementedException();
+            //var jsonContent = JsonConvert.SerializeObject(step);
+            //var client = new HttpClient();
+            //client.DefaultRequestHeaders.Accept.Clear();
+            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //return await client.PutAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
         }
 
         private async Task<bool> CompleteStepAsync(Step step)
