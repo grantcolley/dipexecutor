@@ -50,11 +50,16 @@ namespace DipDistributor
 
             if (initialised)
             {
-                var success = await RunStepAsync(step).ConfigureAwait(false);
+                var stepSuccessful = await RunStepAsync(step).ConfigureAwait(false);
 
-                if (success)
+                if (stepSuccessful)
                 {
-                    var completed = await CompleteStepAsync(step).ConfigureAwait(false);
+                    var subStepsSuccessful = await RunSubStepsAsync(step).ConfigureAwait(false);
+
+                    if (subStepsSuccessful)
+                    {
+                        var completed = await CompleteStepAsync(step).ConfigureAwait(false);
+                    }
                 }
             }
 
@@ -200,20 +205,15 @@ namespace DipDistributor
 
                 Log(step, "Running sub steps");
 
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                var dependencies = new List<string>(step.Dependencies);
-                IEnumerable<Task<bool>> downloadQuery = from dependency in step.Dependencies select DownloadDependencyAsync(client, step.DependencyUri, dependency);
+                IEnumerable<Task<Step>> subStepQuery = from subStep in step.SubSteps select DistributeStep(subStep);
 
                 // Use ToArray to execute the query and start the download tasks.
-                Task<bool>[] downloads = downloadQuery.ToArray();
+                Task<Step>[] subSteps = subStepQuery.ToArray();
 
                 // Await the completion of all the running tasks. 
-                var results = await Task.WhenAll(downloads);
+                var results = await Task.WhenAll(subSteps);
                                 
-                return results.All(r => r == true);
+                return results.All(r => r.Status == StepStatus.Complete);
             }
             catch(Exception ex)
             {
@@ -225,6 +225,7 @@ namespace DipDistributor
         private async Task<Step> DistributeStep(Step step)
         {
             throw new NotImplementedException();
+
             //var jsonContent = JsonConvert.SerializeObject(step);
             //var client = new HttpClient();
             //client.DefaultRequestHeaders.Accept.Clear();
