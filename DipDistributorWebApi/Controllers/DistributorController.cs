@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using DipDistribute;
+using DipDistributor;
 
-namespace DipDistributeWebApi.Controllers
+namespace DipDistributorWebApi.Controllers
 {
     [Route("api/[controller]")]
     public class DistributorController : Controller
@@ -24,7 +24,7 @@ namespace DipDistributeWebApi.Controllers
         }
 
         // PUT api/distributor/run
-        [HttpPut]
+        [HttpPost]
         [Route("Run")]
         public async void Run([FromBody]Step step)
         {
@@ -33,7 +33,7 @@ namespace DipDistributeWebApi.Controllers
         }
 
         // PUT api/distributor/log
-        [HttpPut]
+        [HttpPost]
         [Route("Log")]
         public async void Log([FromBody]string value)
         {

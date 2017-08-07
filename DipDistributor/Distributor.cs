@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DipDistribute
+namespace DipDistributor
 {
     public class Distributor : IDistributor
     {
@@ -144,7 +144,7 @@ namespace DipDistribute
 
                 return true;
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 return false;
             }

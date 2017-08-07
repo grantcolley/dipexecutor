@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace DipDistribute
+namespace DipDistributor
 {
-    public interface IRun
+    public interface IDistributor
     {
         Task<Step> RunAsync(Step step);
     }

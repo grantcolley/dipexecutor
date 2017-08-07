@@ -5,7 +5,7 @@ using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyModel;
 using System.Collections.Generic;
 
-namespace DipDistribute
+namespace DipDistributor
 {
     public class AssemblyLoader : AssemblyLoadContext
     {
