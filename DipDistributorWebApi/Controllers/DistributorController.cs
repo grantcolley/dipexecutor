@@ -2,6 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DipDistributor;
+using Newtonsoft.Json;
+using System.Net.Http;
+using System.Text;
 
 namespace DipDistributorWebApi.Controllers
 {
@@ -26,10 +29,11 @@ namespace DipDistributorWebApi.Controllers
         // PUT api/distributor/run
         [HttpPost]
         [Route("Run")]
-        public async void Run([FromBody]Step step)
+        public async Task<IActionResult> Run([FromBody]Step step)
         {
             var distributor = new Distributor();
-            await distributor.RunAsync(step);
+            var response = await distributor.RunAsync(step);
+            return Content(JsonConvert.SerializeObject(response), "application/json", Encoding.UTF8);
         }
 
         // PUT api/distributor/log
