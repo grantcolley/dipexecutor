@@ -12,7 +12,7 @@
         public string DependencyUri { get; set; }
         public string[] Dependencies { get; set; }
         public Step[] SubSteps { get; set; }
-        public Step[] Transitions { get; set; }
+        public Step[] TransitionSteps { get; set; }
         public string Uri { get; set; }
         public string LogUri { get; set; }
         public string[] UriFarm { get; set; }
