@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -197,7 +198,8 @@ namespace DipDistributor
         {
             try
             {
-                if (step.SubSteps.Any())
+                if (step.SubSteps == null
+                    || !step.SubSteps.Any())
                 {
                     Log(step, "No sub steps");
                     return true;
@@ -222,34 +224,46 @@ namespace DipDistributor
             }
         }
 
-        private async Task<Step> DistributeStep(Step step)
-        {
-            throw new NotImplementedException();
-
-            //var jsonContent = JsonConvert.SerializeObject(step);
-            //var client = new HttpClient();
-            //client.DefaultRequestHeaders.Accept.Clear();
-            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            //return await client.PutAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
-        }
-
         private async Task<bool> CompleteStepAsync(Step step)
         {
             try
             {
                 step.Status = StepStatus.Complete;
 
-                Log(step);
+                if (step.TransitionSteps == null
+                    || !step.TransitionSteps.Any())
+                {
+                    Log(step, "No transition steps");
+                    return true;
+                }
 
-                // TODO: Run transitions asynchronously...
+                Log(step, "Running transition steps");
 
-                return true;
+                IEnumerable<Task<Step>> transitionStepQuery = from transition in step.TransitionSteps select DistributeStep(transition);
+
+                // Use ToArray to execute the query and start the download tasks.
+                Task<Step>[] transitionSteps = transitionStepQuery.ToArray();
+
+                // Await the completion of all the running tasks. 
+                var results = await Task.WhenAll(transitionSteps);
+
+                return results.All(r => r.Status == StepStatus.Complete);
             }
             catch (Exception ex)
             {
                 Log(step, ex.ToString());
                 return false;
             }
+        }
+
+        private async Task<Step> DistributeStep(Step step)
+        {
+            var jsonContent = JsonConvert.SerializeObject(step);
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var result = await client.PutAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+            return step;
         }
 
         private IList<string> GetDependencyAssemblyNames(Step step)
@@ -268,8 +282,8 @@ namespace DipDistributor
 
         private async void Log(Step step, string message = "")
         {
-                var logMessage = CreateMessage(step, message);
-                await logClient.PutAsync("api/distributor/log", new StringContent(logMessage));
+            var logMessage = CreateMessage(step, message);
+            await logClient.PostAsync("api/distributor/log", new StringContent(JsonConvert.SerializeObject(logMessage)));
         }
 
         private string CreateMessage(string message)
