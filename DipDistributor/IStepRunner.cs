@@ -2,7 +2,7 @@
 
 namespace DipDistributor
 {
-    public interface IRun
+    public interface IStepRunner
     {
         Task<Step> RunAsync(Step step);
     }
