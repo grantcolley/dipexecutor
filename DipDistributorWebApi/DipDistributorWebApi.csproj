@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DipDistributor\DipDistributor.csproj" />
+    <ProjectReference Include="..\DipRunner\DipRunner.csproj" />
   </ItemGroup>
 
 </Project>

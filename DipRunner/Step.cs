@@ -1,10 +1,10 @@
-﻿namespace DipDistributor
+﻿namespace DipRunner
 {
     public class Step
     {
         public int RunId { get; set; }
         public string RunName { get; set; }
-        public int StepId{ get; set; }
+        public int StepId { get; set; }
         public string StepName { get; set; }
         public string Payload { get; set; }
         public string TargetType { get; set; }

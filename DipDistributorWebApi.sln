@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DipDistributor", "DipDistri
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DipDistributorWebApi", "DipDistributorWebApi\DipDistributorWebApi.csproj", "{B50ACAEF-926E-4944-B7DD-361E3E2D2CAF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DipRunner", "DipRunner\DipRunner.csproj", "{0C9D25C8-FBD9-46ED-A92E-A30AA880625D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B50ACAEF-926E-4944-B7DD-361E3E2D2CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B50ACAEF-926E-4944-B7DD-361E3E2D2CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B50ACAEF-926E-4944-B7DD-361E3E2D2CAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C9D25C8-FBD9-46ED-A92E-A30AA880625D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C9D25C8-FBD9-46ED-A92E-A30AA880625D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C9D25C8-FBD9-46ED-A92E-A30AA880625D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C9D25C8-FBD9-46ED-A92E-A30AA880625D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,6 +5,7 @@ using DipDistributor;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
+using DipRunner;
 
 namespace DipDistributorWebApi.Controllers
 {

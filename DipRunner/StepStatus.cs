@@ -1,4 +1,4 @@
-﻿namespace DipDistributor
+﻿namespace DipRunner
 {
     public enum StepStatus
     {

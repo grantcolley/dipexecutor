@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DipRunner;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DipDistributor
 {
-    public class Distributor : IDistributor
+    public class Distributor
     {
         private HttpClient logClient;
         private string dependencyDirectory;
@@ -262,7 +263,7 @@ namespace DipDistributor
             var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var result = await client.PutAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+            var result = await client.PostAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
             return step;
         }
 
