@@ -74,12 +74,12 @@ namespace DipDistributor
             {               
                 step.Status = StepStatus.Initialise;
 
-                Log(step);
+                await Log(step);
 
                 dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), step.RunName);
                 if (!Directory.Exists(dependencyDirectory))
                 {
-                    Log(step, $"Create directory {dependencyDirectory}");
+                    await Log(step, $"Create directory {dependencyDirectory}");
 
                     Directory.CreateDirectory(dependencyDirectory);
                 }
@@ -88,7 +88,7 @@ namespace DipDistributor
             }
             catch (Exception ex)
             {
-                Log(step, ex.ToString());
+                await Log(step, ex.ToString());
                 return false;
             }
         }
@@ -100,35 +100,34 @@ namespace DipDistributor
                 if (step.Dependencies == null
                     || step.Dependencies.Length == 0)
                 {
-                    Log(step, "No dependencies");
+                    await Log(step, "No dependencies");
                     return true;
                 }
 
-                Log(step, "Downloading dependencies...");
+                await Log(step, "Downloading dependencies...");
 
                 var client = new HttpClient() { MaxResponseContentBufferSize = 1000000 };
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 var dependencies = new List<string>(step.Dependencies);
-                IEnumerable<Task<bool>> downloadQuery = from dependency in step.Dependencies select DownloadDependencyAsync(client, step.DependencyUri, dependency);
 
-                // Use ToArray to execute the query and start the download tasks.
+                IEnumerable<Task<bool>> downloadQuery = from dependency in step.Dependencies select DownloadDependencyAsync(step, client, step.DependencyUri, dependency);
+
                 Task<bool>[] downloads = downloadQuery.ToArray();
 
-                // Await the completion of all the running tasks. 
                 var results = await Task.WhenAll(downloads);
 
                 return results.All(r => r == true);
             }
             catch (Exception ex)
             {
-                Log(step, ex.ToString());
+                await Log(step, ex.ToString());
                 return false;
             }
         }
 
-        private async Task<bool> DownloadDependencyAsync(HttpClient client, string dependencyUri, string filePath)
+        private async Task<bool> DownloadDependencyAsync(Step step, HttpClient client, string dependencyUri, string filePath)
         {
             try
             {
@@ -136,7 +135,15 @@ namespace DipDistributor
                 var stream = await client.GetStreamAsync(uri);
 
                 var fileName = filePath.Split('\\');
-                using (var file = File.Create(Path.Combine(dependencyDirectory, fileName[fileName.Length - 1])))
+                var fullFileName = Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]);
+
+                if(File.Exists(fullFileName))
+                {
+                    await Log(step, $"File already exists: {fullFileName}");
+                    return true;
+                }
+
+                using (var file = File.Create(fullFileName))
                 {
                     byte[] buffer = new byte[8 * 1024];
                     int len;
@@ -163,17 +170,17 @@ namespace DipDistributor
             {
                 step.Status = StepStatus.InProgress;
 
-                Log(step);
+                await Log(step);
 
                 if (string.IsNullOrWhiteSpace(step.TargetAssembly))
                 {
-                    Log(step, "TargetAssembly is missing.");
+                    await Log(step, "TargetAssembly is missing.");
                     return true;
                 }
 
                 if (string.IsNullOrWhiteSpace(step.TargetType))
                 {
-                    Log(step, "TargetType is missing.");
+                    await Log(step, "TargetType is missing.");
                     return true;
                 }
 
@@ -184,13 +191,18 @@ namespace DipDistributor
 
                 var type = assembly.GetType(step.TargetType);
                 dynamic obj = Activator.CreateInstance(type);
+
+                await Log(step, $"Before {step.TargetType}.RunAsync() --> {step?.Payload}");
+
                 var result = await obj.RunAsync(step);
+
+                await Log(step, $"Before {step.TargetType}.RunAsync() --> {step?.Payload}");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Log(step, ex.ToString());
+                await Log(step, ex.ToString());
                 return false;
             }
         }
@@ -202,25 +214,23 @@ namespace DipDistributor
                 if (step.SubSteps == null
                     || !step.SubSteps.Any())
                 {
-                    Log(step, "No sub steps");
+                    await Log(step, "No sub steps");
                     return true;
                 }
 
-                Log(step, "Running sub steps");
+                await Log(step, "Running sub steps");
 
                 IEnumerable<Task<Step>> subStepQuery = from subStep in step.SubSteps select DistributeStep(subStep);
 
-                // Use ToArray to execute the query and start the download tasks.
                 Task<Step>[] subSteps = subStepQuery.ToArray();
 
-                // Await the completion of all the running tasks. 
                 var results = await Task.WhenAll(subSteps);
                                 
                 return results.All(r => r.Status == StepStatus.Complete);
             }
             catch(Exception ex)
             {
-                Log(step, ex.ToString());
+                await Log(step, ex.ToString());
                 return false;
             }
         }
@@ -234,25 +244,23 @@ namespace DipDistributor
                 if (step.TransitionSteps == null
                     || !step.TransitionSteps.Any())
                 {
-                    Log(step, "No transition steps");
+                    await Log(step, "No transition steps");
                     return true;
                 }
 
-                Log(step, "Running transition steps");
+                await Log(step, "Running transition steps");
 
                 IEnumerable<Task<Step>> transitionStepQuery = from transition in step.TransitionSteps select DistributeStep(transition);
 
-                // Use ToArray to execute the query and start the download tasks.
                 Task<Step>[] transitionSteps = transitionStepQuery.ToArray();
 
-                // Await the completion of all the running tasks. 
                 var results = await Task.WhenAll(transitionSteps);
 
                 return results.All(r => r.Status == StepStatus.Complete);
             }
             catch (Exception ex)
             {
-                Log(step, ex.ToString());
+                await Log(step, ex.ToString());
                 return false;
             }
         }
@@ -263,7 +271,11 @@ namespace DipDistributor
             var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var result = await client.PostAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+            var response = await client.PostAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+            
+            // TODO: fix this!!!!!
+            step.Status = StepStatus.Complete;
+
             return step;
         }
 
@@ -281,10 +293,10 @@ namespace DipDistributor
             return dependencies;
         }
 
-        private async void Log(Step step, string message = "")
+        private async Task Log(Step step, string message = "")
         {
             var logMessage = CreateMessage(step, message);
-            await logClient.PostAsync("api/distributor/log", new StringContent(JsonConvert.SerializeObject(logMessage)));
+            await logClient.PostAsync("api/distributor/log", new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
         }
 
         private string CreateMessage(string message)

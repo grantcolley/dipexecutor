@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DipDistributor;
 using Newtonsoft.Json;
-using System.Net.Http;
 using System.Text;
 using DipRunner;
+using System;
 
 namespace DipDistributorWebApi.Controllers
 {
@@ -40,9 +40,26 @@ namespace DipDistributorWebApi.Controllers
         // PUT api/distributor/log
         [HttpPost]
         [Route("Log")]
-        public async void Log([FromBody]string value)
+        public async Task<IActionResult> Log([FromBody]string value)
         {
-            // TODO: write to log...
+            string path = @"C:\GitHub\dipdistributor\TestLogFile.txt";
+
+            var message = DateTime.Now + "   " + value;
+
+            if (!System.IO.File.Exists(path))
+            {
+                using (StreamWriter sw = System.IO.File.CreateText(path))
+                {
+                    sw.WriteLine(message);
+                }
+            }
+
+            using (StreamWriter sw = System.IO.File.AppendText(path))
+            {
+                sw.WriteLine(message);
+            }
+
+            return null;
         }
     }
 }
