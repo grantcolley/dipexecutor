@@ -44,19 +44,19 @@ namespace DipDistributorWebApi.Controllers
         {
             string path = @"C:\GitHub\dipdistributor\TestLogFile.txt";
 
-            var message = DateTime.Now + "   " + value;
-
             if (!System.IO.File.Exists(path))
             {
                 using (StreamWriter sw = System.IO.File.CreateText(path))
                 {
-                    sw.WriteLine(message);
+                    sw.WriteLine(value);
                 }
+
+                return null;
             }
 
             using (StreamWriter sw = System.IO.File.AppendText(path))
             {
-                sw.WriteLine(message);
+                sw.WriteLine(value);
             }
 
             return null;

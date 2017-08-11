@@ -156,10 +156,12 @@ namespace DipDistributor
                     stream = null;
                 }
 
+                await Log(step, $"Downloaded: {fullFileName}");
                 return true;
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                await Log(step, ex.ToString());
                 return false;
             }
         }
@@ -272,11 +274,11 @@ namespace DipDistributor
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             var response = await client.PostAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
-            
-            // TODO: fix this!!!!!
-            step.Status = StepStatus.Complete;
 
-            return step;
+            var content = await response.Content.ReadAsStringAsync();
+            var responseStep = JsonConvert.DeserializeObject<Step>(content);
+
+            return responseStep;
         }
 
         private IList<string> GetDependencyAssemblyNames(Step step)
@@ -306,7 +308,7 @@ namespace DipDistributor
 
         private string CreateMessage(Step step, string message)
         {
-            var logMessage = $"RunId: {step.RunId}; Run Name: {step.RunName}; StepId: {step.StepId}; Step Name: {step.StepName}; Step Status: {step.Status}";
+            var logMessage = $"{DateTime.Now}   {Environment.MachineName}   RunId: {step.RunId}; Run Name: {step.RunName}; StepId: {step.StepId}; Step Name: {step.StepName}; Step Status: {step.Status}";
 
             if (!string.IsNullOrWhiteSpace(message))
             {
