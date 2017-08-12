@@ -13,6 +13,7 @@ namespace DipDistributor
 {
     public class Distributor
     {
+        private string logFile;
         private HttpClient logClient;
         private string dependencyDirectory;
 
@@ -33,15 +34,28 @@ namespace DipDistributor
                 throw new Exception(CreateMessage(step, "Step Name is missing."));
             }
 
-            if (string.IsNullOrWhiteSpace(step.LogUri))
+            if (string.IsNullOrWhiteSpace(step.LogUrl))
             {
-                throw new Exception(CreateMessage(step, "Log Url is missing."));
+                throw new Exception(CreateMessage(step, "Log url is missing."));
             }
+
+            if (string.IsNullOrWhiteSpace(step.DependencyUrl))
+            {
+                throw new Exception(CreateMessage(step, "Dependency url is missing."));
+            }
+
+            if (step.Urls == null
+                || step.Urls.Count() == 0)
+            {
+                throw new Exception(CreateMessage(step, "Url is missing."));
+            }
+
+            logFile = step.LogFile ?? "DistributorLog.txt";
 
             logClient = new HttpClient();
             logClient.DefaultRequestHeaders.Accept.Clear();
             logClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            logClient.BaseAddress = new Uri(step.LogUri);
+            logClient.BaseAddress = new Uri(step.LogUrl);
 
             return await ProcessStep(step).ConfigureAwait(false);
         }
