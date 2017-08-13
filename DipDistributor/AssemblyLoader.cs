@@ -1,4 +1,11 @@
-﻿using System.IO;
+﻿//-----------------------------------------------------------------------
+// <copyright file="AssemblyLoader.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;

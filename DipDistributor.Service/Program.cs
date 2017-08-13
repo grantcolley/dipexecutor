@@ -1,4 +1,9 @@
-﻿using DipDistributor;
+﻿//-----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
 
 namespace DipDistributor.Service
 {

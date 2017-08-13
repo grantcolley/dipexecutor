@@ -40,7 +40,17 @@ namespace DipDistributorWebApi.Controllers
         // PUT api/distributor/log
         [HttpPost]
         [Route("Log")]
-        public async Task<IActionResult> Log([FromBody]string value)
+        public async Task Log([FromBody]string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+
+            await LogAsync(value);
+        }
+
+        public async Task LogAsync(string message)
         {
             string path = @"C:\GitHub\dipdistributor\TestLogFile.txt";
 
@@ -48,18 +58,16 @@ namespace DipDistributorWebApi.Controllers
             {
                 using (StreamWriter sw = System.IO.File.CreateText(path))
                 {
-                    sw.WriteLine(value);
+                    sw.WriteLine(message);
                 }
 
-                return null;
+                return;
             }
 
             using (StreamWriter sw = System.IO.File.AppendText(path))
             {
-                sw.WriteLine(value);
+                sw.WriteLine(message);
             }
-
-            return null;
         }
     }
 }

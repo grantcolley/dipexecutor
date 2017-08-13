@@ -1,4 +1,11 @@
-﻿using System.IO;
+﻿//-----------------------------------------------------------------------
+// <copyright file="DistributorService.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 

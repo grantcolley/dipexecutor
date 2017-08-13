@@ -1,4 +1,11 @@
-﻿namespace DipRunner
+﻿//-----------------------------------------------------------------------
+// <copyright file="Step.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+namespace DipRunner
 {
     /// <summary>
     /// A step to be processed in a workflow. A step is processed by executing 
@@ -84,14 +91,26 @@
         public Step[] SubSteps { get; set; }
 
         /// <summary>
-        /// When a step has completed processing i.e. its <see cref="TargetType"/> and / or 
+        /// Gets or sets the transition steps. When a step has completed processing 
+        /// i.e. its <see cref="TargetType"/> and / or 
         /// <see cref="SubSteps"/> have been executed, then the transition steps are run.
-        /// 
+        /// When there are no more steps to process or transition to the workflow is complete.
         /// </summary>
         public Step[] TransitionSteps { get; set; }
 
+        /// <summary>
+        /// Gets or sets the url providing the location of the dependencies referenced by the <see cref="TargetAssembly"/>.
+        /// </summary>
         public string DependencyUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the url to be used for logging steps progress through the workflow.
+        /// </summary>
         public string LogUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of urls availble for distributed processing of steps in the workflow.
+        /// </summary>
         public string[] Urls { get; set; }
     }
 }

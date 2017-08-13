@@ -1,4 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿//-----------------------------------------------------------------------
+// <copyright file="Startup.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

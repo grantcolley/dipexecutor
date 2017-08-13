@@ -1,4 +1,11 @@
-﻿using DipRunner;
+﻿//-----------------------------------------------------------------------
+// <copyright file="Distributor.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using DipRunner;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -50,7 +57,7 @@ namespace DipDistributor
                 throw new Exception(CreateMessage(step, "Url is missing."));
             }
 
-            logFile = step.LogFile ?? "DistributorLog.txt";
+            logFile = step.LogFileLocation ?? "DistributorLog.txt";
 
             logClient = new HttpClient();
             logClient.DefaultRequestHeaders.Accept.Clear();
@@ -126,7 +133,9 @@ namespace DipDistributor
 
                 var dependencies = new List<string>(step.Dependencies);
 
-                IEnumerable<Task<bool>> downloadQuery = from dependency in step.Dependencies select DownloadDependencyAsync(step, client, step.DependencyUri, dependency);
+                IEnumerable<Task<bool>> downloadQuery = from dependency
+                                                        in step.Dependencies
+                                                        select DownloadDependencyAsync(step, client, step.DependencyUrl, dependency);
 
                 Task<bool>[] downloads = downloadQuery.ToArray();
 
@@ -287,7 +296,7 @@ namespace DipDistributor
             var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var response = await client.PostAsync(step.Uri, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+            var response = await client.PostAsync(step.Urls[0], new StringContent(jsonContent, Encoding.UTF8, "application/json"));
 
             var content = await response.Content.ReadAsStringAsync();
             var responseStep = JsonConvert.DeserializeObject<Step>(content);
