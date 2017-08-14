@@ -5,6 +5,8 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
+using System;
+
 namespace DipRunner
 {
     /// <summary>
@@ -101,6 +103,11 @@ namespace DipRunner
         /// <summary>
         /// Gets or sets the url providing the location of the dependencies referenced by the <see cref="TargetAssembly"/>.
         /// </summary>
+        public string StepUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the url providing the location of the dependencies referenced by the <see cref="TargetAssembly"/>.
+        /// </summary>
         public string DependencyUrl { get; set; }
 
         /// <summary>
@@ -112,5 +119,66 @@ namespace DipRunner
         /// Gets or sets the list of urls availble for distributed processing of steps in the workflow.
         /// </summary>
         public string[] Urls { get; set; }
+
+        /// <summary>
+        /// Checks for mandatory data.
+        /// A step must have the following:  
+        /// <see cref="RunId"/>, <see cref="RunName"/>, <see cref="StepId"/>, <see cref="StepName"/>.
+        /// If a <see cref="TargetType"/> and <see cref="TargetAssembly"/> is 
+        /// not provided then <see cref="SubSteps"/> must contain at least one Step.
+        /// An <see cref="Exception"/> is thrown if mandatory data is missing.
+        /// </summary>
+        public void Validate()
+        {
+            Validate(false);
+        }
+
+        /// <summary>
+        /// Checks for mandatory data.
+        /// A step must have the following:  
+        /// <see cref="RunId"/>, <see cref="RunName"/>, <see cref="StepId"/>, <see cref="StepName"/>.
+        /// If a <see cref="TargetType"/> and <see cref="TargetAssembly"/> is 
+        /// not provided then <see cref="SubSteps"/> must contain at least one Step.
+        /// An <see cref="Exception"/> is thrown if mandatory data is missing.
+        /// </summary>
+        /// <param name="verifyUrls">If true, then the urls are tested to ensure the distributor service is running.</param>
+        public void Validate(bool verifyUrls)
+        {
+            if (string.IsNullOrWhiteSpace(RunName))
+            {
+                throw new Exception($"RunId: { RunId } - Run Name is missing.");
+            }
+
+            if (string.IsNullOrWhiteSpace(StepName))
+            {
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} - Step Name is missing.");
+            }
+
+            if ((Urls == null
+                || Urls.Length.Equals(0))
+                && string.IsNullOrWhiteSpace(StepUrl))
+            {
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Step url is missing.");
+            }
+
+            if ((Urls == null
+                || Urls.Length.Equals(0))
+                && string.IsNullOrWhiteSpace(LogUrl))
+            {
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Log url is missing.");
+            }
+            else if (string.IsNullOrWhiteSpace(LogUrl))
+            {
+                LogUrl = Urls[0];
+            }
+
+            if ((string.IsNullOrWhiteSpace(TargetAssembly)
+                || string.IsNullOrWhiteSpace(TargetType))
+                && (SubSteps == null
+                || SubSteps.Length.Equals(0)))
+            {
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType or TargetAssembly is missing then at least one sub step is required.");
+            }
+        }
     }
 }
