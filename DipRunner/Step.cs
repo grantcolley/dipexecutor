@@ -154,16 +154,14 @@ namespace DipRunner
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} - Step Name is missing.");
             }
 
-            if ((Urls == null
-                || Urls.Length.Equals(0))
-                && string.IsNullOrWhiteSpace(StepUrl))
+            var hasUrls = Urls != null && Urls.Length > 0;
+
+            if (!hasUrls && string.IsNullOrWhiteSpace(StepUrl))
             {
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Step url is missing.");
             }
 
-            if ((Urls == null
-                || Urls.Length.Equals(0))
-                && string.IsNullOrWhiteSpace(LogUrl))
+            if (!hasUrls && string.IsNullOrWhiteSpace(LogUrl))
             {
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Log url is missing.");
             }
@@ -172,12 +170,53 @@ namespace DipRunner
                 LogUrl = Urls[0];
             }
 
+            var hasDependencies = Dependencies != null && Dependencies.Length > 0;
+
+            if (!hasUrls
+                && hasDependencies
+                && string.IsNullOrWhiteSpace(DependencyUrl))
+            {
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Dependency url is missing.");
+            }
+            else if (hasUrls
+                && hasDependencies
+                && string.IsNullOrWhiteSpace(DependencyUrl))
+            {
+                DependencyUrl = Urls[0];
+            }
+
             if ((string.IsNullOrWhiteSpace(TargetAssembly)
                 || string.IsNullOrWhiteSpace(TargetType))
                 && (SubSteps == null
                 || SubSteps.Length.Equals(0)))
             {
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType or TargetAssembly is missing then at least one sub step is required.");
+            }
+
+            if (SubSteps != null)
+            {
+                foreach (var subStep in SubSteps)
+                {
+                    if (subStep.Urls == null)
+                    {
+                        subStep.Urls = Urls;
+                    }
+
+                    subStep.Validate(verifyUrls);
+                }
+            }
+
+            if (TransitionSteps != null)
+            {
+                foreach (var transitionStep in TransitionSteps)
+                {
+                    if (transitionStep.Urls == null)
+                    {
+                        transitionStep.Urls = Urls;
+                    }
+
+                    transitionStep.Validate(verifyUrls);
+                }
             }
         }
     }
