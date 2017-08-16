@@ -68,6 +68,11 @@ namespace DipRunner
 
         /// <summary>
         /// Gets or sets the location of the log file associated with the step and or workflow.
+        /// The location must include the path to the log file and the log file name.
+        /// If one isn't provided then on calling <see cref="Validate"/> it will be set to "DistributorLog.txt" 
+        /// and the file will get created in the directory of the executing assembly.
+        /// If LogFileLocation is not provided and <see cref="Validate"/> is not called then 
+        /// an exception may be thrown by the Distributor.
         /// </summary>
         public string LogFileLocation { get; set; }
 
@@ -186,6 +191,11 @@ namespace DipRunner
                 || SubSteps.Length.Equals(0)))
             {
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType or TargetAssembly is missing then at least one sub step is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(LogFileLocation))
+            {
+                LogFileLocation = "DistributorLog.txt";
             }
 
             if (SubSteps != null)
