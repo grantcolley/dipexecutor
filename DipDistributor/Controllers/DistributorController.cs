@@ -10,6 +10,16 @@ namespace DipDistributor.Controllers
     [Route("api/[controller]")]
     public class DistributorController : Controller
     {
+        // PUT api/distributor/run
+        [HttpPost]
+        [Route("Run")]
+        public async Task<IActionResult> Run([FromBody]Step step)
+        {
+            var distributor = new Distributor();
+            var response = await distributor.RunAsync(step);
+            return Content(JsonConvert.SerializeObject(response), "application/json", Encoding.UTF8);
+        }
+
         // GET api/distributor/getdependency
         [HttpGet]
         [Route("GetDependency")]
@@ -25,14 +35,12 @@ namespace DipDistributor.Controllers
             return response;
         }
 
-        // PUT api/distributor/run
-        [HttpPost]
-        [Route("Run")]
-        public async Task<IActionResult> Run([FromBody]Step step)
+        // GET api/distributor/isalive
+        [HttpGet]
+        [Route("IsAlive")]
+        public async Task<IActionResult> IsAlive()
         {
-            var distributor = new Distributor();
-            var response = await distributor.RunAsync(step);
-            return Content(JsonConvert.SerializeObject(response), "application/json", Encoding.UTF8);
+            return Content("alive");
         }
 
         // PUT api/distributor/log
@@ -48,7 +56,7 @@ namespace DipDistributor.Controllers
             await LogAsync(value);
         }
 
-        public async Task LogAsync(string message)
+        private async Task LogAsync(string message)
         {
             // TODO: get from config...
             string path = @"C:\GitHub\dipdistributor\DipDistributor.txt";
