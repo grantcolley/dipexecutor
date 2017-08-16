@@ -30,35 +30,7 @@ namespace DipDistributor
             {
                 throw new Exception(CreateMessage($"Step is null. Machine Name: {Environment.MachineName}"));
             }
-
-            if (string.IsNullOrWhiteSpace(step.RunName))
-            {
-                throw new Exception(CreateMessage(step, "Run Name is missing."));
-            }
-
-            if (string.IsNullOrWhiteSpace(step.StepName))
-            {
-                throw new Exception(CreateMessage(step, "Step Name is missing."));
-            }
-
-            if (string.IsNullOrWhiteSpace(step.LogUrl))
-            {
-                throw new Exception(CreateMessage(step, "Log url is missing."));
-            }
-
-            if (string.IsNullOrWhiteSpace(step.DependencyUrl))
-            {
-                throw new Exception(CreateMessage(step, "Dependency url is missing."));
-            }
-
-            if (step.Urls == null
-                || step.Urls.Count() == 0)
-            {
-                throw new Exception(CreateMessage(step, "Url is missing."));
-            }
-
-            logFile = step.LogFileLocation ?? "DistributorLog.txt";
-
+            
             logClient = new HttpClient();
             logClient.DefaultRequestHeaders.Accept.Clear();
             logClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
