@@ -121,28 +121,23 @@ namespace DipRunner
         public string[] Urls { get; set; }
 
         /// <summary>
-        /// Checks for mandatory data.
-        /// A step must have the following:  
-        /// <see cref="RunId"/>, <see cref="RunName"/>, <see cref="StepId"/>, <see cref="StepName"/>.
-        /// If a <see cref="TargetType"/> and <see cref="TargetAssembly"/> is 
-        /// not provided then <see cref="SubSteps"/> must contain at least one Step.
-        /// An <see cref="Exception"/> is thrown if mandatory data is missing.
+        /// Validates the step for mandatory data. It does not check the validity of the data but merely
+        /// confirms fields are populated with data. Validation is recursive. A step will validate itself and 
+        /// then validate its <see cref="SubSteps"/> and its <see cref="TransitionSteps"/>.
+        /// Validation Rules:
+        /// <see cref="RunName"/> and <see cref="StepName"/> are mandatory (their identifiers can be zero).
+        /// If <see cref="Urls"/> is not populated then <see cref="StepUrl"/> and <see cref="LogUrl"/> must be populated.
+        /// If <see cref="Urls"/> is not populated and <see cref="Dependencies"/> is populated theb then 
+        /// <see cref="DependencyUrl"/> must be populated.
+        /// If a <see cref="TargetType"/> or <see cref="TargetAssembly"/> is not provided then <see cref="SubSteps"/> 
+        /// must contain at least one Step.
+        /// If a step's <see cref="SubSteps"/> or <see cref="TransitionSteps"/> do not have their <see cref="Urls"/> populated 
+        /// they will be popuated with the step's <see cref="Urls"/>. This way a <see cref="Urls"/> farm can be set at the root step
+        /// level and will be inherited by all steps in the workflow. <see cref="Urls"/> can be overriden by any step in the workflow, 
+        /// however, they will get inherited by any subsequent steps in the workflow (<see cref="SubSteps"/> or <see cref="TransitionSteps"/>).
+        /// An <see cref="Exception"/> is thrown if the step is not valid.
         /// </summary>
         public void Validate()
-        {
-            Validate(false);
-        }
-
-        /// <summary>
-        /// Checks for mandatory data.
-        /// A step must have the following:  
-        /// <see cref="RunId"/>, <see cref="RunName"/>, <see cref="StepId"/>, <see cref="StepName"/>.
-        /// If a <see cref="TargetType"/> and <see cref="TargetAssembly"/> is 
-        /// not provided then <see cref="SubSteps"/> must contain at least one Step.
-        /// An <see cref="Exception"/> is thrown if mandatory data is missing.
-        /// </summary>
-        /// <param name="verifyUrls">If true, then the urls are tested to ensure the distributor service is running.</param>
-        public void Validate(bool verifyUrls)
         {
             if (string.IsNullOrWhiteSpace(RunName))
             {
@@ -202,7 +197,7 @@ namespace DipRunner
                         subStep.Urls = Urls;
                     }
 
-                    subStep.Validate(verifyUrls);
+                    subStep.Validate();
                 }
             }
 
@@ -215,7 +210,7 @@ namespace DipRunner
                         transitionStep.Urls = Urls;
                     }
 
-                    transitionStep.Validate(verifyUrls);
+                    transitionStep.Validate();
                 }
             }
         }
