@@ -11,8 +11,20 @@ namespace DipDistributor.Service
     {
         static void Main(string[] args)
         {
+            string url;
+
+            if (args == null 
+                && args.Length > 0)
+            {
+                url = "http://+:5000";
+            }
+            else
+            {
+                url = args[0];
+            }
+
             var service = new DistributorService();
-            service.Run();
+            service.Run(url);
         }
     }
 }

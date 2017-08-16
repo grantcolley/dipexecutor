@@ -13,11 +13,11 @@ namespace DipDistributor
 {
     public class DistributorService
     {
-        public void Run()
+        public void Run(string Url)
         {
             var host = new WebHostBuilder()
                 .UseKestrel()
-                .UseUrls("http://+:5000")
+                .UseUrls(Url)
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
