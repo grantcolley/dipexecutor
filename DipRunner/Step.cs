@@ -126,23 +126,36 @@ namespace DipRunner
         public string[] Urls { get; set; }
 
         /// <summary>
-        /// Validates the step for mandatory data. It does not check the validity of the data but merely
-        /// confirms fields are populated with data. Validation is recursive. A step will validate itself and 
-        /// then validate its <see cref="SubSteps"/> and its <see cref="TransitionSteps"/>.
-        /// Validation Rules:
-        /// <see cref="RunName"/> and <see cref="StepName"/> are mandatory (their identifiers can be zero).
-        /// If <see cref="Urls"/> is not populated then <see cref="StepUrl"/> and <see cref="LogUrl"/> must be populated.
-        /// If <see cref="Urls"/> is not populated and <see cref="Dependencies"/> is populated theb then 
-        /// <see cref="DependencyUrl"/> must be populated.
-        /// If a <see cref="TargetType"/> or <see cref="TargetAssembly"/> is not provided then <see cref="SubSteps"/> 
-        /// must contain at least one Step.
-        /// If a step's <see cref="SubSteps"/> or <see cref="TransitionSteps"/> do not have their <see cref="Urls"/> populated 
-        /// they will be popuated with the step's <see cref="Urls"/>. This way a <see cref="Urls"/> farm can be set at the root step
-        /// level and will be inherited by all steps in the workflow. <see cref="Urls"/> can be overriden by any step in the workflow, 
-        /// however, they will get inherited by any subsequent steps in the workflow (<see cref="SubSteps"/> or <see cref="TransitionSteps"/>).
-        /// An <see cref="Exception"/> is thrown if the step is not valid.
+        /// <see cref="Validate(bool)"/>
         /// </summary>
         public void Validate()
+        {
+            Validate(false);
+        }
+
+        /// <summary>
+        /// Validates the step for mandatory data. It does not check the validity of the data but merely confirms mandatory 
+        /// fields are populated with data. A step will validate itself and then validate its <see cref="SubSteps"/>.
+        /// 
+        /// Validation Rules:
+        /// 1. <see cref="RunName"/> and <see cref="StepName"/> are mandatory (their identifiers can be zero).
+        /// 2. If <see cref="Urls"/> is not populated then <see cref="StepUrl"/> and <see cref="LogUrl"/> must be populated.
+        /// 3. If <see cref="Urls"/> is not populated and it has <see cref="Dependencies"/> is populated the then 
+        ///     <see cref="DependencyUrl"/> must be populated.
+        /// 4. If a <see cref="TargetType"/> or <see cref="TargetAssembly"/> is not provided then <see cref="SubSteps"/> 
+        ///     must contain at least one Step i.e. it is possibly a step only executes its sub steps.
+        /// 5. If a step's <see cref="SubSteps"/> or <see cref="TransitionSteps"/> do not have <see cref="Urls"/> 
+        ///     they will be popuated with the step's <see cref="Urls"/>. This way a <see cref="Urls"/> farm can be 
+        ///     set at the root step level and will be inherited by all steps in the workflow. 
+        ///     <see cref="Urls"/> can be overriden by any step in the workflow, in which case those <see cref="Urls"/> 
+        ///     will get inherited by any subsequent steps in the workflow (<see cref="SubSteps"/> or <see cref="TransitionSteps"/>).
+        /// 6. If includeTransitions is true, then the <see cref="TransitionSteps"/> will also be validated.
+        ///     this will result in evaulating every step until the end of the workflow.
+        ///     
+        /// An <see cref="Exception"/> is thrown if the step is not valid.
+        /// </summary>
+        /// <param name="includeTransitions">true if the steps <see cref="TransitionSteps"/> must also be validated, else false.</param>
+        public void Validate(bool includeTransitions)
         {
             if (string.IsNullOrWhiteSpace(RunName))
             {
@@ -154,7 +167,7 @@ namespace DipRunner
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} - Step Name is missing.");
             }
 
-            var hasUrls = Urls != null && Urls.Length > 0;
+            var hasUrls = (Urls?.Length ?? 0) > 0;
 
             if (!hasUrls && string.IsNullOrWhiteSpace(StepUrl))
             {
@@ -170,7 +183,7 @@ namespace DipRunner
                 LogUrl = Urls[0];
             }
 
-            var hasDependencies = Dependencies != null && Dependencies.Length > 0;
+            var hasDependencies = (Dependencies?.Length ?? 0) > 0;
 
             if (!hasUrls
                 && hasDependencies
@@ -187,8 +200,7 @@ namespace DipRunner
 
             if ((string.IsNullOrWhiteSpace(TargetAssembly)
                 || string.IsNullOrWhiteSpace(TargetType))
-                && (SubSteps == null
-                || SubSteps.Length.Equals(0)))
+                && (SubSteps?.Length ?? 0).Equals(0))
             {
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType or TargetAssembly is missing then at least one sub step is required.");
             }
@@ -220,7 +232,10 @@ namespace DipRunner
                         transitionStep.Urls = Urls;
                     }
 
-                    transitionStep.Validate();
+                    if (includeTransitions)
+                    {
+                        transitionStep.Validate();
+                    }
                 }
             }
         }

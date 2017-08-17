@@ -1,11 +1,4 @@
-﻿//-----------------------------------------------------------------------
-// <copyright file="AssemblyLoader.cs" company="Development In Progress Ltd">
-//     Copyright © 2017. All rights reserved.
-// </copyright>
-// <author>Grant Colley</author>
-//-----------------------------------------------------------------------
-
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -27,8 +20,7 @@ namespace DipDistributor
 
         protected override Assembly Load(AssemblyName assemblyName)
         {
-            if (dependencies != null
-                && !dependencies.Contains(assemblyName.Name))
+            if ((dependencies?.Contains(assemblyName.Name) ?? false) == false)
             {
                 return Assembly.Load(new AssemblyName(assemblyName.Name));
             }

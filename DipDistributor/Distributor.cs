@@ -30,7 +30,9 @@ namespace DipDistributor
             {
                 throw new Exception(CreateMessage($"Step is null. Machine Name: {Environment.MachineName}"));
             }
-            
+
+            step.Validate();
+
             logClient = new HttpClient();
             logClient.DefaultRequestHeaders.Accept.Clear();
             logClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -90,8 +92,7 @@ namespace DipDistributor
         {
             try
             {
-                if (step.Dependencies == null
-                    || step.Dependencies.Length == 0)
+                if ((step.Dependencies?.Length ?? 0).Equals(0))
                 {
                     await Log(step, "No dependencies");
                     return true;
