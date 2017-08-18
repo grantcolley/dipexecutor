@@ -18,6 +18,8 @@ namespace DipRunner
     /// </summary>
     public class Step
     {
+        private string stepUrl;
+
         /// <summary>
         /// Gets or sets the workflow identifier.
         /// </summary>
@@ -106,9 +108,30 @@ namespace DipRunner
         public Step[] TransitionSteps { get; set; }
 
         /// <summary>
-        /// Gets or sets the url providing the location of the dependencies referenced by the <see cref="TargetAssembly"/>.
+        /// Gets or sets the url where the step will be run.
+        /// StepUrl can be explicitly set to run on a specified url.
+        /// If it is null or empty and the step is one of a parents 
+        /// <see cref="SubSteps"/> or <see cref="TransitionSteps"/> then 
+        /// the parent will set it dynamically at runtime (see <see cref="Urls"/>). 
+        /// If StepUrl is null or empty and is not set by a parent step 
+        /// then the first url in its <see cref="Urls"/> will be returned.
         /// </summary>
-        public string StepUrl { get; set; }
+        public string StepUrl
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(stepUrl))
+                {
+                    return Urls?[0];
+                }
+
+                return stepUrl;
+            }
+            set
+            {
+                stepUrl = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the url providing the location of the dependencies referenced by the <see cref="TargetAssembly"/>.
@@ -219,7 +242,7 @@ namespace DipRunner
                         subStep.Urls = Urls;
                     }
 
-                    subStep.Validate();
+                    subStep.Validate(includeTransitions);
                 }
             }
 
@@ -234,7 +257,7 @@ namespace DipRunner
 
                     if (includeTransitions)
                     {
-                        transitionStep.Validate();
+                        transitionStep.Validate(includeTransitions);
                     }
                 }
             }

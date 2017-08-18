@@ -248,7 +248,9 @@ namespace DipDistributor
 
                 await Log(step, "Running transition steps");
 
-                IEnumerable<Task<Step>> transitionStepQuery = from transition in step.TransitionSteps select DistributeStep(transition);
+                var transitionSteps = SetUrl(step.TransitionSteps, step.Urls);
+
+                IEnumerable<Task<Step>> transitionStepQuery = from transition in transitionSteps select DistributeStep(transition);
 
                 Task<Step>[] transitionSteps = transitionStepQuery.ToArray();
 
@@ -261,6 +263,36 @@ namespace DipDistributor
                 await Log(step, ex.ToString());
                 return false;
             }
+        }
+
+        private IEnumerable<Step> SetUrl(IEnumerable<Step> steps, IEnumerable<string> urls)
+        {
+            if (urls == null)
+            {
+                return steps;
+            }
+
+            var maxUrl = urls.Count() - 1;
+            var urlIndex = 0;
+
+            foreach(var step in steps)
+            {
+                if (string.IsNullOrEmpty(step.StepUrl))
+                {
+                    step.StepUrl = urls.ElementAt<string>(urlIndex);
+
+                    if(urlIndex == maxUrl)
+                    {
+                        urlIndex = 0;
+                    }
+                    else
+                    {
+                        urlIndex++;
+                    }
+                }
+            }
+
+            return steps;
         }
 
         private async Task<Step> DistributeStep(Step step)
