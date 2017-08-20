@@ -72,6 +72,7 @@ namespace DipDistributor
                 await Log(step);
 
                 dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), step.RunName);
+
                 if (!Directory.Exists(dependencyDirectory))
                 {
                     await Log(step, $"Create directory {dependencyDirectory}");
@@ -218,11 +219,13 @@ namespace DipDistributor
 
                 await Log(step, "Running sub steps");
 
-                IEnumerable<Task<Step>> subStepQuery = from subStep in step.SubSteps select DistributeStep(subStep);
+                var subSteps = SetUrl(step.SubSteps, step.Urls);
 
-                Task<Step>[] subSteps = subStepQuery.ToArray();
+                IEnumerable<Task<Step>> subStepQuery = from subStep in subSteps select DistributeStep(subStep);
 
-                var results = await Task.WhenAll(subSteps);
+                Task<Step>[] steps = subStepQuery.ToArray();
+
+                var results = await Task.WhenAll(steps);
                                 
                 return results.All(r => r.Status == StepStatus.Complete);
             }
@@ -252,9 +255,9 @@ namespace DipDistributor
 
                 IEnumerable<Task<Step>> transitionStepQuery = from transition in transitionSteps select DistributeStep(transition);
 
-                Task<Step>[] transitionSteps = transitionStepQuery.ToArray();
+                Task<Step>[] steps = transitionStepQuery.ToArray();
 
-                var results = await Task.WhenAll(transitionSteps);
+                var results = await Task.WhenAll(steps);
 
                 return results.All(r => r.Status == StepStatus.Complete);
             }
