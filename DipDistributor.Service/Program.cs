@@ -14,7 +14,7 @@ namespace DipDistributor.Service
             string url;
 
             if (args == null 
-                && args.Length > 0)
+                || args.Length.Equals(0))
             {
                 url = "http://+:5000";
             }
