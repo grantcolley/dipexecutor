@@ -19,6 +19,9 @@ namespace DipRunner
     public class Step
     {
         private string stepUrl;
+        private string logUrl;
+        private string dependencyUrl;
+        private string logFileLocation;
 
         /// <summary>
         /// Gets or sets the workflow identifier.
@@ -76,7 +79,17 @@ namespace DipRunner
         /// If LogFileLocation is not provided and <see cref="Validate"/> is not called then 
         /// an exception may be thrown by the Distributor.
         /// </summary>
-        public string LogFileLocation { get; set; }
+        public string LogFileLocation
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(logFileLocation) ? "DistributorLog.txt" : logFileLocation;
+            }
+            set
+            {
+                logFileLocation = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the step status.
@@ -122,10 +135,10 @@ namespace DipRunner
             {
                 if (string.IsNullOrWhiteSpace(stepUrl))
                 {
-                    return Urls?[0];
+                    return GetUrlAction(Urls?[0], "Run");
                 }
 
-                return stepUrl;
+                return GetUrlAction(stepUrl, "Run");
             }
             set
             {
@@ -136,12 +149,42 @@ namespace DipRunner
         /// <summary>
         /// Gets or sets the url providing the location of the dependencies referenced by the <see cref="TargetAssembly"/>.
         /// </summary>
-        public string DependencyUrl { get; set; }
+        public string DependencyUrl
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(dependencyUrl))
+                {
+                    return GetUrlAction(Urls?[0], "GetDependency");
+                }
+
+                return GetUrlAction(dependencyUrl, "GetDependency");
+            }
+            set
+            {
+                dependencyUrl = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the url to be used for logging steps progress through the workflow.
         /// </summary>
-        public string LogUrl { get; set; }
+        public string LogUrl
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(logUrl))
+                {
+                    return GetUrlAction(Urls?[0], "Log");
+                }
+
+                return GetUrlAction(logUrl, "Log");
+            }
+            set
+            {
+                logUrl = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the list of urls availble for distributed processing of steps in the workflow.
@@ -163,22 +206,17 @@ namespace DipRunner
         /// Validation Rules:
         /// 1. <see cref="RunName"/> and <see cref="StepName"/> are mandatory (their identifiers can be zero).
         /// 2. If <see cref="Urls"/> is not populated then <see cref="StepUrl"/> and <see cref="LogUrl"/> must be populated.
-        /// 3. If <see cref="Urls"/> is not populated and it has <see cref="Dependencies"/> is populated the then 
-        ///     <see cref="DependencyUrl"/> must be populated.
+        /// 3. If <see cref="Urls"/> is not populated and it has <see cref="Dependencies"/> then <see cref="DependencyUrl"/> must be populated.
         /// 4. If a <see cref="TargetType"/> or <see cref="TargetAssembly"/> is not provided then <see cref="SubSteps"/> 
         ///     must contain at least one Step i.e. it is possibly a step only executes its sub steps.
-        /// 5. If a step's <see cref="SubSteps"/> or <see cref="TransitionSteps"/> do not have <see cref="Urls"/> 
-        ///     they will be popuated with the step's <see cref="Urls"/>. This way a <see cref="Urls"/> farm can be 
-        ///     set at the root step level and will be inherited by all steps in the workflow. 
-        ///     <see cref="Urls"/> can be overriden by any step in the workflow, in which case those <see cref="Urls"/> 
-        ///     will get inherited by any subsequent steps in the workflow (<see cref="SubSteps"/> or <see cref="TransitionSteps"/>).
-        /// 6. If includeTransitions is true, then the <see cref="TransitionSteps"/> will also be validated.
-        ///     this will result in evaulating every step until the end of the workflow.
+        /// 5. If walkTree is true, then <see cref="SubSteps"/> and <see cref="TransitionSteps"/> will also be validated.
+        ///     This will result in evaulating every step until the end of the workflow. It will also make the parameter footprint larger
+        ///     and not take advantage of url inheritance.
         ///     
         /// An <see cref="Exception"/> is thrown if the step is not valid.
         /// </summary>
-        /// <param name="includeTransitions">true if the steps <see cref="TransitionSteps"/> must also be validated, else false.</param>
-        public void Validate(bool includeTransitions)
+        /// <param name="walkTree">true the <see cref="SubSteps"/> and <see cref="TransitionSteps"/> must also be validated, else false.</param>
+        public void Validate(bool walkTree)
         {
             if (string.IsNullOrWhiteSpace(RunName))
             {
@@ -201,10 +239,6 @@ namespace DipRunner
             {
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Log url is missing.");
             }
-            else if (string.IsNullOrWhiteSpace(LogUrl))
-            {
-                LogUrl = Urls[0];
-            }
 
             var hasDependencies = (Dependencies?.Length ?? 0) > 0;
 
@@ -214,12 +248,6 @@ namespace DipRunner
             {
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Dependency url is missing.");
             }
-            else if (hasUrls
-                && hasDependencies
-                && string.IsNullOrWhiteSpace(DependencyUrl))
-            {
-                DependencyUrl = Urls[0];
-            }
 
             if ((string.IsNullOrWhiteSpace(TargetAssembly)
                 || string.IsNullOrWhiteSpace(TargetType))
@@ -228,39 +256,54 @@ namespace DipRunner
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType or TargetAssembly is missing then at least one sub step is required.");
             }
 
-            if (string.IsNullOrWhiteSpace(LogFileLocation))
+            if (walkTree)
             {
-                LogFileLocation = "DistributorLog.txt";
-            }
-
-            if (SubSteps != null)
-            {
-                foreach (var subStep in SubSteps)
+                if (SubSteps != null)
                 {
-                    if (subStep.Urls == null)
+                    foreach (var subStep in SubSteps)
                     {
-                        subStep.Urls = Urls;
-                    }
+                        if (subStep.Urls == null)
+                        {
+                            subStep.Urls = Urls;
+                        }
 
-                    subStep.Validate(includeTransitions);
+                        subStep.Validate(walkTree);
+                    }
                 }
-            }
 
-            if (TransitionSteps != null)
-            {
-                foreach (var transitionStep in TransitionSteps)
+                if (TransitionSteps != null)
                 {
-                    if (transitionStep.Urls == null)
+                    foreach (var transitionStep in TransitionSteps)
                     {
-                        transitionStep.Urls = Urls;
-                    }
+                        if (transitionStep.Urls == null)
+                        {
+                            transitionStep.Urls = Urls;
+                        }
 
-                    if (includeTransitions)
-                    {
-                        transitionStep.Validate(includeTransitions);
+                        transitionStep.Validate(walkTree);
                     }
                 }
             }
+        }
+
+        private string GetUrlAction(string url, string action)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return string.Empty;
+            }
+
+            if (url.EndsWith("/"))
+            {
+                url = url.Remove(url.Length - 1);
+            }
+
+            if (url.EndsWith($"/api/Distributor/{action}"))
+            {
+                return url;
+            }
+
+            return url + $"/api/Distributor/{action}";
         }
     }
 }
