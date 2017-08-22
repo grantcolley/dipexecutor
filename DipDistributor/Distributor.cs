@@ -31,7 +31,15 @@ namespace DipDistributor
                 throw new Exception(CreateMessage($"Step is null. Machine Name: {Environment.MachineName}"));
             }
 
-            step.Validate();
+            try
+            {
+                step.Validate();
+            }
+            catch (Exception ex)
+            {
+                await Log(step, ex.Message);
+                throw;
+            }
 
             logClient = new HttpClient();
             logClient.DefaultRequestHeaders.Accept.Clear();
@@ -280,6 +288,8 @@ namespace DipDistributor
 
             foreach(var step in steps)
             {
+                step.Urls = urls.ToArray<string>();
+
                 if (string.IsNullOrEmpty(step.StepUrl))
                 {
                     step.StepUrl = urls.ElementAt<string>(urlIndex);
@@ -304,7 +314,7 @@ namespace DipDistributor
             var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var response = await client.PostAsync(step.Urls[0], new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+            var response = await client.PostAsync(step.StepUrl, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
 
             var content = await response.Content.ReadAsStringAsync();
             var responseStep = JsonConvert.DeserializeObject<Step>(content);
@@ -329,7 +339,7 @@ namespace DipDistributor
         private async Task Log(Step step, string message = "")
         {
             var logMessage = CreateMessage(step, message);
-            await logClient.PostAsync("api/distributor/log", new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
+            await logClient.PostAsync(step.LogUrl, new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
         }
 
         private string CreateMessage(string message)
