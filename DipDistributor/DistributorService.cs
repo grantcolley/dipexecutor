@@ -5,8 +5,8 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
-using System.IO;
-using Microsoft.AspNetCore.Builder;
+using System.Threading;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace DipDistributor
@@ -15,16 +15,22 @@ namespace DipDistributor
     {
         public void Run(string Url)
         {
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseUrls(Url)
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
+            //var host = new WebHostBuilder()
+            //    .UseKestrel()
+            //    .UseUrls(Url)
+            //    .UseContentRoot(Directory.GetCurrentDirectory())
+            //    .UseIISIntegration()
+            //    .UseStartup<Startup>()
+            //    .UseApplicationInsights()
+            //    .Build();
+
+            //host.Run();
+
+            var webHost = WebHost.CreateDefaultBuilder()
                 .UseStartup<Startup>()
-                .UseApplicationInsights()
                 .Build();
 
-            host.Run();
+            var task = webHost.RunAsync();
         }
     }
 }

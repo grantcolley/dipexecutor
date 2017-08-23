@@ -7,6 +7,7 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace DipDistributor
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -31,7 +32,7 @@ namespace DipDistributor
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddRouting();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,7 +41,18 @@ namespace DipDistributor
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseMvc();
+            app.UseRouter(r =>
+            {
+                r.MapGet("agent/ping", async context => await context.Response.WriteAsync("Hello World!"));
+                r.MapPost("agent/push", async context => await context.Response.WriteAsync("Hello Push!"));
+                r.MapGet("agent/restart", async context =>
+                {
+                    await context.Response.WriteAsync("Restart");
+
+                    var agentService = app.ApplicationServices.GetService<IAgentService>();
+                    agentService.Restart();
+                });
+            });
         }
     }
 }
