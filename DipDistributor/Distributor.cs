@@ -199,11 +199,11 @@ namespace DipDistributor
                 var type = assembly.GetType(step.TargetType);
                 dynamic obj = Activator.CreateInstance(type);
 
-                await Log(step, $"Before {step.TargetType}.RunAsync() --> {step?.Payload}");
+                await Log(step, $"Execute {step.TargetType}.RunAsync() --> {step?.Payload}");
 
                 var result = await obj.RunAsync(step);
 
-                await Log(step, $"Before {step.TargetType}.RunAsync() --> {step?.Payload}");
+                await Log(step, $"Executed {step.TargetType}.RunAsync() --> {step?.Payload}");
 
                 return true;
             }
@@ -249,6 +249,8 @@ namespace DipDistributor
             try
             {
                 step.Status = StepStatus.Complete;
+
+                await Log(step);
 
                 if (step.TransitionSteps == null
                     || !step.TransitionSteps.Any())
