@@ -135,10 +135,10 @@ namespace DipRunner
             {
                 if (string.IsNullOrWhiteSpace(stepUrl))
                 {
-                    return GetUrlAction(Urls?[0], "Run");
+                    return GetUrlAction(Urls?[0], "run");
                 }
 
-                return GetUrlAction(stepUrl, "Run");
+                return GetUrlAction(stepUrl, "run");
             }
             set
             {
@@ -155,10 +155,10 @@ namespace DipRunner
             {
                 if (string.IsNullOrWhiteSpace(dependencyUrl))
                 {
-                    return GetUrlAction(Urls?[0], "GetDependency");
+                    return GetUrlAction(Urls?[0], "getdependency");
                 }
 
-                return GetUrlAction(dependencyUrl, "GetDependency");
+                return GetUrlAction(dependencyUrl, "getdependency");
             }
             set
             {
@@ -175,10 +175,10 @@ namespace DipRunner
             {
                 if (string.IsNullOrWhiteSpace(logUrl))
                 {
-                    return GetUrlAction(Urls?[0], "Log");
+                    return GetUrlAction(Urls?[0], "log");
                 }
 
-                return GetUrlAction(logUrl, "Log");
+                return GetUrlAction(logUrl, "log");
             }
             set
             {
@@ -298,12 +298,12 @@ namespace DipRunner
                 url = url.Remove(url.Length - 1);
             }
 
-            if (url.EndsWith($"/api/Distributor/{action}"))
+            if (url.EndsWith($"/{action}"))
             {
                 return url;
             }
 
-            return url + $"/api/Distributor/{action}";
+            return url + $"/{action}";
         }
     }
 }

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace DipDistributor
 {
-    public class Distributor
+    public class Distributor : IDistributor
     {
         private string logFile;
         private HttpClient logClient;

@@ -5,6 +5,7 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
+using DipDistributor.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
@@ -31,8 +32,7 @@ namespace DipDistributor
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
-            services.AddRouting();
+            services.AddTransient<IDistributor, Distributor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,18 +41,18 @@ namespace DipDistributor
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseRouter(r =>
-            {
-                r.MapGet("agent/ping", async context => await context.Response.WriteAsync("Hello World!"));
-                r.MapPost("agent/push", async context => await context.Response.WriteAsync("Hello Push!"));
-                r.MapGet("agent/restart", async context =>
-                {
-                    await context.Response.WriteAsync("Restart");
+            app.Map("/run", HandleRun);
+            app.Map("/getdependency", HandleRun);
+        }
 
-                    var agentService = app.ApplicationServices.GetService<IAgentService>();
-                    agentService.Restart();
-                });
-            });
+        private static void HandleRun(IApplicationBuilder app)
+        {
+            app.UseRunMiddleware();
+        }
+
+        private static void HandleFileStrean(IApplicationBuilder app)
+        {
+            app.UseFileStreamMiddleware();
         }
     }
 }

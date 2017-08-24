@@ -13,7 +13,7 @@ namespace DipDistributor
 {
     public class DistributorService
     {
-        public void Run(string Url)
+        public void Run(string url)
         {
             //var host = new WebHostBuilder()
             //    .UseKestrel()
@@ -27,10 +27,12 @@ namespace DipDistributor
             //host.Run();
 
             var webHost = WebHost.CreateDefaultBuilder()
+                .UseUrls(url)
                 .UseStartup<Startup>()
                 .Build();
 
             var task = webHost.RunAsync();
+            task.GetAwaiter().GetResult();
         }
     }
 }
