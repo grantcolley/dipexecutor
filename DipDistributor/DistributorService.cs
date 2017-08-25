@@ -10,9 +10,9 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace DipDistributor
 {
-    public class DistributorService
+    internal class DistributorService
     {
-        public void Run(string url)
+        internal void Run(string url)
         {
             var webHost = WebHost.CreateDefaultBuilder()
                 .UseUrls(url)

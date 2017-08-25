@@ -7,12 +7,12 @@ using System.Collections.Generic;
 
 namespace DipDistributor
 {
-    public class AssemblyLoader : AssemblyLoadContext
+    internal class AssemblyLoader : AssemblyLoadContext
     {
         private string folderPath;
         private IList<string> dependencies;
 
-        public AssemblyLoader(string folderPath, IList<string> dependencies)
+        internal AssemblyLoader(string folderPath, IList<string> dependencies)
         {
             this.folderPath = folderPath;
             this.dependencies = dependencies;

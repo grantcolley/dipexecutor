@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace DipDistributor
 {
-    public static class Logger
+    internal static class Logger
     {
         private static object locker = new object();
 
-        public static async Task LogAsync(string message)
+        internal static void Log(string message)
         {
             // TODO: get from config...
             string path = @"C:\GitHub\dipdistributor\DipDistributor.txt";

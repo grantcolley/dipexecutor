@@ -9,7 +9,7 @@ namespace DipDistributor.Middleware
         public LogMiddleware(RequestDelegate next)
         {
         }
-        
+
         public async Task Invoke(HttpContext context)
         {
             string body;
@@ -19,7 +19,7 @@ namespace DipDistributor.Middleware
                 body = await reader.ReadToEndAsync();
             }
 
-            await Logger.LogAsync(body);
+            Logger.Log(body);
         }
     }
 }
