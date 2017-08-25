@@ -19,7 +19,7 @@ namespace DipDistributor.Middleware
             var stream = context.Request.Body;
             using (var reader = new StreamReader(stream))
             {
-                body = reader.ReadToEnd();
+                body = await reader.ReadToEndAsync();
             }
 
             var step = JsonConvert.DeserializeObject<Step>(body);
