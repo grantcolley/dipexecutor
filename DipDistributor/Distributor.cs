@@ -136,8 +136,9 @@ namespace DipDistributor
         {
             try
             {
-                var uri = new Uri($"{dependencyUri}?file={filePath}");
-                var stream = await client.GetStreamAsync(uri);
+                var httpResponseMessage = await client.PostAsync(dependencyUri, new StringContent(filePath));
+
+                var stream = await httpResponseMessage.Content.ReadAsStreamAsync();
 
                 var fileName = filePath.Split('\\');
                 var fullFileName = Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]);
@@ -268,8 +269,17 @@ namespace DipDistributor
                 Task<Step>[] steps = transitionStepQuery.ToArray();
 
                 var results = await Task.WhenAll(steps);
-
-                return results.All(r => r.Status == StepStatus.Complete);
+                
+                if (results.All(r => r.Status == StepStatus.Complete))
+                {
+                    await Log(step, "Transition steps completed");
+                    return true;
+                }
+                else
+                {
+                    await Log(step, "Not all transition steps completed");
+                    return false;
+                }
             }
             catch (Exception ex)
             {
