@@ -12,16 +12,17 @@ namespace DipDistributor.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            string file;
+            string body;
             var stream = context.Request.Body;
-            stream.Position = 0;
             using (var reader = new StreamReader(stream))
             {
-                file = reader.ReadToEnd();
+                body = await reader.ReadToEndAsync();
             }
-            
-            var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read);
-            await fileStream.CopyToAsync(context.Response.Body);
+
+            using (var fileStream = new FileStream(body, FileMode.Open, FileAccess.Read))
+            {
+                await fileStream.CopyToAsync(context.Response.Body);
+            }
         }
     }
 }
