@@ -42,7 +42,9 @@ namespace DipDistributor
             loggerFactory.AddDebug();
 
             app.Map("/run", HandleRun);
-            app.Map("/getdependency", HandleRun);
+            app.Map("/getdependency", HandleFileStrean);
+            app.Map("/log", HandleLog);
+            app.Map("/ping", HandlePing);
         }
 
         private static void HandleRun(IApplicationBuilder app)
@@ -53,6 +55,16 @@ namespace DipDistributor
         private static void HandleFileStrean(IApplicationBuilder app)
         {
             app.UseFileStreamMiddleware();
+        }
+
+        private static void HandleLog(IApplicationBuilder app)
+        {
+            app.UseLogMiddleware();
+        }
+
+        private static void HandlePing(IApplicationBuilder app)
+        {
+            app.UsePingMiddleware();
         }
     }
 }
