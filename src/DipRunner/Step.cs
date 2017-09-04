@@ -220,12 +220,12 @@ namespace DipRunner
         {
             if (string.IsNullOrWhiteSpace(RunName))
             {
-                throw new Exception($"RunId: { RunId } - Run Name is missing.");
+                throw new Exception($"RunId: { RunId } - Run name is missing.");
             }
 
             if (string.IsNullOrWhiteSpace(StepName))
             {
-                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} - Step Name is missing.");
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} - Step name is missing.");
             }
 
             var hasUrls = (Urls?.Length ?? 0) > 0;
