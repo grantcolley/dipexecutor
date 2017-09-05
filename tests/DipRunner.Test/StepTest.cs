@@ -50,7 +50,7 @@ namespace DipRunner.Test
         }
 
         [TestMethod]
-        public void MandatoryField_Missing_StepUrl()
+        public void MandatoryField_Missing_StepUrl_LogUrl_Urls()
         {
             // Arrange
             var exceptionMessage = string.Empty;
@@ -73,7 +73,7 @@ namespace DipRunner.Test
         }
 
         [TestMethod]
-        public void MandatoryField_Has_StepUrl()
+        public void MandatoryField_Missing_LogUrl_Urls()
         {
             // Arrange
             var exceptionMessage = string.Empty;
@@ -82,10 +82,43 @@ namespace DipRunner.Test
             step.StepName = "Step Name 1";
             step.StepUrl = "http:\\stepurl";
 
-            // Act
-            step.Validate();
+            try
+            {
+                // Act
+                step.Validate();
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
 
             // Assert
+            Assert.IsTrue(exceptionMessage.Contains("Log url is missing"));
+        }
+
+        [TestMethod]
+        public void MandatoryField_Missing_TargetAssembly_TargetType_SubSteps()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.StepUrl = "http:\\stepurl";
+            step.LogUrl = "http:\\logurl";
+
+            try
+            {
+                // Act
+                step.Validate();
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Contains("If TargetType or TargetAssembly is missing then at least one sub step is required"));
         }
 
         [TestMethod]
@@ -96,10 +129,121 @@ namespace DipRunner.Test
             var step = new Step();
             step.RunName = "Run Name 1";
             step.StepName = "Step Name 1";
-            step.Urls = new[] { "http:\\stepurl" };
+            step.Urls = new[] { "http:\\url1" };
+
+            try
+            {
+                // Act
+                step.Validate();
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Contains("If TargetType or TargetAssembly is missing then at least one sub step is required"));
+        }
+
+        [TestMethod]
+        public void MandatoryField_Missing_TargetAssembly_SubSteps()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+
+            try
+            {
+                // Act
+                step.Validate();
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Contains("If TargetType or TargetAssembly is missing then at least one sub step is required"));
+        }
+
+        [TestMethod]
+        public void MandatoryField_Missing_TargetType_SubSteps()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetType = "Target Type";
+
+            try
+            {
+                // Act
+                step.Validate();
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Contains("If TargetType or TargetAssembly is missing then at least one sub step is required"));
+        }
+
+        [TestMethod]
+        public void MandatoryField_Has_SubSteps()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.SubSteps = new[] { new Step() };
 
             // Act
             step.Validate();
+
+            // Assert
+        }
+
+        [TestMethod]
+        public void MandatoryField_Has_TargetAssembly_TargetType()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            // Act
+            step.Validate();
+
+            // Assert
+        }
+
+        [TestMethod]
+        public void MandatoryField_WalkTree_No_SubSteps_TransitionSteps()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            // Act
+            step.Validate(true);
 
             // Assert
         }
