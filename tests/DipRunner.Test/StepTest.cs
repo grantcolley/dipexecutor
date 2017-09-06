@@ -231,7 +231,7 @@ namespace DipRunner.Test
         }
 
         [TestMethod]
-        public void MandatoryField_WalkTree_No_SubSteps_TransitionSteps()
+        public void WalkTree_No_SubSteps_TransitionSteps()
         {
             // Arrange
             var exceptionMessage = string.Empty;
@@ -246,6 +246,301 @@ namespace DipRunner.Test
             step.Validate(true);
 
             // Assert
+        }
+
+        [TestMethod]
+        public void WalkTree_Fail_SubSteps_Validation()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            var subStep = new Step() { RunId = 1 };
+
+            step.SubSteps = new[] { subStep };
+
+            try
+            {
+                // Act
+                step.Validate(true);
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Equals($"RunId: { subStep.RunId } - Run name is missing."));
+        }
+
+        [TestMethod]
+        public void WalkTree_Pass_SubSteps_Validation()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            var subStep = new Step();
+            subStep.RunName = "Run Name 1";
+            subStep.StepName = "Sub Step Name 1";
+            subStep.Urls = new[] { "http:\\url1" };
+            subStep.TargetAssembly = "Target Assembly";
+            subStep.TargetType = "Target Type";
+
+            step.SubSteps = new[] { subStep };
+
+            // Act
+            step.Validate(true);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public void WalkTree_Fail_Multiple_SubSteps_Validation()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            var subStep1 = new Step();
+            subStep1.RunName = "Run Name 1";
+            subStep1.StepName = "Sub Step Name 1";
+            subStep1.Urls = new[] { "http:\\url1" };
+            subStep1.TargetAssembly = "Target Assembly";
+            subStep1.TargetType = "Target Type";
+
+            var subStep2 = new Step() { RunId = 2 };
+
+            step.SubSteps = new[] { subStep1, subStep2 };
+
+            try
+            {
+                // Act
+                step.Validate(true);
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Equals($"RunId: { subStep2.RunId } - Run name is missing."));
+        }
+
+        [TestMethod]
+        public void WalkTree_Pass_Multiple_SubSteps_Validation()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            var subStep1 = new Step();
+            subStep1.RunName = "Run Name 1";
+            subStep1.StepName = "Sub Step Name 1";
+            subStep1.Urls = new[] { "http:\\url1" };
+            subStep1.TargetAssembly = "Target Assembly";
+            subStep1.TargetType = "Target Type";
+
+            var subStep2 = new Step();
+            subStep2.RunName = "Run Name 1";
+            subStep2.StepName = "Sub Step Name 2";
+            subStep2.Urls = new[] { "http:\\url1" };
+            subStep2.TargetAssembly = "Target Assembly";
+            subStep2.TargetType = "Target Type";
+
+            step.SubSteps = new[] { subStep1, subStep2 };
+
+            // Act
+            step.Validate(true);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public void WalkTree_Fail_TransitionSteps_Validation()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            var transitionStep = new Step() { RunId = 1 };
+
+            step.TransitionSteps = new[] { transitionStep };
+
+            try
+            {
+                // Act
+                step.Validate(true);
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Equals($"RunId: { transitionStep.RunId } - Run name is missing."));
+        }
+
+        [TestMethod]
+        public void WalkTree_Pass_TransitionSteps_Validation()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            var transitionStep = new Step();
+            transitionStep.RunName = "Run Name 1";
+            transitionStep.StepName = "Transition Step Name 1";
+            transitionStep.Urls = new[] { "http:\\url1" };
+            transitionStep.TargetAssembly = "Target Assembly";
+            transitionStep.TargetType = "Target Type";
+
+            step.TransitionSteps = new[] { transitionStep };
+
+            // Act
+            step.Validate(true);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public void WalkTree_Fail_Multiple_TransitionSteps_Validation()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            var transitionStep1 = new Step();
+            transitionStep1.RunName = "Run Name 1";
+            transitionStep1.StepName = "Transition Step Name 1";
+            transitionStep1.Urls = new[] { "http:\\url1" };
+            transitionStep1.TargetAssembly = "Target Assembly";
+            transitionStep1.TargetType = "Target Type";
+
+            var transitionStep2 = new Step() { RunId = 2 };
+
+            step.TransitionSteps = new[] { transitionStep1, transitionStep2 };
+
+            try
+            {
+                // Act
+                step.Validate(true);
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Equals($"RunId: { transitionStep2.RunId } - Run name is missing."));
+        }
+
+        [TestMethod]
+        public void WalkTree_Pass_Multiple_TransitionSteps_Validation()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+
+            var transitionStep1 = new Step();
+            transitionStep1.RunName = "Run Name 1";
+            transitionStep1.StepName = "Transition Step Name 1";
+            transitionStep1.Urls = new[] { "http:\\url1" };
+            transitionStep1.TargetAssembly = "Target Assembly";
+            transitionStep1.TargetType = "Target Type";
+
+            var transitionStep2 = new Step();
+            transitionStep2.RunName = "Run Name 1";
+            transitionStep2.StepName = "Transition Step Name 2";
+            transitionStep2.Urls = new[] { "http:\\url1" };
+            transitionStep2.TargetAssembly = "Target Assembly";
+            transitionStep2.TargetType = "Target Type";
+
+            step.TransitionSteps = new[] { transitionStep1, transitionStep2 };
+
+            // Act
+            step.Validate(true);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public void GetUrlAction_Url_Empty()
+        {
+            // Arrange
+            var step = new Step();
+
+            // Act
+            var url = step.GetUrlAction(string.Empty, "test");
+
+            // Assert
+            Assert.AreEqual(url, "");
+        }
+
+        [TestMethod]
+        public void GetUrlAction_Url_Action()
+        {
+            // Arrange
+            var step = new Step();
+
+            // Act
+            var url = step.GetUrlAction(@"http:\\url1", "test");
+
+            // Assert
+            Assert.AreEqual(url, @"http:\\url1/test");
+        }
+
+        [TestMethod]
+        public void GetUrlAction_Url_TrailingForwardslash()
+        {
+            // Arrange
+            var step = new Step();
+
+            // Act
+            var url = step.GetUrlAction(@"http:\\url1/", "test");
+
+            // Assert
+            Assert.AreEqual(url, @"http:\\url1/test");
         }
     }
 }

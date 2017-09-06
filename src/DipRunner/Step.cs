@@ -6,7 +6,9 @@
 //-----------------------------------------------------------------------
 
 using System;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("DipRunner.Test")]
 namespace DipRunner
 {
     /// <summary>
@@ -286,7 +288,7 @@ namespace DipRunner
             }
         }
 
-        private string GetUrlAction(string url, string action)
+        internal string GetUrlAction(string url, string action)
         {
             if (string.IsNullOrWhiteSpace(url))
             {
