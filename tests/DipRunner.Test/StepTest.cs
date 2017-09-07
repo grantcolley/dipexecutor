@@ -542,5 +542,44 @@ namespace DipRunner.Test
             // Assert
             Assert.AreEqual(url, @"http:\\url1/test");
         }
+
+        [TestMethod]
+        public void GetUrlAction_StepUrl()
+        {
+            // Arrange
+            var step = new Step();
+            step.Urls = new[] { "http:\\url1" };
+            // Act
+            var url = step.StepUrl;
+
+            // Assert
+            Assert.AreEqual(url, "http:\\url1/run");
+        }
+
+        [TestMethod]
+        public void GetUrlAction_LogUrl()
+        {
+            // Arrange
+            var step = new Step();
+            step.Urls = new[] { "http:\\url1" };
+            // Act
+            var url = step.LogUrl;
+
+            // Assert
+            Assert.AreEqual(url, "http:\\url1/log");
+        }
+
+        [TestMethod]
+        public void GetUrlAction_DependencyUrl()
+        {
+            // Arrange
+            var step = new Step();
+            step.Urls = new[] { "http:\\url1" };
+            // Act
+            var url = step.DependencyUrl;
+
+            // Assert
+            Assert.AreEqual(url, "http:\\url1/getdependency");
+        }
     }
 }
