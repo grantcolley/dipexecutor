@@ -10,8 +10,16 @@ using System.Threading.Tasks;
 
 namespace DipDistributor
 {
+    /// <summary>
+    /// Distributor interface for running a <see cref="Step"/> asynchronously.
+    /// </summary>
     public interface IDistributor
     {
+        /// <summary>
+        /// Runs a step asynchronously. 
+        /// </summary>
+        /// <param name="step">The step to run.</param>
+        /// <returns>The step once completed.</returns>
         Task<Step> RunAsync(Step step);
     }
 }
