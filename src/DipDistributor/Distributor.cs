@@ -18,11 +18,32 @@ using System.Threading.Tasks;
 
 namespace DipDistributor
 {
+    /// <summary>
+    /// A Distributor runs a <see cref="Step"/> asynchronously.
+    /// </summary>
     internal class Distributor : IDistributor
     {
         private HttpClient logClient;
         private string dependencyDirectory;
+        private HttpClientFactory httpClientFactory;
 
+        internal Distributor(HttpClientFactory httpClientFactory)
+        {
+            this.httpClientFactory = httpClientFactory;
+        }
+
+        /// <summary>
+        /// Runs a step asynchronously.
+        /// Running a step involves:
+        ///     1. Initialise the step, including downloading dependencies.
+        ///     2. Executes the step target type, including dynamically load and 
+        ///         initialising an instance of the target type and calling its 
+        ///         RunAsync method. 
+        ///     3. Running the steps sub steps.
+        ///     4. Running the steps transition steps on completion of above.
+        /// </summary>
+        /// <param name="step">The step to run.</param>
+        /// <returns>The step once completed.</returns>
         public async Task<Step> RunAsync(Step step)
         {
             if (step == null)
@@ -40,9 +61,7 @@ namespace DipDistributor
                 throw;
             }
 
-            logClient = new HttpClient();
-            logClient.DefaultRequestHeaders.Accept.Clear();
-            logClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            logClient = httpClientFactory.GetHttpClient();
             logClient.BaseAddress = new Uri(step.LogUrl);
 
             return await ProcessStep(step).ConfigureAwait(false);
@@ -108,9 +127,8 @@ namespace DipDistributor
 
                 await Log(step, "Downloading dependencies...");
 
-                var client = new HttpClient() { MaxResponseContentBufferSize = 1000000 };
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var client = httpClientFactory.GetHttpClient();
+                client.MaxResponseContentBufferSize = 1000000;
 
                 var dependencies = new List<string>(step.Dependencies);
 
@@ -322,9 +340,7 @@ namespace DipDistributor
         private async Task<Step> DistributeStep(Step step)
         {
             var jsonContent = JsonConvert.SerializeObject(step);
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var client = httpClientFactory.GetHttpClient();
             var response = await client.PostAsync(step.StepUrl, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
 
             var content = await response.Content.ReadAsStringAsync();
