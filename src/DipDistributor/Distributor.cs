@@ -61,9 +61,6 @@ namespace DipDistributor
                 throw;
             }
 
-            logClient = httpClientFactory.GetHttpClient();
-            logClient.BaseAddress = new Uri(step.LogUrl);
-
             return await ProcessStep(step).ConfigureAwait(false);
         }
 
@@ -153,30 +150,31 @@ namespace DipDistributor
         {
             try
             {
-                var httpResponseMessage = await client.PostAsync(dependencyUri, new StringContent(filePath));
+                string fullFileName = string.Empty;
 
-                var stream = await httpResponseMessage.Content.ReadAsStreamAsync();
-
-                var fileName = filePath.Split('\\');
-                var fullFileName = Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]);
-
-                if(File.Exists(fullFileName))
+                using (var response = await client.PostAsync(dependencyUri, new StringContent(filePath)))
                 {
-                    await Log(step, $"File already exists: {fullFileName}");
-                    return true;
-                }
-
-                using (var file = File.Create(fullFileName))
-                {
-                    byte[] buffer = new byte[8 * 1024];
-                    int len;
-                    while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    using (var stream = await response.Content.ReadAsStreamAsync())
                     {
-                        file.Write(buffer, 0, len);
-                    }
+                        var fileName = filePath.Split('\\');
+                        fullFileName = Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]);
 
-                    stream.Dispose();
-                    stream = null;
+                        if (File.Exists(fullFileName))
+                        {
+                            await Log(step, $"File already exists: {fullFileName}");
+                            return true;
+                        }
+
+                        using (var file = File.Create(fullFileName))
+                        {
+                            byte[] buffer = new byte[8 * 1024];
+                            int len;
+                            while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                file.Write(buffer, 0, len);
+                            }
+                        }
+                    }
                 }
 
                 await Log(step, $"Downloaded: {fullFileName}");
@@ -341,12 +339,12 @@ namespace DipDistributor
         {
             var jsonContent = JsonConvert.SerializeObject(step);
             var client = httpClientFactory.GetHttpClient();
-            var response = await client.PostAsync(step.StepUrl, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
-
-            var content = await response.Content.ReadAsStringAsync();
-            var responseStep = JsonConvert.DeserializeObject<Step>(content);
-
-            return responseStep;
+            using (var response = await client.PostAsync(step.StepUrl, new StringContent(jsonContent, Encoding.UTF8, "application/json")))
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var responseStep = JsonConvert.DeserializeObject<Step>(content);
+                return responseStep;
+            }
         }
 
         private IList<string> GetDependencyAssemblyNames(Step step)
@@ -366,7 +364,8 @@ namespace DipDistributor
         private async Task Log(Step step, string message = "")
         {
             var logMessage = CreateMessage(step, message);
-            await logClient.PostAsync(step.LogUrl, new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
+            var response = await logClient.PostAsync(step.LogUrl, new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
+            response.Dispose();
         }
 
         private string CreateMessage(string message)
