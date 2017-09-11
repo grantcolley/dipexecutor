@@ -1,5 +1,7 @@
 ﻿using System.Net.Http;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("DipDistributor.Test")]
 namespace DipDistributor
 {
     internal abstract class HttpClientFactory
