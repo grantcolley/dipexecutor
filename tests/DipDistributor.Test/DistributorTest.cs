@@ -13,7 +13,9 @@ namespace DipDistributor.Test
         public async Task TestMethod1()
         {
             // Arrange
-            var clientFactory = new DistributorTestHttpClientFactory();
+            var messageHandler = new TestMessageHandler<string>(s => s += " World");
+
+            var clientFactory = new DistributorTestHttpClientFactory<string>(messageHandler);
             var client = clientFactory.GetHttpClient();
 
             // Act

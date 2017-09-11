@@ -3,10 +3,16 @@ using System.Net.Http.Headers;
 
 namespace DipDistributor.Test
 {
-    internal class DistributorTestHttpClientFactory : HttpClientFactory
+    internal class DistributorTestHttpClientFactory<T> : HttpClientFactory
     {
         private static HttpClient httpClient;
         private static object httpClientLock = new object();
+        private TestMessageHandler<T> messageHandler;
+
+        internal DistributorTestHttpClientFactory(TestMessageHandler<T> messageHandler)
+        {
+            this.messageHandler = messageHandler;
+        }
 
         internal override HttpClient GetHttpClient()
         {
@@ -16,19 +22,13 @@ namespace DipDistributor.Test
                 {
                     if (httpClient == null)
                     {
-                        var messageHandler = new CustomMessageHandler();
                         httpClient = new HttpClient(messageHandler);
                         httpClient.DefaultRequestHeaders.Accept.Clear();
                         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     }
                 }
             }
-
-            //https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
-            //http://byterot.blogspot.co.uk/2016/07/singleton-httpclient-dns.html?m=1
-            //var sp = ServicePointManager.FindServicePoint(new Uri("URI HERE....."));
-            //sp.ConnectionLeaseTimeout = 60 * 1000;
-
+            
             return httpClient;
         }
     }
