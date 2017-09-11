@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,7 +22,6 @@ namespace DipDistributor
     /// </summary>
     internal class Distributor : IDistributor
     {
-        private HttpClient logClient;
         private string dependencyDirectory;
         private HttpClientFactory httpClientFactory;
 
@@ -364,7 +362,8 @@ namespace DipDistributor
         private async Task Log(Step step, string message = "")
         {
             var logMessage = CreateMessage(step, message);
-            var response = await logClient.PostAsync(step.LogUrl, new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
+            var client = httpClientFactory.GetHttpClient();
+            var response = await client.PostAsync(step.LogUrl, new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
             response.Dispose();
         }
 
