@@ -209,9 +209,11 @@ namespace DipRunner
         /// 1. <see cref="RunName"/> and <see cref="StepName"/> are mandatory (their identifiers can be zero).
         /// 2. If <see cref="Urls"/> is not populated then <see cref="StepUrl"/> and <see cref="LogUrl"/> must be populated.
         /// 3. If <see cref="Urls"/> is not populated and it has <see cref="Dependencies"/> then <see cref="DependencyUrl"/> must be populated.
-        /// 4. If a <see cref="TargetType"/> or <see cref="TargetAssembly"/> is not provided then <see cref="SubSteps"/> 
+        /// 4. If <see cref="TargetType"/> or <see cref="TargetAssembly"/> is not provided then <see cref="SubSteps"/> 
         ///     must contain at least one Step i.e. it is possibly a step only executes its sub steps.
-        /// 5. If walkTree is true, then <see cref="SubSteps"/> and <see cref="TransitionSteps"/> will also be validated.
+        /// 5. If <see cref="TargetType"/> and <see cref="TargetAssembly"/> is provided then <see cref="Dependencies"/> must contain 
+        ///     at least one assembly i.e. the target assembly.
+        /// 6. If walkTree is true, then <see cref="SubSteps"/> and <see cref="TransitionSteps"/> will also be validated.
         ///     This will result in evaulating every step until the end of the workflow. It will also make the parameter footprint larger
         ///     and not take advantage of url inheritance.
         ///     
@@ -256,6 +258,14 @@ namespace DipRunner
                 && (SubSteps?.Length ?? 0).Equals(0))
             {
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType or TargetAssembly is missing then at least one sub step is required.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(TargetAssembly) 
+                && !string.IsNullOrWhiteSpace(TargetType)
+                && (Dependencies == null
+                || Dependencies.Length == 0))
+            {
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType and TargetAssembly is missing then at least one dependency required i.e. the target assembly");
             }
 
             if (walkTree)
