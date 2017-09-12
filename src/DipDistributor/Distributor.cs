@@ -347,7 +347,7 @@ namespace DipDistributor
             }
         }
 
-        private IList<string> GetDependencyAssemblyNames(Step step)
+        internal IList<string> GetDependencyAssemblyNames(Step step)
         {
             var dependencies = new List<string>();
             foreach (string filePath in step.Dependencies)
