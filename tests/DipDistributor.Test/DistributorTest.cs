@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using DipRunner;
+using System;
 
 namespace DipDistributor.Test
 {
@@ -96,6 +97,78 @@ namespace DipDistributor.Test
             await distributor.LogAsync(step, "test");
 
             // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void GetDependencyAssemblyNames_Dependencies_Null()
+        {
+            // Arrange
+            var step = new Step();
+            var distributor = new Distributor(null);
+
+            // Act
+            var dependencyList = distributor.GetDependencyAssemblyNames(step);
+
+            // Assert
+            Assert.AreEqual(dependencyList.Count, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void GetDependencyAssemblyNames_Dependencies_Empty()
+        {
+            // Arrange
+            var step = new Step();
+            var distributor = new Distributor(null);
+
+            // Act
+            var dependencyList = distributor.GetDependencyAssemblyNames(step);
+
+            // Assert
+            Assert.AreEqual(dependencyList.Count, 0);
+        }
+
+        [TestMethod]
+        public void GetDependencyAssemblyNames_OneDependency()
+        {
+            // Arrange
+            var distributor = new Distributor(null);
+            var step = new Step();
+            step.Dependencies = new[]
+            {
+                @"C:\GitHub\dipdistributor\TestLibrary\bin\Debug\netcoreapp2.0\TestDependency.dll"
+            };
+
+            // Act
+            var dependencyList = distributor.GetDependencyAssemblyNames(step);
+
+            // Assert
+            Assert.AreEqual(dependencyList.Count, 1);
+            Assert.AreEqual(dependencyList[0], "TestDependency");
+        }
+
+        [TestMethod]
+        public void GetDependencyAssemblyNames_ManyDependencies()
+        {
+            // Arrange
+            var distributor = new Distributor(null);
+            var step = new Step();
+            step.Dependencies = new[]
+            {
+                @"C:\GitHub\dipdistributor\TestLibrary\bin\Debug\netcoreapp2.0\DipRunner.dll",
+                @"C:\GitHub\dipdistributor\TestLibrary\bin\Debug\netcoreapp2.0\TestDependency.dll",
+                @"C:\GitHub\dipdistributor\TestLibrary\bin\Debug\netcoreapp2.0\TestLibrary.dll"
+            };
+
+            // Act
+            var dependencyList = distributor.GetDependencyAssemblyNames(step);
+
+            // Assert
+            Assert.AreEqual(dependencyList.Count, 3);
+            Assert.AreEqual(dependencyList[0], "DipRunner");
+            Assert.AreEqual(dependencyList[1], "TestDependency");
+            Assert.AreEqual(dependencyList[2], "TestLibrary");
         }
     }
 }

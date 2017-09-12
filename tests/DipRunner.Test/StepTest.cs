@@ -213,7 +213,7 @@ namespace DipRunner.Test
         }
 
         [TestMethod]
-        public void MandatoryField_Has_TargetAssembly_TargetType()
+        public void MandatoryField_Has_TargetAssembly_TargetType_NoDependencies()
         {
             // Arrange
             var exceptionMessage = string.Empty;
@@ -223,6 +223,33 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+
+            try
+            {
+                // Act
+                step.Validate();
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Contains("If TargetType and TargetAssembly is missing then at least one dependency required i.e. the target assembly"));
+        }
+
+        [TestMethod]
+        public void MandatoryField_Has_TargetAssembly_TargetType_HasDependency()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.Urls = new[] { "http:\\url1" };
+            step.TargetAssembly = "Target Assembly";
+            step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             // Act
             step.Validate();
@@ -241,6 +268,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             // Act
             step.Validate(true);
@@ -259,6 +287,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             var subStep = new Step() { RunId = 1 };
 
@@ -289,6 +318,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             var subStep = new Step();
             subStep.RunName = "Run Name 1";
@@ -296,6 +326,7 @@ namespace DipRunner.Test
             subStep.Urls = new[] { "http:\\url1" };
             subStep.TargetAssembly = "Target Assembly";
             subStep.TargetType = "Target Type";
+            subStep.Dependencies = new[] { "Dependency1" };
 
             step.SubSteps = new[] { subStep };
 
@@ -316,6 +347,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             var subStep1 = new Step();
             subStep1.RunName = "Run Name 1";
@@ -323,6 +355,7 @@ namespace DipRunner.Test
             subStep1.Urls = new[] { "http:\\url1" };
             subStep1.TargetAssembly = "Target Assembly";
             subStep1.TargetType = "Target Type";
+            subStep1.Dependencies = new[] { "Dependency1" };
 
             var subStep2 = new Step() { RunId = 2 };
 
@@ -353,6 +386,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             var subStep1 = new Step();
             subStep1.RunName = "Run Name 1";
@@ -360,6 +394,7 @@ namespace DipRunner.Test
             subStep1.Urls = new[] { "http:\\url1" };
             subStep1.TargetAssembly = "Target Assembly";
             subStep1.TargetType = "Target Type";
+            subStep1.Dependencies = new[] { "Dependency1" };
 
             var subStep2 = new Step();
             subStep2.RunName = "Run Name 1";
@@ -367,6 +402,7 @@ namespace DipRunner.Test
             subStep2.Urls = new[] { "http:\\url1" };
             subStep2.TargetAssembly = "Target Assembly";
             subStep2.TargetType = "Target Type";
+            subStep2.Dependencies = new[] { "Dependency1" };
 
             step.SubSteps = new[] { subStep1, subStep2 };
 
@@ -387,6 +423,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             var transitionStep = new Step() { RunId = 1 };
 
@@ -417,6 +454,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             var transitionStep = new Step();
             transitionStep.RunName = "Run Name 1";
@@ -424,6 +462,7 @@ namespace DipRunner.Test
             transitionStep.Urls = new[] { "http:\\url1" };
             transitionStep.TargetAssembly = "Target Assembly";
             transitionStep.TargetType = "Target Type";
+            transitionStep.Dependencies = new[] { "Dependency1" };
 
             step.TransitionSteps = new[] { transitionStep };
 
@@ -444,6 +483,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             var transitionStep1 = new Step();
             transitionStep1.RunName = "Run Name 1";
@@ -451,6 +491,7 @@ namespace DipRunner.Test
             transitionStep1.Urls = new[] { "http:\\url1" };
             transitionStep1.TargetAssembly = "Target Assembly";
             transitionStep1.TargetType = "Target Type";
+            transitionStep1.Dependencies = new[] { "Dependency1" };
 
             var transitionStep2 = new Step() { RunId = 2 };
 
@@ -481,6 +522,7 @@ namespace DipRunner.Test
             step.Urls = new[] { "http:\\url1" };
             step.TargetAssembly = "Target Assembly";
             step.TargetType = "Target Type";
+            step.Dependencies = new[] { "Dependency1" };
 
             var transitionStep1 = new Step();
             transitionStep1.RunName = "Run Name 1";
@@ -488,6 +530,7 @@ namespace DipRunner.Test
             transitionStep1.Urls = new[] { "http:\\url1" };
             transitionStep1.TargetAssembly = "Target Assembly";
             transitionStep1.TargetType = "Target Type";
+            transitionStep1.Dependencies = new[] { "Dependency1" };
 
             var transitionStep2 = new Step();
             transitionStep2.RunName = "Run Name 1";
@@ -495,6 +538,7 @@ namespace DipRunner.Test
             transitionStep2.Urls = new[] { "http:\\url1" };
             transitionStep2.TargetAssembly = "Target Assembly";
             transitionStep2.TargetType = "Target Type";
+            transitionStep2.Dependencies = new[] { "Dependency1" };
 
             step.TransitionSteps = new[] { transitionStep1, transitionStep2 };
 
