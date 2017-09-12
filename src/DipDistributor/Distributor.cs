@@ -12,9 +12,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+[assembly: InternalsVisibleTo("DipRunner.Test")]
 namespace DipDistributor
 {
     /// <summary>
@@ -55,7 +57,7 @@ namespace DipDistributor
             }
             catch (Exception ex)
             {
-                await Log(step, ex.Message);
+                await LogAsync(step, ex.Message);
                 throw;
             }
 
@@ -90,13 +92,13 @@ namespace DipDistributor
             {               
                 step.Status = StepStatus.Initialise;
 
-                await Log(step);
+                await LogAsync(step);
 
                 dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), step.RunName);
 
                 if (!Directory.Exists(dependencyDirectory))
                 {
-                    await Log(step, $"Create directory {dependencyDirectory}");
+                    await LogAsync(step, $"Create directory {dependencyDirectory}");
 
                     Directory.CreateDirectory(dependencyDirectory);
                 }
@@ -105,7 +107,7 @@ namespace DipDistributor
             }
             catch (Exception ex)
             {
-                await Log(step, ex.ToString());
+                await LogAsync(step, ex.ToString());
                 return false;
             }
         }
@@ -116,11 +118,11 @@ namespace DipDistributor
             {
                 if ((step.Dependencies?.Length ?? 0).Equals(0))
                 {
-                    await Log(step, "No dependencies");
+                    await LogAsync(step, "No dependencies");
                     return true;
                 }
 
-                await Log(step, "Downloading dependencies...");
+                await LogAsync(step, "Downloading dependencies...");
 
                 var client = httpClientFactory.GetHttpClient();
                 client.MaxResponseContentBufferSize = 1000000;
@@ -139,7 +141,7 @@ namespace DipDistributor
             }
             catch (Exception ex)
             {
-                await Log(step, ex.ToString());
+                await LogAsync(step, ex.ToString());
                 return false;
             }
         }
@@ -159,7 +161,7 @@ namespace DipDistributor
 
                         if (File.Exists(fullFileName))
                         {
-                            await Log(step, $"File already exists: {fullFileName}");
+                            await LogAsync(step, $"File already exists: {fullFileName}");
                             return true;
                         }
 
@@ -175,12 +177,12 @@ namespace DipDistributor
                     }
                 }
 
-                await Log(step, $"Downloaded: {fullFileName}");
+                await LogAsync(step, $"Downloaded: {fullFileName}");
                 return true;
             }
             catch(Exception ex)
             {
-                await Log(step, ex.ToString());
+                await LogAsync(step, ex.ToString());
                 return false;
             }
         }
@@ -191,17 +193,17 @@ namespace DipDistributor
             {
                 step.Status = StepStatus.InProgress;
 
-                await Log(step);
+                await LogAsync(step);
 
                 if (string.IsNullOrWhiteSpace(step.TargetAssembly))
                 {
-                    await Log(step, "TargetAssembly is missing.");
+                    await LogAsync(step, "TargetAssembly is missing.");
                     return true;
                 }
 
                 if (string.IsNullOrWhiteSpace(step.TargetType))
                 {
-                    await Log(step, "TargetType is missing.");
+                    await LogAsync(step, "TargetType is missing.");
                     return true;
                 }
 
@@ -213,17 +215,17 @@ namespace DipDistributor
                 var type = assembly.GetType(step.TargetType);
                 dynamic obj = Activator.CreateInstance(type);
 
-                await Log(step, $"Execute {step.TargetType}.RunAsync() --> {step?.Payload}");
+                await LogAsync(step, $"Execute {step.TargetType}.RunAsync() --> {step?.Payload}");
 
                 var result = await obj.RunAsync(step);
 
-                await Log(step, $"Executed {step.TargetType}.RunAsync() --> {step?.Payload}");
+                await LogAsync(step, $"Executed {step.TargetType}.RunAsync() --> {step?.Payload}");
 
                 return true;
             }
             catch (Exception ex)
             {
-                await Log(step, ex.ToString());
+                await LogAsync(step, ex.ToString());
                 return false;
             }
         }
@@ -235,11 +237,11 @@ namespace DipDistributor
                 if (step.SubSteps == null
                     || !step.SubSteps.Any())
                 {
-                    await Log(step, "No sub steps");
+                    await LogAsync(step, "No sub steps");
                     return true;
                 }
 
-                await Log(step, "Running sub steps");
+                await LogAsync(step, "Running sub steps");
 
                 var subSteps = SetUrl(step.SubSteps, step.Urls);
 
@@ -253,7 +255,7 @@ namespace DipDistributor
             }
             catch(Exception ex)
             {
-                await Log(step, ex.ToString());
+                await LogAsync(step, ex.ToString());
                 return false;
             }
         }
@@ -264,16 +266,16 @@ namespace DipDistributor
             {
                 step.Status = StepStatus.Complete;
 
-                await Log(step);
+                await LogAsync(step);
 
                 if (step.TransitionSteps == null
                     || !step.TransitionSteps.Any())
                 {
-                    await Log(step, "No transition steps");
+                    await LogAsync(step, "No transition steps");
                     return true;
                 }
 
-                await Log(step, "Running transition steps");
+                await LogAsync(step, "Running transition steps");
 
                 var transitionSteps = SetUrl(step.TransitionSteps, step.Urls);
 
@@ -285,18 +287,18 @@ namespace DipDistributor
                 
                 if (results.All(r => r.Status == StepStatus.Complete))
                 {
-                    await Log(step, "Transition steps completed");
+                    await LogAsync(step, "Transition steps completed");
                     return true;
                 }
                 else
                 {
-                    await Log(step, "Not all transition steps completed");
+                    await LogAsync(step, "Not all transition steps completed");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                await Log(step, ex.ToString());
+                await LogAsync(step, ex.ToString());
                 return false;
             }
         }
@@ -359,7 +361,7 @@ namespace DipDistributor
             return dependencies;
         }
 
-        private async Task Log(Step step, string message = "")
+        internal async Task LogAsync(Step step, string message = "")
         {
             var logMessage = CreateMessage(step, message);
             var client = httpClientFactory.GetHttpClient();
@@ -367,12 +369,12 @@ namespace DipDistributor
             response.Dispose();
         }
 
-        private string CreateMessage(string message)
+        internal string CreateMessage(string message)
         {
             return CreateMessage(new Step(), message);
         }
 
-        private string CreateMessage(Step step, string message)
+        internal string CreateMessage(Step step, string message)
         {
             var logMessage = $"{DateTime.Now}   {Environment.MachineName}   RunId: {step.RunId}; Run Name: {step.RunName}; StepId: {step.StepId}; Step Name: {step.StepName}; Step Status: {step.Status}";
 
