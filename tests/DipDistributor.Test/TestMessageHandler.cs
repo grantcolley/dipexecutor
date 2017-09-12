@@ -12,6 +12,10 @@ namespace DipDistributor.Test
     {
         Func<T, T> responseDelegate;
 
+        public TestMessageHandler()
+        {
+        }
+
         public TestMessageHandler(Func<T, T> response)
         {
             responseDelegate = response;
@@ -21,8 +25,12 @@ namespace DipDistributor.Test
         {
             var content = await request.Content.ReadAsStringAsync();
             var deserializedContent = JsonConvert.DeserializeObject<T>(content);
+            T responseContent = default(T);
 
-            var responseContent = responseDelegate(deserializedContent);
+            if (responseDelegate != null)
+            {
+                responseContent = responseDelegate(deserializedContent);
+            }
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
             {
