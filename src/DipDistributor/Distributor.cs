@@ -245,7 +245,8 @@ namespace DipDistributor
 
                 var subSteps = SetUrl(step.SubSteps, step.Urls);
 
-                IEnumerable<Task<Step>> subStepQuery = from subStep in subSteps select DistributeStep(subStep);
+                IEnumerable<Task<Step>> subStepQuery = 
+                    from subStep in subSteps select DistributeStepAsync(subStep);
 
                 Task<Step>[] steps = subStepQuery.ToArray();
 
@@ -279,7 +280,8 @@ namespace DipDistributor
 
                 var transitionSteps = SetUrl(step.TransitionSteps, step.Urls);
 
-                IEnumerable<Task<Step>> transitionStepQuery = from transition in transitionSteps select DistributeStep(transition);
+                IEnumerable<Task<Step>> transitionStepQuery = 
+                    from transition in transitionSteps select DistributeStepAsync(transition);
 
                 Task<Step>[] steps = transitionStepQuery.ToArray();
 
@@ -340,7 +342,7 @@ namespace DipDistributor
             return steps;
         }
 
-        private async Task<Step> DistributeStep(Step step)
+        internal async Task<Step> DistributeStepAsync(Step step)
         {
             var jsonContent = JsonConvert.SerializeObject(step);
             var client = httpClientFactory.GetHttpClient();

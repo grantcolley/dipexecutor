@@ -283,5 +283,27 @@ namespace DipDistributor.Test
             Assert.AreEqual(resultsList[2].Urls.Count(), 2);
             Assert.AreEqual(resultsList[2].StepUrl, $"{urls[0]}/run");
         }
+
+        [TestMethod]
+        public async Task DistributeStepAsync()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>(s =>
+            {
+                s.Payload = "hello world";
+                return s;
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000/run" };
+
+            // Act
+            var result = await distributor.DistributeStepAsync(step);
+
+            // Assert
+            Assert.AreEqual(result.Payload, "hello world");
+        }
     }
 }
