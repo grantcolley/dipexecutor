@@ -303,9 +303,10 @@ namespace DipDistributor
             }
         }
 
-        private IEnumerable<Step> SetUrl(IEnumerable<Step> steps, IEnumerable<string> urls)
+        internal IEnumerable<Step> SetUrl(IEnumerable<Step> steps, IEnumerable<string> urls)
         {
-            if (urls == null)
+            if (urls == null
+                || urls.Count() == 0)
             {
                 return steps;
             }
@@ -313,15 +314,13 @@ namespace DipDistributor
             var maxUrl = urls.Count() - 1;
             var urlIndex = 0;
 
-            foreach(var step in steps)
+            foreach (var step in steps)
             {
-                step.Urls = urls.ToArray<string>();
-
                 if (string.IsNullOrEmpty(step.StepUrl))
                 {
                     step.StepUrl = urls.ElementAt<string>(urlIndex);
 
-                    if(urlIndex == maxUrl)
+                    if (urlIndex == maxUrl)
                     {
                         urlIndex = 0;
                     }
@@ -329,6 +328,12 @@ namespace DipDistributor
                     {
                         urlIndex++;
                     }
+                }
+
+                if (step.Urls == null
+                    || step.Urls.Equals(0))
+                {
+                    step.Urls = urls.ToArray<string>();
                 }
             }
 

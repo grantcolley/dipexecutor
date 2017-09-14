@@ -2,6 +2,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using DipRunner;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DipDistributor.Test
 {
@@ -169,6 +172,116 @@ namespace DipDistributor.Test
             Assert.AreEqual(dependencyList[0], "DipRunner");
             Assert.AreEqual(dependencyList[1], "TestDependency");
             Assert.AreEqual(dependencyList[2], "TestLibrary");
+        }
+
+        [TestMethod]
+        public void SetUrl_NoUrls_TwoSteps()
+        {
+            // Arrange
+            var distributor = new Distributor(null);
+            var steps = new Step[] { new Step(), new Step() };
+            var urls = new string[] { };
+
+            // Act
+            var results = distributor.SetUrl(steps, urls);
+            var resultsList = results.Cast<Step>().ToArray();
+
+            // Assert
+            Assert.AreEqual(resultsList.Length, 2);
+
+            Assert.IsNull(resultsList[0].Urls);
+            Assert.IsNull(resultsList[1].Urls);
+        }
+
+        [TestMethod]
+        public void SetUrl_OneUrl_TwoSteps()
+        {
+            // Arrange
+            var distributor = new Distributor(null);
+            var steps = new Step[] { new Step(), new Step() };
+            var urls = new string[] { "url1" };
+
+            // Act
+            var results = distributor.SetUrl(steps, urls);
+            var resultsList = results.Cast<Step>().ToArray();
+
+            // Assert
+            Assert.AreEqual(resultsList.Length, 2);
+
+            Assert.AreEqual(resultsList[0].Urls.Count(), 1);
+            Assert.AreEqual(resultsList[0].StepUrl, $"{urls[0]}/run");
+
+            Assert.AreEqual(resultsList[1].Urls.Count(), 1);
+            Assert.AreEqual(resultsList[1].StepUrl, $"{urls[0]}/run");
+        }
+
+        [TestMethod]
+        public void SetUrl_TwoUrls_TwoSteps()
+        {
+            // Arrange
+            var distributor = new Distributor(null);
+            var steps = new Step[] { new Step(), new Step() };
+            var urls = new string[] { "url1", "url2" };
+
+            // Act
+            var results = distributor.SetUrl(steps, urls);
+            var resultsList = results.Cast<Step>().ToArray();
+
+            // Assert
+            Assert.AreEqual(resultsList.Length, 2);
+
+            Assert.AreEqual(resultsList[0].Urls.Count(), 2);
+            Assert.AreEqual(resultsList[0].StepUrl, $"{urls[0]}/run");
+
+            Assert.AreEqual(resultsList[1].Urls.Count(), 2);
+            Assert.AreEqual(resultsList[1].StepUrl, $"{urls[1]}/run");
+        }
+
+        [TestMethod]
+        public void SetUrl_ThreeUrls_TwoSteps()
+        {
+            // Arrange
+            var distributor = new Distributor(null);
+            var steps = new Step[] { new Step(), new Step() };
+            var urls = new string[] { "url1", "url2", "url3" };
+
+            // Act
+            var results = distributor.SetUrl(steps, urls);
+            var resultsList = results.Cast<Step>().ToArray();
+
+            // Assert
+            Assert.AreEqual(resultsList.Length, 2);
+
+            Assert.AreEqual(resultsList[0].Urls.Count(), 3);
+            Assert.AreEqual(resultsList[0].StepUrl, $"{urls[0]}/run");
+
+            Assert.AreEqual(resultsList[1].Urls.Count(), 3);
+            Assert.AreEqual(resultsList[1].StepUrl, $"{urls[1]}/run");
+        }
+
+        [TestMethod]
+        public void SetUrl_TwoUrls_ThreeSteps()
+        {
+            // Arrange
+            var distributor = new Distributor(null);
+            var steps = new Step[] { new Step(), new Step(), new Step() };
+            var urls = new string[] { "url1", "url2" };
+
+            // Act
+            var results = distributor.SetUrl(steps, urls);
+            var resultsList = results.Cast<Step>().ToArray();
+
+            // Assert
+            Assert.AreEqual(resultsList.Length, 3);
+
+            Assert.AreEqual(resultsList[0].Urls.Count(), 2);
+            Assert.AreEqual(resultsList[0].StepUrl, $"{urls[0]}/run");
+
+            Assert.AreEqual(resultsList[1].Urls.Count(), 2);
+            Assert.AreEqual(resultsList[1].StepUrl, $"{urls[1]}/run");
+
+            Assert.AreEqual(resultsList[2].Urls.Count(), 2);
+            Assert.AreEqual(resultsList[2].StepUrl, $"{urls[0]}/run");
         }
     }
 }
