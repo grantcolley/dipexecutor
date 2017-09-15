@@ -78,7 +78,12 @@ namespace DipDistributor
 
                     if (subStepsSuccessful)
                     {
-                        var completed = await CompleteStepAsync(step).ConfigureAwait(false);
+                        var stepCompleted = await CompleteStepAsync(step).ConfigureAwait(false);
+
+                        if (stepCompleted)
+                        {
+                            var transitionsCompleted = await RunTransitionStepsAsync(step).ConfigureAwait(false); 
+                        }
                     }
                 }
             }
@@ -230,38 +235,17 @@ namespace DipDistributor
             }
         }
 
-        private async Task<bool> RunSubStepsAsync(Step step)
+        internal async Task<bool> RunSubStepsAsync(Step step)
         {
-            try
-            {
-                if (step.SubSteps == null
-                    || !step.SubSteps.Any())
-                {
-                    await LogAsync(step, "No sub steps");
-                    return true;
-                }
-
-                await LogAsync(step, "Running sub steps");
-
-                var subSteps = SetUrl(step.SubSteps, step.Urls);
-
-                IEnumerable<Task<Step>> subStepQuery = 
-                    from subStep in subSteps select DistributeStepAsync(subStep);
-
-                Task<Step>[] steps = subStepQuery.ToArray();
-
-                var results = await Task.WhenAll(steps);
-                                
-                return results.All(r => r.Status == StepStatus.Complete);
-            }
-            catch(Exception ex)
-            {
-                await LogAsync(step, ex.ToString());
-                return false;
-            }
+            return await RunStepsAsync(step, step.SubSteps, "sub");
         }
 
-        private async Task<bool> CompleteStepAsync(Step step)
+        internal async Task<bool> RunTransitionStepsAsync(Step step)
+        {
+            return await RunStepsAsync(step, step.TransitionSteps, "transition");
+        }
+
+        internal async Task<bool> CompleteStepAsync(Step step)
         {
             try
             {
@@ -269,34 +253,7 @@ namespace DipDistributor
 
                 await LogAsync(step);
 
-                if (step.TransitionSteps == null
-                    || !step.TransitionSteps.Any())
-                {
-                    await LogAsync(step, "No transition steps");
-                    return true;
-                }
-
-                await LogAsync(step, "Running transition steps");
-
-                var transitionSteps = SetUrl(step.TransitionSteps, step.Urls);
-
-                IEnumerable<Task<Step>> transitionStepQuery = 
-                    from transition in transitionSteps select DistributeStepAsync(transition);
-
-                Task<Step>[] steps = transitionStepQuery.ToArray();
-
-                var results = await Task.WhenAll(steps);
-                
-                if (results.All(r => r.Status == StepStatus.Complete))
-                {
-                    await LogAsync(step, "Transition steps completed");
-                    return true;
-                }
-                else
-                {
-                    await LogAsync(step, "Not all transition steps completed");
-                    return false;
-                }
+                return true;
             }
             catch (Exception ex)
             {
@@ -391,6 +348,45 @@ namespace DipDistributor
             }
 
             return logMessage;
+        }
+
+        private async Task<bool> RunStepsAsync(Step step, IEnumerable<Step> steps, string type)
+        {
+            try
+            {
+                if (steps == null
+                    || !steps.Any())
+                {
+                    await LogAsync(step, $"RunStepsAsync - No {type} steps");
+                    return true;
+                }
+
+                await LogAsync(step, $"RunStepsAsync - {type} steps");
+
+                var stepsToRun = SetUrl(steps, step.Urls);
+
+                IEnumerable<Task<Step>> runningStepsQuery = from s in stepsToRun select DistributeStepAsync(s);
+
+                Task<Step>[] runningSteps = runningStepsQuery.ToArray();
+
+                var results = await Task.WhenAll(runningSteps);
+
+                if (results.All(r => r.Status == StepStatus.Complete))
+                {
+                    await LogAsync(step, $"RunStepsAsync - {type} steps completed");
+                    return true;
+                }
+                else
+                {
+                    await LogAsync(step, $"RunStepsAsync - Not all {type} steps completed");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogAsync(step, $"RunStepsAsync - {ex.ToString()}");
+                return false;
+            }
         }
     }
 }
