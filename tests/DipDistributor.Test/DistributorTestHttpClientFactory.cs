@@ -5,8 +5,8 @@ namespace DipDistributor.Test
 {
     internal class DistributorTestHttpClientFactory<T> : HttpClientFactory
     {
-        private static HttpClient httpClient;
-        private static object httpClientLock = new object();
+        private HttpClient httpClient;
+        private object httpClientLock = new object();
         private TestMessageHandler<T> messageHandler;
 
         internal DistributorTestHttpClientFactory(TestMessageHandler<T> messageHandler)
