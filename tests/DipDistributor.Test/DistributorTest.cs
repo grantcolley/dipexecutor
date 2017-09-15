@@ -90,8 +90,8 @@ namespace DipDistributor.Test
         public async Task LogAsync()
         {
             // Arrange
-            var messageHandler = new TestMessageHandler<string>();
-            var clientFactory = new DistributorTestHttpClientFactory<string>(messageHandler);
+            var messageHandler = new TestMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
             var step = new Step();
             step.Urls = new[] { "http://localhost:5000" };
@@ -288,9 +288,14 @@ namespace DipDistributor.Test
         public async Task DistributeStepAsync()
         {
             // Arrange
-            var messageHandler = new TestMessageHandler<Step>(s =>
+            var messageHandler = new TestMessageHandler<Step>((s, absolutePath) =>
             {
-                s.Payload = "hello world";
+                if (absolutePath.Equals("/run"))
+                {
+                    s.Payload = "hello world";
+                    s.Status = StepStatus.Complete;
+                }
+
                 return s;
             });
 
@@ -304,6 +309,194 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.AreEqual(result.Payload, "hello world");
+            Assert.AreEqual(result.Status, StepStatus.Complete);
+        }
+
+        [TestMethod]
+        public async Task CompleteStepAsync()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+
+            // Act
+            var result = await distributor.CompleteStepAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(step.Status, StepStatus.Complete);
+        }
+
+        [TestMethod]
+        public async Task RunTransitionStepsAsync_OneTransitionStepCompleted()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>((s, absolutePath) =>
+            {
+                if (absolutePath.Equals("/run"))
+                {
+                    s.Status = StepStatus.Complete;
+                }
+
+                return s;
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+            
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+            step.TransitionSteps = new[] { new Step() };
+
+            // Act
+            var result = await distributor.RunTransitionStepsAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task RunTransitionStepsAsync_TwoTransitionStepsCompleted()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>((s, absolutePath) =>
+            {
+                if (absolutePath.Equals("/run"))
+                {
+                    s.Status = StepStatus.Complete;
+                }
+
+                return s;
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+            step.TransitionSteps = new[] { new Step(), new Step() };
+
+            // Act
+            var result = await distributor.RunTransitionStepsAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task RunTransitionStepsAsync_TwoTransitionStepsOneNotCompleted()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>((s, absolutePath) =>
+            {
+                if (absolutePath.Equals("/run"))
+                {
+                    if (!s.StepName.Equals("transition1"))
+                    {
+                        s.Status = StepStatus.Complete;
+                    }
+                }
+
+                return s;
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+            step.TransitionSteps = new[] { new Step() { StepName = "transition1" }, new Step() };
+
+            // Act
+            var result = await distributor.RunTransitionStepsAsync(step);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public async Task RunTransitionStepsAsync_OneTransitionStep_Exception()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>((s, absolutePath) =>
+            {
+                throw new DivideByZeroException();
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+            step.TransitionSteps = new[] { new Step() };
+
+            // Act
+            var result = await distributor.RunTransitionStepsAsync(step);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public async Task RunSubStepsAsync_TwoSubStepsCompleted()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>((s, absolutePath) =>
+            {
+                if (absolutePath.Equals("/run"))
+                {
+                    s.Status = StepStatus.Complete;
+                }
+
+                return s;
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+            step.SubSteps = new[] { new Step(), new Step() };
+
+            // Act
+            var result = await distributor.RunSubStepsAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task RunSubStepsAsync_TwoSubStepsOneNotCompleted()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>((s, absolutePath) =>
+            {
+                if (absolutePath.Equals("/run"))
+                {
+                    if (!s.StepName.Equals("subStep1"))
+                    {
+                        s.Status = StepStatus.Complete;
+                    }
+                }
+
+                return s;
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+            step.SubSteps = new[] { new Step() { StepName = "subStep1" }, new Step() };
+
+            // Act
+            var result = await distributor.RunSubStepsAsync(step);
+
+            // Assert
+            Assert.IsFalse(result);
         }
     }
 }
