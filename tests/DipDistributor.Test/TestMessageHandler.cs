@@ -10,26 +10,30 @@ namespace DipDistributor.Test
 {
     public class TestMessageHandler<T> : DelegatingHandler
     {
-        Func<T, T> responseDelegate;
+        Func<T, string, T> responseDelegate;
 
         public TestMessageHandler()
         {
         }
 
-        public TestMessageHandler(Func<T, T> response)
+        public TestMessageHandler(Func<T, string, T> response)
         {
             responseDelegate = response;
         }
 
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var content = await request.Content.ReadAsStringAsync();
-            var deserializedContent = JsonConvert.DeserializeObject<T>(content);
             T responseContent = default(T);
 
-            if (responseDelegate != null)
+            var content = await request.Content.ReadAsStringAsync();
+
+            if(!request.RequestUri.AbsolutePath.Equals("/log"))
             {
-                responseContent = responseDelegate(deserializedContent);
+                var deserializedContent = JsonConvert.DeserializeObject<T>(content);
+                if (responseDelegate != null)
+                {
+                    responseContent = responseDelegate(deserializedContent, request.RequestUri.AbsolutePath);
+                }
             }
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
