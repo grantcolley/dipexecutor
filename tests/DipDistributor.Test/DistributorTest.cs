@@ -498,5 +498,42 @@ namespace DipDistributor.Test
             // Assert
             Assert.IsFalse(result);
         }
+
+        [TestMethod]
+        public async Task RunStepAsync_TargetAssemblyMissing()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+
+            // Act
+            var result = await distributor.RunStepAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task RunStepAsync_TargetTypeMissing()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+            step.TargetAssembly = "TestLibrary.dll";
+            
+            // Act
+            var result = await distributor.RunStepAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
     }
 }
