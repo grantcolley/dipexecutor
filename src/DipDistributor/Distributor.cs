@@ -192,7 +192,7 @@ namespace DipDistributor
             }
         }
 
-        private async Task<bool> RunStepAsync(Step step)
+        internal async Task<bool> RunStepAsync(Step step)
         {
             try
             {
@@ -216,15 +216,10 @@ namespace DipDistributor
 
                 var assemblyLoader = new AssemblyLoader(dependencyDirectory, dependencies);
                 var assembly = assemblyLoader.LoadFromAssemblyPath(Path.Combine(dependencyDirectory, step.TargetAssembly));
-
                 var type = assembly.GetType(step.TargetType);
                 dynamic obj = Activator.CreateInstance(type);
 
-                await LogAsync(step, $"Execute {step.TargetType}.RunAsync() --> {step?.Payload}");
-
                 var result = await obj.RunAsync(step);
-
-                await LogAsync(step, $"Executed {step.TargetType}.RunAsync() --> {step?.Payload}");
 
                 return true;
             }
