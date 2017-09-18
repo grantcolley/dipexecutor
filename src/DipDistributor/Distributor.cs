@@ -24,7 +24,6 @@ namespace DipDistributor
     /// </summary>
     internal class Distributor : IDistributor
     {
-        private string dependencyDirectory;
         private HttpClientFactory httpClientFactory;
 
         internal Distributor(HttpClientFactory httpClientFactory)
@@ -98,16 +97,7 @@ namespace DipDistributor
                 step.Status = StepStatus.Initialise;
 
                 await LogAsync(step);
-
-                dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), step.RunName);
-
-                if (!Directory.Exists(dependencyDirectory))
-                {
-                    await LogAsync(step, $"Create directory {dependencyDirectory}");
-
-                    Directory.CreateDirectory(dependencyDirectory);
-                }
-
+                
                 return await DownloadDependenciesAsync(step).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -162,6 +152,9 @@ namespace DipDistributor
                     using (var stream = await response.Content.ReadAsStreamAsync())
                     {
                         var fileName = filePath.Split('\\');
+
+                        var dependencyDirectory = await GetDependencyDirectoryAsync(step);
+
                         fullFileName = Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]);
 
                         if (File.Exists(fullFileName))
@@ -211,6 +204,8 @@ namespace DipDistributor
                     await LogAsync(step, "TargetType is missing.");
                     return true;
                 }
+
+                var dependencyDirectory = await GetDependencyDirectoryAsync(step);
 
                 var dependencies = GetDependencyAssemblyNames(step);
 
@@ -343,6 +338,20 @@ namespace DipDistributor
             }
 
             return logMessage;
+        }
+
+        internal async Task<string> GetDependencyDirectoryAsync(Step step)
+        {
+            var dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), step.RunName);
+
+            if (!Directory.Exists(dependencyDirectory))
+            {
+                await LogAsync(step, $"Create directory {dependencyDirectory}");
+
+                Directory.CreateDirectory(dependencyDirectory);
+            }
+
+            return dependencyDirectory;
         }
 
         private async Task<bool> RunStepsAsync(Step step, IEnumerable<Step> steps, string type)
