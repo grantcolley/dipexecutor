@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace DipDistributor.Test
 {
@@ -84,22 +85,6 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result.Contains("   RunId: 1; Run Name: Test Run; StepId: 2; Step Name: Step Name; Step Status: InProgress; Message: test"));
-        }
-
-        [TestMethod]
-        public async Task LogAsync()
-        {
-            // Arrange
-            var messageHandler = new TestMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
-
-            // Act
-            await distributor.LogAsync(step, "test");
-
-            // Assert
         }
 
         [TestMethod]
@@ -282,6 +267,22 @@ namespace DipDistributor.Test
 
             Assert.AreEqual(resultsList[2].Urls.Count(), 2);
             Assert.AreEqual(resultsList[2].StepUrl, $"{urls[0]}/run");
+        }
+
+        [TestMethod]
+        public async Task LogAsync()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+            var step = new Step();
+            step.Urls = new[] { "http://localhost:5000" };
+
+            // Act
+            await distributor.LogAsync(step, "test");
+
+            // Assert
         }
 
         [TestMethod]
@@ -500,6 +501,29 @@ namespace DipDistributor.Test
         }
 
         [TestMethod]
+        public async Task RunStepAsync_GetDependencyDirectory()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.RunName = "TestDependencyDirectory";
+            step.Urls = new[] { "http://localhost:5000" };
+
+            // Act
+            var result = await distributor.GetDependencyDirectoryAsync(step);
+
+            // Assert
+            Assert.AreEqual(result, Path.Combine(Directory.GetCurrentDirectory(), step.RunName));
+            Assert.IsTrue(Directory.Exists(result));
+
+            // Cleanup
+            Directory.Delete(result);
+        }
+
+        [TestMethod]
         public async Task RunStepAsync_TargetAssemblyMissing()
         {
             // Arrange
@@ -508,6 +532,7 @@ namespace DipDistributor.Test
             var distributor = new Distributor(clientFactory);
 
             var step = new Step();
+            step.RunName = "Test";
             step.Urls = new[] { "http://localhost:5000" };
 
             // Act
@@ -526,6 +551,7 @@ namespace DipDistributor.Test
             var distributor = new Distributor(clientFactory);
 
             var step = new Step();
+            step.RunName = "Test";
             step.Urls = new[] { "http://localhost:5000" };
             step.TargetAssembly = "TestLibrary.dll";
             
@@ -534,6 +560,46 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task RunStepAsync()
+        {
+            // Arrange
+            var messageHandler = new TestMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.RunName = "Test";
+            step.Urls = new[] { "http://localhost:5000" };
+            step.TargetAssembly = "TestLibrary.dll";
+            step.TargetType = "TestLibrary.TestRunner";
+            step.Payload = "1000|Hello";
+            step.Dependencies = new[]
+{
+                @"C:\GitHub\dipdistributor\TestLibrary\bin\Debug\netcoreapp2.0\DipRunner.dll",
+                @"C:\GitHub\dipdistributor\TestLibrary\bin\Debug\netcoreapp2.0\TestDependency.dll",
+                @"C:\GitHub\dipdistributor\TestLibrary\bin\Debug\netcoreapp2.0\TestLibrary.dll"
+            };
+
+            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+            }
+
+            File.Copy(@"..\..\..\artefacts\src\TestDependency.dll", Path.Combine(dependencyDirectory, "TestDependency.dll"));
+            File.Copy(@"..\..\..\artefacts\src\TestLibrary.dll", Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+
+            // Act
+            var result = await distributor.RunStepAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(step.Payload, "1000|Hello world!");
         }
     }
 }
