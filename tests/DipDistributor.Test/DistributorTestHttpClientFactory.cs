@@ -7,9 +7,9 @@ namespace DipDistributor.Test
     {
         private HttpClient httpClient;
         private object httpClientLock = new object();
-        private TestMessageHandler<T> messageHandler;
+        private TestHttpMessageHandler<T> messageHandler;
 
-        internal DistributorTestHttpClientFactory(TestMessageHandler<T> messageHandler)
+        internal DistributorTestHttpClientFactory(TestHttpMessageHandler<T> messageHandler)
         {
             this.messageHandler = messageHandler;
         }

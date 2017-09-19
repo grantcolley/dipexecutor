@@ -119,14 +119,12 @@ namespace DipDistributor
 
                 await LogAsync(step, "Downloading dependencies...");
 
-                var client = httpClientFactory.GetHttpClient();
-                client.MaxResponseContentBufferSize = 1000000;
-
+                var client = httpClientFactory.GetHttpClient();                
                 var dependencies = new List<string>(step.Dependencies);
 
                 IEnumerable<Task<bool>> downloadQuery = from dependency
                                                         in step.Dependencies
-                                                        select DownloadDependencyAsync(step, client, step.DependencyUrl, dependency);
+                                                        select DownloadDependencyAsync(step, client, dependency);
 
                 Task<bool>[] downloads = downloadQuery.ToArray();
 
@@ -141,13 +139,13 @@ namespace DipDistributor
             }
         }
 
-        private async Task<bool> DownloadDependencyAsync(Step step, HttpClient client, string dependencyUri, string filePath)
+        internal async Task<bool> DownloadDependencyAsync(Step step, HttpClient client, string filePath)
         {
             try
             {
                 string fullFileName = string.Empty;
 
-                using (var response = await client.PostAsync(dependencyUri, new StringContent(filePath)))
+                using (var response = await client.PostAsync(step.DependencyUrl, new StringContent(filePath)))
                 {
                     using (var stream = await response.Content.ReadAsStreamAsync())
                     {

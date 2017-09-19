@@ -16,10 +16,4 @@
     <ProjectReference Include="..\..\src\DipDistributor\DipDistributor.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="artefacts\" />
-    <Folder Include="artefacts\target\" />
-    <Folder Include="artefacts\src\" />
-  </ItemGroup>
-
 </Project>

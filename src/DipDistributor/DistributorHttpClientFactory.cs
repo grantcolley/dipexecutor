@@ -17,6 +17,7 @@ namespace DipDistributor
                     if (httpClient == null)
                     {
                         httpClient = new HttpClient();
+                        httpClient.MaxResponseContentBufferSize = 1000000;
                         httpClient.DefaultRequestHeaders.Accept.Clear();
                         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     }
