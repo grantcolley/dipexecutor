@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -25,20 +26,32 @@ namespace DipDistributor.Test
         {
             T responseContent = default(T);
 
-            var content = await request.Content.ReadAsStringAsync();
+            var requestContent = await request.Content.ReadAsStringAsync();
 
-            if(!request.RequestUri.AbsolutePath.Equals("/log"))
+            HttpContent content = null;
+            
+            if (request.RequestUri.AbsolutePath.Equals("/log"))
             {
-                var deserializedContent = JsonConvert.DeserializeObject<T>(content);
+                content = new StringContent(JsonConvert.SerializeObject(responseContent), Encoding.UTF8, "application/json");
+            }
+            else if (request.RequestUri.AbsolutePath.Equals("/run"))
+            {
+                var deserializedContent = JsonConvert.DeserializeObject<T>(requestContent);
                 if (responseDelegate != null)
                 {
                     responseContent = responseDelegate(deserializedContent, request.RequestUri.AbsolutePath);
                 }
-            }
 
+                content = new StringContent(JsonConvert.SerializeObject(responseContent), Encoding.UTF8, "application/json");
+            }
+            else if (request.RequestUri.AbsolutePath.Equals("/getdependency"))
+            {
+                content = new StreamContent(new FileStream(requestContent, FileMode.Open, FileAccess.Read));
+            }
+            
             var response = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(responseContent), Encoding.UTF8, "application/json")
+                Content = content
             };
 
             var taskCompletionSource = new TaskCompletionSource<HttpResponseMessage>();
