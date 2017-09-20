@@ -90,7 +90,7 @@ namespace DipDistributor
             return step;
         }
 
-        private async Task<bool> InitialiseStepAsync(Step step)
+        internal async Task<bool> InitialiseStepAsync(Step step)
         {
             try
             {               
@@ -107,7 +107,7 @@ namespace DipDistributor
             }
         }
 
-        private async Task<bool> DownloadDependenciesAsync(Step step)
+        internal async Task<bool> DownloadDependenciesAsync(Step step)
         {
             try
             {
@@ -119,7 +119,7 @@ namespace DipDistributor
 
                 await LogAsync(step, "Downloading dependencies...");
 
-                var client = httpClientFactory.GetHttpClient();                
+                var client = httpClientFactory.GetHttpClient(HttpClientResponseContentType.StreamContent);                
                 var dependencies = new List<string>(step.Dependencies);
 
                 IEnumerable<Task<bool>> downloadQuery = from dependency
