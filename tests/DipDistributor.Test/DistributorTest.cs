@@ -585,10 +585,14 @@ namespace DipDistributor.Test
 
             var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
 
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+            }
+
             if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
             {
                 File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
             }
 
             File.Copy(@"..\..\..\artefacts\TestDependency.dll", Path.Combine(dependencyDirectory, "TestDependency.dll"));
@@ -633,6 +637,87 @@ namespace DipDistributor.Test
             // Assert
             Assert.IsTrue(result);
             Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
+        }
+
+        [TestMethod]
+        public async Task DownloadDependenciesAsync()
+        {
+            // Arrange
+            var messageHandler = new TestHttpMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+            var httpClient = clientFactory.GetHttpClient();
+
+            var step = new Step();
+            step.RunName = "DownloadDependenciesAsync";
+            step.Urls = new[] { "http://localhost:5000" };
+            step.DependencyUrl = "";
+            step.Dependencies = new[]
+            {
+                Path.Combine(@"..\..\..\artefacts","TestLibrary.dll"),
+                Path.Combine(@"..\..\..\artefacts","TestDependency.dll")
+            };
+
+            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+            }
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+            }
+
+            // Act
+            var result = await distributor.DownloadDependenciesAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+        }
+
+        [TestMethod]
+        public async Task InitialiseStepAsync()
+        {
+            // Arrange
+            var messageHandler = new TestHttpMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+            var httpClient = clientFactory.GetHttpClient();
+
+            var step = new Step();
+            step.RunName = "InitialiseStepAsync";
+            step.Urls = new[] { "http://localhost:5000" };
+            step.DependencyUrl = "";
+            step.Dependencies = new[]
+            {
+                Path.Combine(@"..\..\..\artefacts","TestLibrary.dll"),
+                Path.Combine(@"..\..\..\artefacts","TestDependency.dll")
+            };
+
+            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+            }
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+            }
+
+            // Act
+            var result = await distributor.InitialiseStepAsync(step);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(step.Status.Equals(StepStatus.Initialise));
+            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
         }
     }
 }
