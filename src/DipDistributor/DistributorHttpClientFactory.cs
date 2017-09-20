@@ -5,21 +5,36 @@ namespace DipDistributor
 {
     internal class DistributorHttpClientFactory : HttpClientFactory
     {
-        private static HttpClient httpClient;
-        private static object httpClientLock = new object();
+        private static HttpClient httpClientStringContentResponse;
+        private static object httpClientStringContentResponseLock = new object();
 
-        internal override HttpClient GetHttpClient()
+        private static HttpClient httpClientStreamContentResponse;
+        private static object httpClientStreamContentResponseLock = new object();
+
+        internal override HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseContentType = HttpClientResponseContentType.StringContent)
         {
-            if (httpClient == null)
+            switch(httpClientResponseContentType)
             {
-                lock (httpClientLock)
+                case HttpClientResponseContentType.StringContent:
+                    return GetHttpClientStringResponse();
+                case HttpClientResponseContentType.StreamContent:
+                    return GetHttpClientStreamResponse();
+                default:
+                    return GetHttpClientStringResponse();
+            }
+        }
+
+        private HttpClient GetHttpClientStringResponse()
+        {
+            if (httpClientStringContentResponse == null)
+            {
+                lock (httpClientStringContentResponseLock)
                 {
-                    if (httpClient == null)
+                    if (httpClientStringContentResponse == null)
                     {
-                        httpClient = new HttpClient();
-                        httpClient.MaxResponseContentBufferSize = 1000000;
-                        httpClient.DefaultRequestHeaders.Accept.Clear();
-                        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        httpClientStringContentResponse = new HttpClient();
+                        httpClientStringContentResponse.DefaultRequestHeaders.Accept.Clear();
+                        httpClientStringContentResponse.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     }
                 }
             }
@@ -29,7 +44,31 @@ namespace DipDistributor
             //var sp = ServicePointManager.FindServicePoint(new Uri("URI HERE....."));
             //sp.ConnectionLeaseTimeout = 60 * 1000;
 
-            return httpClient;
+            return httpClientStringContentResponse;
+        }
+
+        private HttpClient GetHttpClientStreamResponse()
+        {
+            if (httpClientStreamContentResponse == null)
+            {
+                lock (httpClientStreamContentResponseLock)
+                {
+                    if (httpClientStreamContentResponse == null)
+                    {
+                        httpClientStreamContentResponse = new HttpClient();
+                        httpClientStreamContentResponse.MaxResponseContentBufferSize = 1000000;
+                        httpClientStreamContentResponse.DefaultRequestHeaders.Accept.Clear();
+                        httpClientStreamContentResponse.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    }
+                }
+            }
+
+            //https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
+            //http://byterot.blogspot.co.uk/2016/07/singleton-httpclient-dns.html?m=1
+            //var sp = ServicePointManager.FindServicePoint(new Uri("URI HERE....."));
+            //sp.ConnectionLeaseTimeout = 60 * 1000;
+
+            return httpClientStreamContentResponse;
         }
     }
 }

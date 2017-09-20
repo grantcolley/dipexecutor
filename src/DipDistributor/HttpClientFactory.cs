@@ -6,6 +6,6 @@ namespace DipDistributor
 {
     internal abstract class HttpClientFactory
     {
-        internal abstract HttpClient GetHttpClient();
+        internal abstract HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseType = HttpClientResponseContentType.StringContent);
     }
 }

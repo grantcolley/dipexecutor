@@ -14,7 +14,7 @@ namespace DipDistributor.Test
             this.messageHandler = messageHandler;
         }
 
-        internal override HttpClient GetHttpClient()
+        internal override HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseContentType = HttpClientResponseContentType.StringContent)
         {
             if (httpClient == null)
             {
