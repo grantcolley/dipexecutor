@@ -60,10 +60,10 @@ namespace DipDistributor
                 throw;
             }
 
-            return await ProcessStep(step).ConfigureAwait(false);
+            return await ProcessStepAsync(step).ConfigureAwait(false);
         }
 
-        private async Task<Step> ProcessStep(Step step)
+        internal async Task<Step> ProcessStepAsync(Step step)
         {
             var initialised = await InitialiseStepAsync(step).ConfigureAwait(false);
 
@@ -372,7 +372,7 @@ namespace DipDistributor
                 Task<Step>[] runningSteps = runningStepsQuery.ToArray();
 
                 var results = await Task.WhenAll(runningSteps);
-
+                
                 if (results.All(r => r.Status == StepStatus.Complete))
                 {
                     await LogAsync(step, $"RunStepsAsync - {type} steps completed");
