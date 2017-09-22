@@ -762,5 +762,92 @@ namespace DipDistributor.Test
             Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
             Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
         }
+
+        [TestMethod]
+        public async Task ProcessStep_InitialiseStepAsync_Unsuccessful()
+        {
+            // Arrange
+            var messageHandler = new TestHttpMessageHandler<Step>((s, absolutePath) =>
+            {
+                if (absolutePath.Equals("/getdependency"))
+                {
+                    throw new Exception();
+                }
+
+                return s;
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+            var httpClient = clientFactory.GetHttpClient();
+
+            IList<Step> steps;
+
+            var step = TestHelper.GetDistributedSteps("ProcessStep_InitialiseStepAsync_Unsuccessful", out steps);
+
+            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+            }
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+            }
+
+            // Act
+            var result = await distributor.ProcessStepAsync(step);
+
+            // Assert
+            Assert.IsTrue(result.Status.Equals(StepStatus.Initialise));
+            Assert.IsTrue(!File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
+            Assert.IsTrue(!File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+        }
+
+        [TestMethod]
+        public async Task ProcessStep_RunSubStepsAsync_Unsuccessful()
+        {
+            // Arrange
+            var messageHandler = new TestHttpMessageHandler<Step>((s, absolutePath) =>
+            {
+                if (absolutePath.Equals("/run"))
+                {
+                    throw new Exception();
+                }
+
+                return s;
+            });
+
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+            var httpClient = clientFactory.GetHttpClient();
+
+            IList<Step> steps;
+
+            var step = TestHelper.GetDistributedSteps("ProcessStep_RunSubStepsAsync_Unsuccessful", out steps);
+
+            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+            }
+
+            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            {
+                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+            }
+
+            // Act
+            var result = await distributor.ProcessStepAsync(step);
+
+            // Assert
+            Assert.IsTrue(result.Status.Equals(StepStatus.InProgress));
+            Assert.AreEqual(result.Payload, $"{step.Payload} world!");
+            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+        }
     }
 }

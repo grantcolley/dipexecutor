@@ -32,6 +32,11 @@ namespace DipDistributor.Test
             
             if (request.RequestUri.AbsolutePath.Equals("/log"))
             {
+                if (responseDelegate != null)
+                {
+                    responseDelegate(responseContent, request.RequestUri.AbsolutePath);
+                }
+
                 content = new StringContent(JsonConvert.SerializeObject(responseContent), Encoding.UTF8, "application/json");
             }
             else if (request.RequestUri.AbsolutePath.Equals("/run"))
@@ -46,6 +51,11 @@ namespace DipDistributor.Test
             }
             else if (request.RequestUri.AbsolutePath.Equals("/getdependency"))
             {
+                if (responseDelegate != null)
+                {
+                    responseDelegate(responseContent, request.RequestUri.AbsolutePath);
+                }
+
                 content = new StreamContent(new FileStream(requestContent, FileMode.Open, FileAccess.Read));
             }
             
