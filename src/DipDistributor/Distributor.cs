@@ -50,15 +50,7 @@ namespace DipDistributor
                 throw new Exception(CreateMessage($"Step is null. Machine Name: {Environment.MachineName}"));
             }
 
-            try
-            {
-                step.Validate();
-            }
-            catch (Exception ex)
-            {
-                await LogAsync(step, ex.Message);
-                throw;
-            }
+            step.Validate();
 
             return await ProcessStepAsync(step).ConfigureAwait(false);
         }
