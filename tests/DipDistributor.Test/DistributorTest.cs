@@ -424,7 +424,12 @@ namespace DipDistributor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>((s, absolutePath) =>
             {
-                throw new DivideByZeroException();
+                if (absolutePath.Equals("/run"))
+                {
+                    throw new DivideByZeroException();
+                }
+
+                return s;
             });
 
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
@@ -845,7 +850,6 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.InProgress));
-            Assert.AreEqual(result.Payload, $"{step.Payload} world!");
             Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
             Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
         }
