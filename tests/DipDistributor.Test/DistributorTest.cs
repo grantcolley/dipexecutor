@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using DipRunner;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -12,6 +11,19 @@ namespace DipDistributor.Test
     [TestClass]
     public class DistributorTest
     {
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void CreateMessage_NullMessage()
+        {
+            // Arrange
+            var distributor = new Distributor(null);
+
+            // Act
+            var result = distributor.CreateMessage(null, "");
+
+            // Assert
+        }
+
         [TestMethod]
         public void CreateMessage_EmptyMessage()
         {
