@@ -27,6 +27,16 @@ namespace DipDistributor.Test
             step2.TargetType = "TestLibrary.TestRunner";
             step2.Payload = "1000|Hello";
 
+            var step3 = new Step();
+            step3.TargetAssembly = "TestLibrary.dll";
+            step3.TargetType = "TestLibrary.TestRunner";
+            step3.Payload = "10|Hello";
+
+            var step4 = new Step();
+            step4.TargetAssembly = "TestLibrary.dll";
+            step4.TargetType = "TestLibrary.TestRunner";
+            step4.Payload = "10|My";
+            
             var artefacts = Path.Combine(Directory.GetCurrentDirectory(), @"LoadAssembly\artefacts");
             var artefacts2 = Path.Combine(Directory.GetCurrentDirectory(), @"LoadAssembly\artefacts2");
 
@@ -73,9 +83,22 @@ namespace DipDistributor.Test
             dynamic obj2 = Activator.CreateInstance(type2);
             var result2 = await obj2.RunAsync(step2);
 
+            var assembly3 = assemblyLoader.LoadFromAssemblyPath(Path.Combine(artefacts, step.TargetAssembly));
+            var type3 = assembly3.GetType(step3.TargetType);
+            dynamic obj3 = Activator.CreateInstance(type3);
+            var result3 = await obj.RunAsync(step3);
+
+            var assemblyLoader4 = new AssemblyLoader(artefacts, dependencies);
+            var assembly4 = assemblyLoader4.LoadFromAssemblyPath(Path.Combine(artefacts, step4.TargetAssembly));
+            var type4 = assembly4.GetType(step4.TargetType);
+            dynamic obj4 = Activator.CreateInstance(type4);
+            var result4 = await obj.RunAsync(step4);
+
             // Assert
             Assert.AreEqual(result.Payload, "1000|Hello world!");
             Assert.AreEqual(result2.Payload, "Hi there....");
+            Assert.AreEqual(result3.Payload, "10|Hello world!");
+            Assert.AreEqual(result4.Payload, "10|My world!");
         }
     }
 }
