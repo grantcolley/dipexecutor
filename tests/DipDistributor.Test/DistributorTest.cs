@@ -256,14 +256,40 @@ namespace DipDistributor.Test
             var distributor = new Distributor(clientFactory);
 
             var step = new Step();
-            step.RunName = "TestDependencyDirectory";
+            step.RunName = "Test.RunName";
+            step.StepName = "StepName";
             step.Urls = new[] { "http://localhost:5000" };
 
             // Act
             var result = await distributor.GetDependencyDirectoryAsync(step);
 
             // Assert
-            Assert.AreEqual(result, Path.Combine(Directory.GetCurrentDirectory(), step.RunName));
+            Assert.AreEqual(result, Path.Combine(Directory.GetCurrentDirectory(), $"{step.RunName}.{step.StepName}"));
+            Assert.IsTrue(Directory.Exists(result));
+
+            // Cleanup
+            Directory.Delete(result);
+        }
+
+        [TestMethod]
+        public async Task RunStepAsync_GetDependencyDirectory_TargetDownloadLocation()
+        {
+            // Arrange
+            var messageHandler = new TestHttpMessageHandler<Step>();
+            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Distributor(clientFactory);
+
+            var step = new Step();
+            step.RunName = "Test.RunName";
+            step.StepName = "StepName";
+            step.TargetDownloadLocation = Path.Combine(Directory.GetCurrentDirectory(), "TargetDownloadLocation");
+            step.Urls = new[] { "http://localhost:5000" };
+
+            // Act
+            var result = await distributor.GetDependencyDirectoryAsync(step);
+
+            // Assert
+            Assert.AreEqual(result, Path.Combine(Directory.GetCurrentDirectory(), "TargetDownloadLocation"));
             Assert.IsTrue(Directory.Exists(result));
 
             // Cleanup

@@ -332,7 +332,16 @@ namespace DipDistributor
 
         internal async Task<string> GetDependencyDirectoryAsync(Step step)
         {
-            var dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), step.RunName);
+            string dependencyDirectory;
+
+            if (string.IsNullOrWhiteSpace(step.TargetDownloadLocation))
+            {
+                dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), $"{step.RunName}.{step.StepName}");
+            }
+            else
+            {
+                dependencyDirectory = step.TargetDownloadLocation;
+            }
 
             if (!Directory.Exists(dependencyDirectory))
             {

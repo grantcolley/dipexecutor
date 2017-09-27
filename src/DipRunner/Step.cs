@@ -15,7 +15,7 @@ namespace DipRunner
     /// A step to be processed in a workflow. A step is processed by executing 
     /// a <see cref="TargetType"/> associated with the step and / or its <see cref="SubSteps"/>.  
     /// After the step's <see cref="TargetType"/> and / or its <see cref="SubSteps"/> 
-    /// have finished executing its <see cref="TransitionSteps"/> are run, thereby progressing
+    /// have finished executing, its <see cref="TransitionSteps"/> are run, thereby progressing
     /// along the workflow. When there are no more steps to process or transition to the workflow is complete.
     /// </summary>
     public class Step
@@ -73,25 +73,25 @@ namespace DipRunner
         /// </summary>
         public string TargetDownloadLocation { get; set; }
 
-        /// <summary>
-        /// Gets or sets the location of the log file associated with the step and or workflow.
-        /// The location must include the path to the log file and the log file name.
-        /// If one isn't provided then on calling <see cref="Validate"/> it will be set to "DistributorLog.txt" 
-        /// and the file will get created in the directory of the executing assembly.
-        /// If LogFileLocation is not provided and <see cref="Validate"/> is not called then 
-        /// an exception may be thrown by the Distributor.
-        /// </summary>
-        public string LogFileLocation
-        {
-            get
-            {
-                return string.IsNullOrWhiteSpace(logFileLocation) ? "DistributorLog.txt" : logFileLocation;
-            }
-            set
-            {
-                logFileLocation = value;
-            }
-        }
+        ///// <summary>
+        ///// Gets or sets the location of the log file associated with the step and or workflow.
+        ///// The location must include the path to the log file and the log file name.
+        ///// If one isn't provided then on calling <see cref="Validate"/> it will be set to "DistributorLog.txt" 
+        ///// and the file will get created in the directory of the executing assembly.
+        ///// If LogFileLocation is not provided and <see cref="Validate"/> is not called then 
+        ///// an exception may be thrown by the Distributor.
+        ///// </summary>
+        //public string LogFileLocation
+        //{
+        //    get
+        //    {
+        //        return string.IsNullOrWhiteSpace(logFileLocation) ? "DistributorLog.txt" : logFileLocation;
+        //    }
+        //    set
+        //    {
+        //        logFileLocation = value;
+        //    }
+        //}
 
         /// <summary>
         /// Gets or sets the step status.
@@ -206,7 +206,7 @@ namespace DipRunner
         /// fields are populated with data. A step will validate itself and then validate its <see cref="SubSteps"/>.
         /// 
         /// Validation Rules:
-        /// 1. <see cref="RunName"/> and <see cref="StepName"/> are mandatory (their identifiers can be zero).
+        /// 1. <see cref="RunName"/> and <see cref="StepName"/> are mandatory.
         /// 2. If <see cref="Urls"/> is not populated then <see cref="StepUrl"/> and <see cref="LogUrl"/> must be populated.
         /// 3. If <see cref="Urls"/> is not populated and it has <see cref="Dependencies"/> then <see cref="DependencyUrl"/> must be populated.
         /// 4. If <see cref="TargetType"/> or <see cref="TargetAssembly"/> is not provided then <see cref="SubSteps"/> 
