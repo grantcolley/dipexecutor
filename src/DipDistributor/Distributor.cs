@@ -231,6 +231,13 @@ namespace DipDistributor
             {
                 step.Status = StepStatus.Complete;
 
+                if (step.CleanupAssemblies)
+                {
+                    // TODO: #1 unload from memory...
+
+                    // TODO: #2 delete from download location...
+                }
+
                 await LogAsync(step);
 
                 return true;

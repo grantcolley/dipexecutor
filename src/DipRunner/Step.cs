@@ -73,25 +73,12 @@ namespace DipRunner
         /// </summary>
         public string TargetDownloadLocation { get; set; }
 
-        ///// <summary>
-        ///// Gets or sets the location of the log file associated with the step and or workflow.
-        ///// The location must include the path to the log file and the log file name.
-        ///// If one isn't provided then on calling <see cref="Validate"/> it will be set to "DistributorLog.txt" 
-        ///// and the file will get created in the directory of the executing assembly.
-        ///// If LogFileLocation is not provided and <see cref="Validate"/> is not called then 
-        ///// an exception may be thrown by the Distributor.
-        ///// </summary>
-        //public string LogFileLocation
-        //{
-        //    get
-        //    {
-        //        return string.IsNullOrWhiteSpace(logFileLocation) ? "DistributorLog.txt" : logFileLocation;
-        //    }
-        //    set
-        //    {
-        //        logFileLocation = value;
-        //    }
-        //}
+        /// <summary>
+        /// Gets or sets a value to tell the step to remove all assemblies 
+        /// in <see cref="Dependencies"/> on completion. This will involve 
+        /// unloading them from memory and deleting them from the download location.
+        /// </summary>
+        public bool CleanupAssemblies { get; set; }
 
         /// <summary>
         /// Gets or sets the step status.
