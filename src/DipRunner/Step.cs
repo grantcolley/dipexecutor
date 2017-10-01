@@ -23,7 +23,6 @@ namespace DipRunner
         private string stepUrl;
         private string logUrl;
         private string dependencyUrl;
-        private string logFileLocation;
 
         /// <summary>
         /// Gets or sets the workflow identifier.
@@ -69,9 +68,10 @@ namespace DipRunner
         public string TargetAssembly { get; set; }
 
         /// <summary>
-        /// Gets or sets the location where the <see cref="TargetAssembly"/> is downloaded to.
+        /// Gets or sets the location where the <see cref="Dependencies"/>,
+        /// including <see cref="TargetAssembly"/>, are downloaded to.
         /// </summary>
-        public string TargetDownloadLocation { get; set; }
+        public string AssemblyPath { get; set; }
 
         /// <summary>
         /// Gets or sets a value to tell the step to remove all assemblies 
