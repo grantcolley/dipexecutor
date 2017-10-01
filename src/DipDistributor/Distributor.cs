@@ -24,6 +24,8 @@ namespace DipDistributor
     /// </summary>
     internal class Distributor : IDistributor
     {
+        private string dependencyDirectory;
+
         private HttpClientFactory httpClientFactory;
 
         internal Distributor(HttpClientFactory httpClientFactory)
@@ -99,15 +101,39 @@ namespace DipDistributor
             }
         }
 
+        internal void CreateDependencyDirectory(Step step)
+        {
+            if (string.IsNullOrWhiteSpace(step.TargetDownloadLocation))
+            {
+                dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), "downloads", Guid.NewGuid().ToString());
+            }
+            else
+            {
+                dependencyDirectory = step.TargetDownloadLocation;
+            }
+
+            if (!Directory.Exists(dependencyDirectory))
+            {
+                Directory.CreateDirectory(dependencyDirectory);
+            }
+        }
+
+        internal string GetDependencyDirectory()
+        {
+            return dependencyDirectory;
+        }
+
         internal async Task<bool> DownloadDependenciesAsync(Step step)
         {
             try
             {
                 if ((step.Dependencies?.Length ?? 0).Equals(0))
                 {
-                    await LogAsync(step, "No dependencies");
+                    dependencyDirectory = Directory.GetCurrentDirectory();
                     return true;
                 }
+
+                CreateDependencyDirectory(step);
 
                 await LogAsync(step, "Downloading dependencies...");
 
@@ -142,8 +168,6 @@ namespace DipDistributor
                     using (var stream = await response.Content.ReadAsStreamAsync())
                     {
                         var fileName = filePath.Split('\\');
-
-                        var dependencyDirectory = await GetDependencyDirectoryAsync(step);
 
                         fullFileName = Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]);
 
@@ -194,9 +218,7 @@ namespace DipDistributor
                     await LogAsync(step, "TargetType is missing.");
                     return true;
                 }
-
-                var dependencyDirectory = await GetDependencyDirectoryAsync(step);
-
+                
                 var dependencies = GetDependencyAssemblyNames(step);
 
                 var assemblyLoader = new AssemblyLoader(dependencyDirectory, dependencies);
@@ -335,29 +357,6 @@ namespace DipDistributor
             }
 
             return logMessage;
-        }
-
-        internal async Task<string> GetDependencyDirectoryAsync(Step step)
-        {
-            string dependencyDirectory;
-
-            if (string.IsNullOrWhiteSpace(step.TargetDownloadLocation))
-            {
-                dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), $"{step.RunName}.{step.StepName}");
-            }
-            else
-            {
-                dependencyDirectory = step.TargetDownloadLocation;
-            }
-
-            if (!Directory.Exists(dependencyDirectory))
-            {
-                await LogAsync(step, $"Create directory {dependencyDirectory}");
-
-                Directory.CreateDirectory(dependencyDirectory);
-            }
-
-            return dependencyDirectory;
         }
 
         private async Task<bool> RunStepsAsync(Step step, IEnumerable<Step> steps, string type)
