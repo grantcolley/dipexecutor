@@ -24,8 +24,6 @@ namespace DipDistributor
     /// </summary>
     internal class Distributor : IDistributor
     {
-        private string dependencyDirectory;
-
         private HttpClientFactory httpClientFactory;
 
         internal Distributor(HttpClientFactory httpClientFactory)
@@ -101,39 +99,30 @@ namespace DipDistributor
             }
         }
 
-        internal void CreateDependencyDirectory(Step step)
+        internal void CreateAssemblyPath(Step step)
         {
-            if (string.IsNullOrWhiteSpace(step.TargetDownloadLocation))
+            if (string.IsNullOrWhiteSpace(step.AssemblyPath))
             {
-                dependencyDirectory = Path.Combine(Directory.GetCurrentDirectory(), "downloads", Guid.NewGuid().ToString());
-            }
-            else
-            {
-                dependencyDirectory = step.TargetDownloadLocation;
+                step.AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "downloads", Guid.NewGuid().ToString());
             }
 
-            if (!Directory.Exists(dependencyDirectory))
+            if (!Directory.Exists(step.AssemblyPath))
             {
-                Directory.CreateDirectory(dependencyDirectory);
+                Directory.CreateDirectory(step.AssemblyPath);
             }
         }
-
-        internal string GetDependencyDirectory()
-        {
-            return dependencyDirectory;
-        }
-
+        
         internal async Task<bool> DownloadDependenciesAsync(Step step)
         {
             try
             {
                 if ((step.Dependencies?.Length ?? 0).Equals(0))
                 {
-                    dependencyDirectory = Directory.GetCurrentDirectory();
+                    step.AssemblyPath = Directory.GetCurrentDirectory();
                     return true;
                 }
 
-                CreateDependencyDirectory(step);
+                CreateAssemblyPath(step);
 
                 await LogAsync(step, "Downloading dependencies...");
 
@@ -169,7 +158,7 @@ namespace DipDistributor
                     {
                         var fileName = filePath.Split('\\');
 
-                        fullFileName = Path.Combine(dependencyDirectory, fileName[fileName.Length - 1]);
+                        fullFileName = Path.Combine(step.AssemblyPath, fileName[fileName.Length - 1]);
 
                         if (File.Exists(fullFileName))
                         {
@@ -221,8 +210,8 @@ namespace DipDistributor
                 
                 var dependencies = GetDependencyAssemblyNames(step);
 
-                var assemblyLoader = new AssemblyLoader(dependencyDirectory, dependencies);
-                var assembly = assemblyLoader.LoadFromAssemblyPath(Path.Combine(dependencyDirectory, step.TargetAssembly));
+                var assemblyLoader = new AssemblyLoader(step.AssemblyPath, dependencies);
+                var assembly = assemblyLoader.LoadFromAssemblyPath(Path.Combine(step.AssemblyPath, step.TargetAssembly));
                 var type = assembly.GetType(step.TargetType);
                 dynamic obj = Activator.CreateInstance(type);
 
