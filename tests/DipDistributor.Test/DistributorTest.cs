@@ -248,7 +248,7 @@ namespace DipDistributor.Test
         }
 
         [TestMethod]
-        public async Task RunStepAsync_GetDependencyDirectory()
+        public void RunStepAsync_GetDependencyDirectory_TargetDownloadLocation()
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
@@ -258,21 +258,22 @@ namespace DipDistributor.Test
             var step = new Step();
             step.RunName = "Test.RunName";
             step.StepName = "StepName";
+            step.AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "AssemblyPath");
             step.Urls = new[] { "http://localhost:5000" };
 
             // Act
-            var result = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
             // Assert
-            Assert.AreEqual(result, Path.Combine(Directory.GetCurrentDirectory(), $"{step.RunName}.{step.StepName}"));
-            Assert.IsTrue(Directory.Exists(result));
+            Assert.AreEqual(step.AssemblyPath, Path.Combine(Directory.GetCurrentDirectory(), "AssemblyPath"));
+            Assert.IsTrue(Directory.Exists(step.AssemblyPath));
 
             // Cleanup
-            Directory.Delete(result);
+            Directory.Delete(step.AssemblyPath);
         }
 
         [TestMethod]
-        public async Task RunStepAsync_GetDependencyDirectory_TargetDownloadLocation()
+        public void RunStepAsync_GetDependencyDirectory()
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
@@ -282,20 +283,19 @@ namespace DipDistributor.Test
             var step = new Step();
             step.RunName = "Test.RunName";
             step.StepName = "StepName";
-            step.TargetDownloadLocation = Path.Combine(Directory.GetCurrentDirectory(), "TargetDownloadLocation");
             step.Urls = new[] { "http://localhost:5000" };
 
             // Act
-            var result = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
             // Assert
-            Assert.AreEqual(result, Path.Combine(Directory.GetCurrentDirectory(), "TargetDownloadLocation"));
-            Assert.IsTrue(Directory.Exists(result));
+            Assert.IsNotNull(step.AssemblyPath);
+            Assert.IsTrue(Directory.Exists(step.AssemblyPath));
 
             // Cleanup
-            Directory.Delete(result);
-        }
+            Directory.Delete(step.AssemblyPath);
 
+        }
         [TestMethod]
         public async Task RunStepAsync_TargetAssemblyMissing()
         {
@@ -356,20 +356,20 @@ namespace DipDistributor.Test
                 Path.Combine(@"..\..\..\artefacts","TestLibrary.dll")
             };
 
-            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
             }
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
             }
 
-            File.Copy(@"..\..\..\artefacts\TestDependency.dll", Path.Combine(dependencyDirectory, "TestDependency.dll"));
-            File.Copy(@"..\..\..\artefacts\TestLibrary.dll", Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+            File.Copy(@"..\..\..\artefacts\TestDependency.dll", Path.Combine(step.AssemblyPath, "TestDependency.dll"));
+            File.Copy(@"..\..\..\artefacts\TestLibrary.dll", Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
 
             // Act
             var result = await distributor.RunStepAsync(step);
@@ -397,11 +397,11 @@ namespace DipDistributor.Test
                 Path.Combine(@"..\..\..\artefacts","TestLibrary.dll")
             };
 
-            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
             }
 
             // Act
@@ -409,7 +409,7 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result);
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
         }
 
         [TestMethod]
@@ -431,16 +431,16 @@ namespace DipDistributor.Test
                 Path.Combine(@"..\..\..\artefacts","TestDependency.dll")
             };
 
-            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
             }
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
             }
 
             // Act
@@ -448,8 +448,8 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result);
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
         }
 
         [TestMethod]
@@ -471,16 +471,16 @@ namespace DipDistributor.Test
                 Path.Combine(@"..\..\..\artefacts","TestDependency.dll")
             };
 
-            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
             }
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
             }
 
             // Act
@@ -489,8 +489,8 @@ namespace DipDistributor.Test
             // Assert
             Assert.IsTrue(result);
             Assert.IsTrue(step.Status.Equals(StepStatus.Initialise));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
         }
 
         [TestMethod]
@@ -515,16 +515,16 @@ namespace DipDistributor.Test
 
             var step = TestHelper.GetDistributedSteps("ProcessStep", out steps);
 
-            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
             }
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
             }
 
             // Act
@@ -532,8 +532,8 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.Complete));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
         }
 
         [TestMethod]
@@ -558,16 +558,16 @@ namespace DipDistributor.Test
 
             var step = TestHelper.GetDistributedSteps("ProcessStep_InitialiseStepAsync_Unsuccessful", out steps);
 
-            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
             }
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
             }
 
             // Act
@@ -575,8 +575,8 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.Initialise));
-            Assert.IsTrue(!File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
-            Assert.IsTrue(!File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+            Assert.IsTrue(!File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+            Assert.IsTrue(!File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
         }
 
         [TestMethod]
@@ -601,16 +601,16 @@ namespace DipDistributor.Test
 
             var step = TestHelper.GetDistributedSteps("ProcessStep_RunSubStepsAsync_Unsuccessful", out steps);
 
-            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
             }
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
             }
 
             // Act
@@ -618,8 +618,8 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.InProgress));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
         }
 
         [TestMethod]
@@ -672,16 +672,16 @@ namespace DipDistributor.Test
 
             var step = TestHelper.GetDistributedSteps("RunAsync", out steps);
 
-            var dependencyDirectory = await distributor.GetDependencyDirectoryAsync(step);
+            distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestLibrary.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
             }
 
-            if (File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")))
+            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
             {
-                File.Delete(Path.Combine(dependencyDirectory, "TestDependency.dll"));
+                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
             }
 
             // Act
@@ -689,8 +689,8 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.Complete));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestLibrary.dll")));
-            Assert.IsTrue(File.Exists(Path.Combine(dependencyDirectory, "TestDependency.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
         }
 
         [TestMethod]
