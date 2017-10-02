@@ -358,18 +358,12 @@ namespace DipDistributor.Test
 
             distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            }
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            }
-
-            File.Copy(@"..\..\..\artefacts\TestDependency.dll", Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            File.Copy(@"..\..\..\artefacts\TestLibrary.dll", Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
+            var testdependencydll = Path.Combine(step.AssemblyPath, "TestDependency.dll");
+            var testlibrarydll = Path.Combine(step.AssemblyPath, "TestLibrary.dll");
+            File.Copy(@"..\..\..\artefacts\TestDependency.dll", testdependencydll);
+            File.SetAttributes(testdependencydll, FileAttributes.Normal);
+            File.Copy(@"..\..\..\artefacts\TestLibrary.dll", testlibrarydll);
+            File.SetAttributes(testlibrarydll, FileAttributes.Normal);
 
             // Act
             var result = await distributor.RunStepAsync(step);
@@ -377,6 +371,16 @@ namespace DipDistributor.Test
             // Assert
             Assert.IsTrue(result);
             Assert.AreEqual(step.Payload, "1000|Hello world!");
+
+            distributor = null;
+
+            //File.SetAttributes(testlibrarydll, FileAttributes.Normal);
+            //File.SetAttributes(testdependencydll, FileAttributes.Normal);
+            //File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
+            //File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
+            //Directory.Delete(step.AssemblyPath);
+
+            //Assert.IsFalse(Directory.Exists(step.AssemblyPath));
         }
 
         [TestMethod]
