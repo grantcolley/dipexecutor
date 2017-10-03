@@ -11,6 +11,18 @@ namespace DipDistributor.Test
     [TestClass]
     public class DistributorTest
     {
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
+        {
+            CleanDownloads();
+        }
+
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            CleanDownloads();
+        }
+
         [TestMethod]
         public async Task DistributeStepAsync()
         {
@@ -344,7 +356,6 @@ namespace DipDistributor.Test
             var distributor = new Distributor(clientFactory);
 
             var step = new Step();
-            step.RunName = "TestRunStepAsync";
             step.Urls = new[] { "http://localhost:5000" };
             step.TargetAssembly = "TestLibrary.dll";
             step.TargetType = "TestLibrary.TestRunner";
@@ -358,12 +369,8 @@ namespace DipDistributor.Test
 
             distributor.CreateAssemblyPath(step);
 
-            var testdependencydll = Path.Combine(step.AssemblyPath, "TestDependency.dll");
-            var testlibrarydll = Path.Combine(step.AssemblyPath, "TestLibrary.dll");
-            File.Copy(@"..\..\..\artefacts\TestDependency.dll", testdependencydll);
-            File.SetAttributes(testdependencydll, FileAttributes.Normal);
-            File.Copy(@"..\..\..\artefacts\TestLibrary.dll", testlibrarydll);
-            File.SetAttributes(testlibrarydll, FileAttributes.Normal);
+            File.Copy(@"..\..\..\artefacts\TestDependency.dll", Path.Combine(step.AssemblyPath, "TestDependency.dll"));
+            File.Copy(@"..\..\..\artefacts\TestLibrary.dll", Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
 
             // Act
             var result = await distributor.RunStepAsync(step);
@@ -371,18 +378,9 @@ namespace DipDistributor.Test
             // Assert
             Assert.IsTrue(result);
             Assert.AreEqual(step.Payload, "1000|Hello world!");
-
-            distributor = null;
-
-            //File.SetAttributes(testlibrarydll, FileAttributes.Normal);
-            //File.SetAttributes(testdependencydll, FileAttributes.Normal);
-            //File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            //File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            //Directory.Delete(step.AssemblyPath);
-
-            //Assert.IsFalse(Directory.Exists(step.AssemblyPath));
         }
 
+    
         [TestMethod]
         public async Task DownloadDependencyAsync()
         {
@@ -393,7 +391,6 @@ namespace DipDistributor.Test
             var httpClient = clientFactory.GetHttpClient();
 
             var step = new Step();
-            step.RunName = "TestDownloadDependencyAsync";
             step.Urls = new[] { "http://localhost:5000" };
             step.DependencyUrl = "";
             step.Dependencies = new[]
@@ -402,11 +399,6 @@ namespace DipDistributor.Test
             };
 
             distributor.CreateAssemblyPath(step);
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            }
 
             // Act
             var result = await distributor.DownloadDependencyAsync(step, httpClient, step.Dependencies[0]);
@@ -426,7 +418,6 @@ namespace DipDistributor.Test
             var httpClient = clientFactory.GetHttpClient();
 
             var step = new Step();
-            step.RunName = "DownloadDependenciesAsync";
             step.Urls = new[] { "http://localhost:5000" };
             step.DependencyUrl = "";
             step.Dependencies = new[]
@@ -436,16 +427,6 @@ namespace DipDistributor.Test
             };
 
             distributor.CreateAssemblyPath(step);
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            }
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            }
 
             // Act
             var result = await distributor.DownloadDependenciesAsync(step);
@@ -466,7 +447,6 @@ namespace DipDistributor.Test
             var httpClient = clientFactory.GetHttpClient();
 
             var step = new Step();
-            step.RunName = "InitialiseStepAsync";
             step.Urls = new[] { "http://localhost:5000" };
             step.DependencyUrl = "";
             step.Dependencies = new[]
@@ -476,16 +456,6 @@ namespace DipDistributor.Test
             };
 
             distributor.CreateAssemblyPath(step);
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            }
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            }
 
             // Act
             var result = await distributor.InitialiseStepAsync(step);
@@ -521,16 +491,6 @@ namespace DipDistributor.Test
 
             distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            }
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            }
-
             // Act
             var result = await distributor.ProcessStepAsync(step);
 
@@ -564,16 +524,6 @@ namespace DipDistributor.Test
 
             distributor.CreateAssemblyPath(step);
 
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            }
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            }
-
             // Act
             var result = await distributor.ProcessStepAsync(step);
 
@@ -606,16 +556,6 @@ namespace DipDistributor.Test
             var step = TestHelper.GetDistributedSteps("ProcessStep_RunSubStepsAsync_Unsuccessful", out steps);
 
             distributor.CreateAssemblyPath(step);
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            }
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            }
 
             // Act
             var result = await distributor.ProcessStepAsync(step);
@@ -677,16 +617,6 @@ namespace DipDistributor.Test
             var step = TestHelper.GetDistributedSteps("RunAsync", out steps);
 
             distributor.CreateAssemblyPath(step);
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
-            }
-
-            if (File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")))
-            {
-                File.Delete(Path.Combine(step.AssemblyPath, "TestDependency.dll"));
-            }
 
             // Act
             var result = await distributor.ProcessStepAsync(step);
@@ -965,6 +895,35 @@ namespace DipDistributor.Test
 
             Assert.AreEqual(resultsList[2].Urls.Count(), 2);
             Assert.AreEqual(resultsList[2].StepUrl, $"{urls[0]}/run");
+        }
+
+        private static void CleanDownloads()
+        {
+            bool errored = false;
+            foreach (var folder in Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "downloads")))
+            {
+                foreach (var file in Directory.GetFiles(folder))
+                {
+                    try
+                    {
+                        File.SetAttributes(file, FileAttributes.Normal);
+                        File.Delete(file);
+                    }
+                    catch
+                    {
+                        errored = true;
+                        break;
+                    };
+                }
+
+                if (errored)
+                {
+                    errored = false;
+                    continue;
+                }
+
+                Directory.Delete(folder);
+            }
         }
     }
 }
