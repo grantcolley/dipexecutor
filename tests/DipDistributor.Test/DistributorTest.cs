@@ -11,12 +11,6 @@ namespace DipDistributor.Test
     [TestClass]
     public class DistributorTest
     {
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-            CleanDownloads();
-        }
-
         [TestMethod]
         public async Task DistributeStepAsync()
         {
@@ -34,8 +28,7 @@ namespace DipDistributor.Test
 
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000/run" };
+            var step = TestHelper.GetStep();
 
             // Act
             var result = await distributor.DistributeStepAsync(step);
@@ -52,8 +45,7 @@ namespace DipDistributor.Test
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
 
             // Act
             await distributor.LogAsync(step, "test");
@@ -68,8 +60,7 @@ namespace DipDistributor.Test
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
 
             // Act
             var result = await distributor.CompleteStepAsync(step);
@@ -96,8 +87,7 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() };
 
             // Act
@@ -124,8 +114,7 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step(), new Step() };
 
             // Act
@@ -155,8 +144,7 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() { StepName = "transition1" }, new Step() };
 
             // Act
@@ -183,8 +171,7 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() };
 
             // Act
@@ -211,8 +198,7 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.SubSteps = new[] { new Step(), new Step() };
 
             // Act
@@ -242,8 +228,7 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.SubSteps = new[] { new Step() { StepName = "subStep1" }, new Step() };
 
             // Act
@@ -261,11 +246,10 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
+            var step = TestHelper.GetStep();
             step.RunName = "Test.RunName";
             step.StepName = "StepName";
             step.AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "AssemblyPath");
-            step.Urls = new[] { "http://localhost:5000" };
 
             // Act
             distributor.CreateAssemblyPath(step);
@@ -274,8 +258,11 @@ namespace DipDistributor.Test
             Assert.AreEqual(step.AssemblyPath, Path.Combine(Directory.GetCurrentDirectory(), "AssemblyPath"));
             Assert.IsTrue(Directory.Exists(step.AssemblyPath));
 
-            // Cleanup
-            Directory.Delete(step.AssemblyPath);
+            // Act
+            distributor.Cleanup(step);
+
+            // Assert
+            Assert.IsFalse(Directory.Exists(step.AssemblyPath));
         }
 
         [TestMethod]
@@ -286,10 +273,9 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
+            var step = TestHelper.GetStep();
             step.RunName = "Test.RunName";
             step.StepName = "StepName";
-            step.Urls = new[] { "http://localhost:5000" };
 
             // Act
             distributor.CreateAssemblyPath(step);
@@ -299,9 +285,9 @@ namespace DipDistributor.Test
             Assert.IsTrue(Directory.Exists(step.AssemblyPath));
 
             // Cleanup
-            Directory.Delete(step.AssemblyPath);
-
+            distributor.Cleanup(step);
         }
+
         [TestMethod]
         public async Task RunStepAsync_TargetAssemblyMissing()
         {
@@ -310,9 +296,8 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
+            var step = TestHelper.GetStep();
             step.RunName = "Test";
-            step.Urls = new[] { "http://localhost:5000" };
 
             // Act
             var result = await distributor.RunStepAsync(step);
@@ -329,9 +314,8 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
+            var step = TestHelper.GetStep();
             step.RunName = "Test";
-            step.Urls = new[] { "http://localhost:5000" };
             step.TargetAssembly = "TestLibrary.dll";
 
             // Act
@@ -349,8 +333,7 @@ namespace DipDistributor.Test
             var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
             var distributor = new Distributor(clientFactory);
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.TargetAssembly = "TestLibrary.dll";
             step.TargetType = "TestLibrary.TestRunner";
             step.Payload = "1000|Hello";
@@ -372,6 +355,9 @@ namespace DipDistributor.Test
             // Assert
             Assert.IsTrue(result);
             Assert.AreEqual(step.Payload, "1000|Hello world!");
+
+            // Cleanup
+            distributor.Cleanup(step);
         }
             
         [TestMethod]
@@ -383,8 +369,7 @@ namespace DipDistributor.Test
             var distributor = new Distributor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.DependencyUrl = "";
             step.Dependencies = new[]
             {
@@ -399,6 +384,9 @@ namespace DipDistributor.Test
             // Assert
             Assert.IsTrue(result);
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+
+            // Cleanup
+            distributor.Cleanup(step);
         }
 
         [TestMethod]
@@ -410,8 +398,7 @@ namespace DipDistributor.Test
             var distributor = new Distributor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.DependencyUrl = "";
             step.Dependencies = new[]
             {
@@ -428,6 +415,9 @@ namespace DipDistributor.Test
             Assert.IsTrue(result);
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
+
+            // Cleanup
+            distributor.Cleanup(step);
         }
 
         [TestMethod]
@@ -439,8 +429,7 @@ namespace DipDistributor.Test
             var distributor = new Distributor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
-            var step = new Step();
-            step.Urls = new[] { "http://localhost:5000" };
+            var step = TestHelper.GetStep();
             step.DependencyUrl = "";
             step.Dependencies = new[]
             {
@@ -458,6 +447,9 @@ namespace DipDistributor.Test
             Assert.IsTrue(step.Status.Equals(StepStatus.Initialise));
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
+
+            // Cleanup
+            distributor.Cleanup(step);
         }
 
         [TestMethod]
@@ -489,8 +481,8 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.Complete));
-            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
-            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
+            Assert.IsFalse(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+            Assert.IsFalse(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
         }
 
         [TestMethod]
@@ -524,6 +516,9 @@ namespace DipDistributor.Test
             Assert.IsTrue(result.Status.Equals(StepStatus.Initialise));
             Assert.IsTrue(!File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
             Assert.IsTrue(!File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
+
+            // Cleanup
+            distributor.Cleanup(step);
         }
 
         [TestMethod]
@@ -557,6 +552,9 @@ namespace DipDistributor.Test
             Assert.IsTrue(result.Status.Equals(StepStatus.InProgress));
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
+
+            // Cleanup
+            distributor.Cleanup(step);
         }
 
         [TestMethod]
@@ -616,8 +614,8 @@ namespace DipDistributor.Test
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.Complete));
-            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
-            Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
+            Assert.IsFalse(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
+            Assert.IsFalse(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
         }
 
         [TestMethod]
@@ -888,20 +886,6 @@ namespace DipDistributor.Test
 
             Assert.AreEqual(resultsList[2].Urls.Count(), 2);
             Assert.AreEqual(resultsList[2].StepUrl, $"{urls[0]}/run");
-        }
-
-        private static void CleanDownloads()
-        {
-            foreach (var folder in Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "downloads")))
-            {
-                foreach (var file in Directory.GetFiles(folder))
-                {
-                    File.SetAttributes(file, FileAttributes.Normal);
-                    File.Delete(file);
-                }
-
-                Directory.Delete(folder);
-            }
         }
     }
 }
