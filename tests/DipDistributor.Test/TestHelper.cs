@@ -7,6 +7,11 @@ namespace DipDistributor.Test
 {
     public static class TestHelper
     {
+        public static Step GetStep()
+        {
+            return new Step() { Urls = new[] { "http://localhost:5000/" } };
+        }
+
         public static Step GetDistributedSteps(string runName, out IList<Step> steps)
         {
             var random = new Random();
