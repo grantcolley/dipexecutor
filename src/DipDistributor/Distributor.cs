@@ -242,11 +242,9 @@ namespace DipDistributor
             {
                 step.Status = StepStatus.Complete;
 
-                if (step.CleanupAssemblies)
+                if (!step.SkipAssemblyCleanup)
                 {
-                    // TODO: #1 unload from memory...
-
-                    // TODO: #2 delete from download location...
+                    await Cleanup(step);
                 }
 
                 await LogAsync(step);
@@ -346,6 +344,29 @@ namespace DipDistributor
             }
 
             return logMessage;
+        }
+
+        internal async Task Cleanup(Step step)
+        {
+            if (string.IsNullOrWhiteSpace(step.AssemblyPath))
+            {
+                return;
+            }
+
+            try
+            {
+                foreach (var file in Directory.GetFiles(step.AssemblyPath))
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
+
+                Directory.Delete(step.AssemblyPath);
+            }
+            catch(Exception ex)
+            {
+                await LogAsync(step, ex.Message);
+            }
         }
 
         private async Task<bool> RunStepsAsync(Step step, IEnumerable<Step> steps, string type)

@@ -74,11 +74,9 @@ namespace DipRunner
         public string AssemblyPath { get; set; }
 
         /// <summary>
-        /// Gets or sets a value to tell the step to remove all assemblies 
-        /// in <see cref="Dependencies"/> on completion. This will involve 
-        /// unloading them from memory and deleting them from the download location.
+        /// Gets or sets a value to tell the step not to remove downloaded assemblies on completion.
         /// </summary>
-        public bool CleanupAssemblies { get; set; }
+        public bool SkipAssemblyCleanup { get; set; }
 
         /// <summary>
         /// Gets or sets the step status.
