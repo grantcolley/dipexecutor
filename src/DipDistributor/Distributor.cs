@@ -211,7 +211,7 @@ namespace DipDistributor
                 var dependencies = GetDependencyAssemblyNames(step);
 
                 var assemblyLoader = new AssemblyLoader(step.AssemblyPath, dependencies);
-                var assembly = assemblyLoader.LoadFromAssemblyPath(Path.Combine(step.AssemblyPath, step.TargetAssembly));
+                var assembly = assemblyLoader.LoadFromMemoryStream(Path.Combine(step.AssemblyPath, step.TargetAssembly));
                 var type = assembly.GetType(step.TargetType);
                 dynamic obj = Activator.CreateInstance(type);
 

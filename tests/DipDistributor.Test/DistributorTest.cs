@@ -11,12 +11,6 @@ namespace DipDistributor.Test
     [TestClass]
     public class DistributorTest
     {
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-            CleanDownloads();
-        }
-
         [ClassCleanup]
         public static void ClassCleanup()
         {
@@ -379,8 +373,7 @@ namespace DipDistributor.Test
             Assert.IsTrue(result);
             Assert.AreEqual(step.Payload, "1000|Hello world!");
         }
-
-    
+            
         [TestMethod]
         public async Task DownloadDependencyAsync()
         {
@@ -899,27 +892,12 @@ namespace DipDistributor.Test
 
         private static void CleanDownloads()
         {
-            bool errored = false;
             foreach (var folder in Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "downloads")))
             {
                 foreach (var file in Directory.GetFiles(folder))
                 {
-                    try
-                    {
-                        File.SetAttributes(file, FileAttributes.Normal);
-                        File.Delete(file);
-                    }
-                    catch
-                    {
-                        errored = true;
-                        break;
-                    };
-                }
-
-                if (errored)
-                {
-                    errored = false;
-                    continue;
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
                 }
 
                 Directory.Delete(folder);
