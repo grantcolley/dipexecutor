@@ -12,7 +12,7 @@ namespace DipExecutor.Test
             return new Step() { Urls = new[] { "http://localhost:5000/" } };
         }
 
-        public static Step GetDistributedSteps(string runName, out IList<Step> steps)
+        public static Step GetSteps(string runName, out IList<Step> steps)
         {
             var random = new Random();
             random.Next(4);

@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Threading.Tasks;
 
 namespace DipExecutor
 {
@@ -10,7 +9,7 @@ namespace DipExecutor
         internal static void Log(string message)
         {
             // TODO: get from config...
-            string path = @"C:\GitHub\dipdistributor\DipExecutor.txt";
+            string path = @"C:\GitHub\dipexecutor\DipExecutor.txt";
 
             // TODO: clean this stuff up. Testing only.
             lock (locker)

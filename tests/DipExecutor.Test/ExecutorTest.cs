@@ -27,11 +27,11 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var step = TestHelper.GetStep();
 
             // Act
-            var result = await distributor.DistributeStepAsync(step);
+            var result = await executor.DistributeStepAsync(step);
 
             // Assert
             Assert.AreEqual(result.Payload, "hello world");
@@ -44,11 +44,11 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var step = TestHelper.GetStep();
 
             // Act
-            await distributor.LogAsync(step, "test");
+            await executor.LogAsync(step, "test");
 
             // Assert
         }
@@ -59,11 +59,11 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var step = TestHelper.GetStep();
 
             // Act
-            var result = await distributor.CompleteStepAsync(step);
+            var result = await executor.CompleteStepAsync(step);
 
             // Assert
             Assert.IsTrue(result);
@@ -85,13 +85,13 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() };
 
             // Act
-            var result = await distributor.RunTransitionStepsAsync(step);
+            var result = await executor.RunTransitionStepsAsync(step);
 
             // Assert
             Assert.IsTrue(result);
@@ -112,13 +112,13 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step(), new Step() };
 
             // Act
-            var result = await distributor.RunTransitionStepsAsync(step);
+            var result = await executor.RunTransitionStepsAsync(step);
 
             // Assert
             Assert.IsTrue(result);
@@ -142,13 +142,13 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() { StepName = "transition1" }, new Step() };
 
             // Act
-            var result = await distributor.RunTransitionStepsAsync(step);
+            var result = await executor.RunTransitionStepsAsync(step);
 
             // Assert
             Assert.IsFalse(result);
@@ -169,13 +169,13 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() };
 
             // Act
-            var result = await distributor.RunTransitionStepsAsync(step);
+            var result = await executor.RunTransitionStepsAsync(step);
 
             // Assert
             Assert.IsFalse(result);
@@ -196,13 +196,13 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.SubSteps = new[] { new Step(), new Step() };
 
             // Act
-            var result = await distributor.RunSubStepsAsync(step);
+            var result = await executor.RunSubStepsAsync(step);
 
             // Assert
             Assert.IsTrue(result);
@@ -226,13 +226,13 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.SubSteps = new[] { new Step() { StepName = "subStep1" }, new Step() };
 
             // Act
-            var result = await distributor.RunSubStepsAsync(step);
+            var result = await executor.RunSubStepsAsync(step);
 
             // Assert
             Assert.IsFalse(result);
@@ -244,7 +244,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.RunName = "Test.RunName";
@@ -252,14 +252,14 @@ namespace DipExecutor.Test
             step.AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "AssemblyPath");
 
             // Act
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Assert
             Assert.AreEqual(step.AssemblyPath, Path.Combine(Directory.GetCurrentDirectory(), "AssemblyPath"));
             Assert.IsTrue(Directory.Exists(step.AssemblyPath));
 
             // Act
-            distributor.Cleanup(step);
+            executor.Cleanup(step);
 
             // Assert
             Assert.IsFalse(Directory.Exists(step.AssemblyPath));
@@ -271,21 +271,21 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.RunName = "Test.RunName";
             step.StepName = "StepName";
 
             // Act
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Assert
             Assert.IsNotNull(step.AssemblyPath);
             Assert.IsTrue(Directory.Exists(step.AssemblyPath));
 
             // Cleanup
-            distributor.Cleanup(step);
+            executor.Cleanup(step);
         }
 
         [TestMethod]
@@ -294,13 +294,13 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.RunName = "Test";
 
             // Act
-            var result = await distributor.RunStepAsync(step);
+            var result = await executor.RunStepAsync(step);
 
             // Assert
             Assert.IsTrue(result);
@@ -312,14 +312,14 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.RunName = "Test";
             step.TargetAssembly = "TestLibrary.dll";
 
             // Act
-            var result = await distributor.RunStepAsync(step);
+            var result = await executor.RunStepAsync(step);
 
             // Assert
             Assert.IsTrue(result);
@@ -331,7 +331,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TargetAssembly = "TestLibrary.dll";
@@ -344,20 +344,20 @@ namespace DipExecutor.Test
                 Path.Combine(@"..\..\..\artefacts","TestLibrary.dll")
             };
 
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             File.Copy(@"..\..\..\artefacts\TestDependency.dll", Path.Combine(step.AssemblyPath, "TestDependency.dll"));
             File.Copy(@"..\..\..\artefacts\TestLibrary.dll", Path.Combine(step.AssemblyPath, "TestLibrary.dll"));
 
             // Act
-            var result = await distributor.RunStepAsync(step);
+            var result = await executor.RunStepAsync(step);
 
             // Assert
             Assert.IsTrue(result);
             Assert.AreEqual(step.Payload, "1000|Hello world!");
 
             // Cleanup
-            distributor.Cleanup(step);
+            executor.Cleanup(step);
         }
             
         [TestMethod]
@@ -366,7 +366,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -376,17 +376,17 @@ namespace DipExecutor.Test
                 Path.Combine(@"..\..\..\artefacts","TestLibrary.dll")
             };
 
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Act
-            var result = await distributor.DownloadDependencyAsync(step, httpClient, step.Dependencies[0]);
+            var result = await executor.DownloadDependencyAsync(step, httpClient, step.Dependencies[0]);
 
             // Assert
             Assert.IsTrue(result);
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
 
             // Cleanup
-            distributor.Cleanup(step);
+            executor.Cleanup(step);
         }
 
         [TestMethod]
@@ -395,7 +395,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -406,10 +406,10 @@ namespace DipExecutor.Test
                 Path.Combine(@"..\..\..\artefacts","TestDependency.dll")
             };
 
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Act
-            var result = await distributor.DownloadDependenciesAsync(step);
+            var result = await executor.DownloadDependenciesAsync(step);
 
             // Assert
             Assert.IsTrue(result);
@@ -417,7 +417,7 @@ namespace DipExecutor.Test
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
 
             // Cleanup
-            distributor.Cleanup(step);
+            executor.Cleanup(step);
         }
 
         [TestMethod]
@@ -426,7 +426,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -437,10 +437,10 @@ namespace DipExecutor.Test
                 Path.Combine(@"..\..\..\artefacts","TestDependency.dll")
             };
 
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Act
-            var result = await distributor.InitialiseStepAsync(step);
+            var result = await executor.InitialiseStepAsync(step);
 
             // Assert
             Assert.IsTrue(result);
@@ -449,7 +449,7 @@ namespace DipExecutor.Test
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
 
             // Cleanup
-            distributor.Cleanup(step);
+            executor.Cleanup(step);
         }
 
         [TestMethod]
@@ -467,17 +467,17 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
 
-            var step = TestHelper.GetDistributedSteps("ProcessStep", out steps);
+            var step = TestHelper.GetSteps("ProcessStep", out steps);
 
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Act
-            var result = await distributor.ProcessStepAsync(step);
+            var result = await executor.ProcessStepAsync(step);
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.Complete));
@@ -500,17 +500,17 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
 
-            var step = TestHelper.GetDistributedSteps("ProcessStep_InitialiseStepAsync_Unsuccessful", out steps);
+            var step = TestHelper.GetSteps("ProcessStep_InitialiseStepAsync_Unsuccessful", out steps);
 
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Act
-            var result = await distributor.ProcessStepAsync(step);
+            var result = await executor.ProcessStepAsync(step);
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.Initialise));
@@ -518,7 +518,7 @@ namespace DipExecutor.Test
             Assert.IsTrue(!File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
 
             // Cleanup
-            distributor.Cleanup(step);
+            executor.Cleanup(step);
         }
 
         [TestMethod]
@@ -536,17 +536,17 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
 
-            var step = TestHelper.GetDistributedSteps("ProcessStep_RunSubStepsAsync_Unsuccessful", out steps);
+            var step = TestHelper.GetSteps("ProcessStep_RunSubStepsAsync_Unsuccessful", out steps);
 
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Act
-            var result = await distributor.ProcessStepAsync(step);
+            var result = await executor.ProcessStepAsync(step);
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.InProgress));
@@ -554,7 +554,7 @@ namespace DipExecutor.Test
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
 
             // Cleanup
-            distributor.Cleanup(step);
+            executor.Cleanup(step);
         }
 
         [TestMethod]
@@ -562,11 +562,11 @@ namespace DipExecutor.Test
         public async Task RunAsync_StepIsNull()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             Step step = null;
 
             // Act
-            var result = await distributor.RunAsync(step);
+            var result = await executor.RunAsync(step);
 
             // Assert
         }
@@ -576,11 +576,11 @@ namespace DipExecutor.Test
         public async Task RunAsync_Step_ValidationFalied()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var step = new Step();
 
             // Act
-            var result = await distributor.RunAsync(step);
+            var result = await executor.RunAsync(step);
 
             // Assert
         }
@@ -600,17 +600,17 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Executor(clientFactory);
+            var executor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
 
-            var step = TestHelper.GetDistributedSteps("RunAsync", out steps);
+            var step = TestHelper.GetSteps("RunAsync", out steps);
 
-            distributor.CreateAssemblyPath(step);
+            executor.CreateAssemblyPath(step);
 
             // Act
-            var result = await distributor.ProcessStepAsync(step);
+            var result = await executor.ProcessStepAsync(step);
 
             // Assert
             Assert.IsTrue(result.Status.Equals(StepStatus.Complete));
@@ -623,10 +623,10 @@ namespace DipExecutor.Test
         public void CreateMessage_NullMessage()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
 
             // Act
-            var result = distributor.CreateMessage(null, "");
+            var result = executor.CreateMessage(null, "");
 
             // Assert
         }
@@ -635,10 +635,10 @@ namespace DipExecutor.Test
         public void CreateMessage_EmptyMessage()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
 
             // Act
-            var result = distributor.CreateMessage("");
+            var result = executor.CreateMessage("");
 
             // Assert
             Assert.IsTrue(result.Contains("   RunId: 0; Run Name: ; StepId: 0; Step Name: ; Step Status: Unknown"));
@@ -648,10 +648,10 @@ namespace DipExecutor.Test
         public void CreateMessage_TestMessage()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
 
             // Act
-            var result = distributor.CreateMessage("test");
+            var result = executor.CreateMessage("test");
 
             // Assert
             Assert.IsTrue(result.Contains("   RunId: 0; Run Name: ; StepId: 0; Step Name: ; Step Status: Unknown; Message: test"));
@@ -661,11 +661,11 @@ namespace DipExecutor.Test
         public void CreateMessage_DefaultStepTestMessage()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var step = new Step();
 
             // Act
-            var result = distributor.CreateMessage(step, "test");
+            var result = executor.CreateMessage(step, "test");
 
             // Assert
             Assert.IsTrue(result.Contains("   RunId: 0; Run Name: ; StepId: 0; Step Name: ; Step Status: Unknown; Message: test"));
@@ -675,11 +675,11 @@ namespace DipExecutor.Test
         public void CreateMessage_DefaultStepEmptyMessage()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var step = new Step();
 
             // Act
-            var result = distributor.CreateMessage(step, "test");
+            var result = executor.CreateMessage(step, "test");
 
             // Assert
             Assert.IsTrue(result.Contains("   RunId: 0; Run Name: ; StepId: 0; Step Name: ; Step Status: Unknown"));
@@ -689,7 +689,7 @@ namespace DipExecutor.Test
         public void CreateMessage_StepTestMessage()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var step = new Step()
             {
                 RunId = 1,
@@ -700,7 +700,7 @@ namespace DipExecutor.Test
             };
 
             // Act
-            var result = distributor.CreateMessage(step, "test");
+            var result = executor.CreateMessage(step, "test");
 
             // Assert
             Assert.IsTrue(result.Contains("   RunId: 1; Run Name: Test Run; StepId: 2; Step Name: Step Name; Step Status: InProgress; Message: test"));
@@ -712,10 +712,10 @@ namespace DipExecutor.Test
         {
             // Arrange
             var step = new Step();
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
 
             // Act
-            var dependencyList = distributor.GetDependencyAssemblyNames(step);
+            var dependencyList = executor.GetDependencyAssemblyNames(step);
 
             // Assert
             Assert.AreEqual(dependencyList.Count, 0);
@@ -727,10 +727,10 @@ namespace DipExecutor.Test
         {
             // Arrange
             var step = new Step();
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
 
             // Act
-            var dependencyList = distributor.GetDependencyAssemblyNames(step);
+            var dependencyList = executor.GetDependencyAssemblyNames(step);
 
             // Assert
             Assert.AreEqual(dependencyList.Count, 0);
@@ -740,7 +740,7 @@ namespace DipExecutor.Test
         public void GetDependencyAssemblyNames_OneDependency()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var step = new Step();
             step.Dependencies = new[]
             {
@@ -748,7 +748,7 @@ namespace DipExecutor.Test
             };
 
             // Act
-            var dependencyList = distributor.GetDependencyAssemblyNames(step);
+            var dependencyList = executor.GetDependencyAssemblyNames(step);
 
             // Assert
             Assert.AreEqual(dependencyList.Count, 1);
@@ -759,7 +759,7 @@ namespace DipExecutor.Test
         public void GetDependencyAssemblyNames_ManyDependencies()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var step = new Step();
             step.Dependencies = new[]
             {
@@ -769,7 +769,7 @@ namespace DipExecutor.Test
             };
 
             // Act
-            var dependencyList = distributor.GetDependencyAssemblyNames(step);
+            var dependencyList = executor.GetDependencyAssemblyNames(step);
 
             // Assert
             Assert.AreEqual(dependencyList.Count, 3);
@@ -782,12 +782,12 @@ namespace DipExecutor.Test
         public void SetUrl_NoUrls_TwoSteps()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { };
 
             // Act
-            var results = distributor.SetUrl(steps, urls);
+            var results = executor.SetUrl(steps, urls);
             var resultsList = results.Cast<Step>().ToArray();
 
             // Assert
@@ -801,12 +801,12 @@ namespace DipExecutor.Test
         public void SetUrl_OneUrl_TwoSteps()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1" };
 
             // Act
-            var results = distributor.SetUrl(steps, urls);
+            var results = executor.SetUrl(steps, urls);
             var resultsList = results.Cast<Step>().ToArray();
 
             // Assert
@@ -823,12 +823,12 @@ namespace DipExecutor.Test
         public void SetUrl_TwoUrls_TwoSteps()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1", "url2" };
 
             // Act
-            var results = distributor.SetUrl(steps, urls);
+            var results = executor.SetUrl(steps, urls);
             var resultsList = results.Cast<Step>().ToArray();
 
             // Assert
@@ -845,12 +845,12 @@ namespace DipExecutor.Test
         public void SetUrl_ThreeUrls_TwoSteps()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1", "url2", "url3" };
 
             // Act
-            var results = distributor.SetUrl(steps, urls);
+            var results = executor.SetUrl(steps, urls);
             var resultsList = results.Cast<Step>().ToArray();
 
             // Assert
@@ -867,12 +867,12 @@ namespace DipExecutor.Test
         public void SetUrl_TwoUrls_ThreeSteps()
         {
             // Arrange
-            var distributor = new Executor(null);
+            var executor = new Executor(null);
             var steps = new Step[] { new Step(), new Step(), new Step() };
             var urls = new string[] { "url1", "url2" };
 
             // Act
-            var results = distributor.SetUrl(steps, urls);
+            var results = executor.SetUrl(steps, urls);
             var resultsList = results.Cast<Step>().ToArray();
 
             // Assert

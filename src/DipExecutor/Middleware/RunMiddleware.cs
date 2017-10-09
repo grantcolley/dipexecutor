@@ -13,7 +13,7 @@ namespace DipExecutor.Middleware
         {
         }
 
-        public async Task Invoke(HttpContext context, IExecutor distributor)
+        public async Task Invoke(HttpContext context, IExecutor executor)
         {
             string body;
             var stream = context.Request.Body;
@@ -23,7 +23,7 @@ namespace DipExecutor.Middleware
             }
 
             var step = JsonConvert.DeserializeObject<Step>(body);
-            var response = await distributor.RunAsync(step);
+            var response = await executor.RunAsync(step);
             await context.Response.WriteAsync(JsonConvert.SerializeObject(response), Encoding.UTF8);
         }
     }
