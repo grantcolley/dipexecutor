@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DipExecutor.Test", "tests\D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DipExecutor", "src\DipExecutor\DipExecutor.csproj", "{5D614916-87FD-47EC-994E-1CF065040270}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleHost", "src\ConsoleHost\ConsoleHost.csproj", "{5C7C2EB2-80EC-4683-9B7C-F7E7AFDEEB55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{5D614916-87FD-47EC-994E-1CF065040270}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D614916-87FD-47EC-994E-1CF065040270}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D614916-87FD-47EC-994E-1CF065040270}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C7C2EB2-80EC-4683-9B7C-F7E7AFDEEB55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C7C2EB2-80EC-4683-9B7C-F7E7AFDEEB55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C7C2EB2-80EC-4683-9B7C-F7E7AFDEEB55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C7C2EB2-80EC-4683-9B7C-F7E7AFDEEB55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

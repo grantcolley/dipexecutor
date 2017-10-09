@@ -8,11 +8,18 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace DipExecutor
+namespace DipExecutor.Service
 {
-    internal class ExecutorService
+    /// <summary>
+    /// Provides a WebHost for the <see cref="Executor"/>.
+    /// </summary>
+    public class ExecutorService : IExecutorService
     {
-        internal void Run(string url)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        public void Run(string url)
         {
             var webHost = WebHost.CreateDefaultBuilder()
                 .UseUrls(url)

@@ -5,14 +5,14 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
-using DipExecutor.Middleware;
+using DipExecutor.Service.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace DipExecutor
+namespace DipExecutor.Service
 {
     public class Startup
     {

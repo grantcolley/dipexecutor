@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DipExecutor.Middleware
+namespace DipExecutor.Service.Middleware
 {
     public class RunMiddleware
     {

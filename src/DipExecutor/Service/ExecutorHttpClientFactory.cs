@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace DipExecutor
+namespace DipExecutor.Service
 {
     internal class ExecutorHttpClientFactory : HttpClientFactory
     {

@@ -5,6 +5,8 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
+using DipExecutor.Service;
+using DipExecutor.Utilities;
 using DipRunner;
 using Newtonsoft.Json;
 using System;

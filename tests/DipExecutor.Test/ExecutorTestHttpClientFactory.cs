@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using DipExecutor.Service;
+using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace DipExecutor.Test

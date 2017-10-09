@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("DipExecutor.Test")]
-namespace DipExecutor
+namespace DipExecutor.Service
 {
     internal abstract class HttpClientFactory
     {

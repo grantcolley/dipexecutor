@@ -1,11 +1,6 @@
-﻿//-----------------------------------------------------------------------
-// <copyright file="Program.cs" company="Development In Progress Ltd">
-//     Copyright © 2017. All rights reserved.
-// </copyright>
-// <author>Grant Colley</author>
-//-----------------------------------------------------------------------
+﻿using DipExecutor.Service;
 
-namespace DipExecutor
+namespace ConsoleHost
 {
     class Program
     {
@@ -13,7 +8,7 @@ namespace DipExecutor
         {
             string url;
 
-            if (args == null 
+            if (args == null
                 || args.Length.Equals(0))
             {
                 url = "http://+:5000";

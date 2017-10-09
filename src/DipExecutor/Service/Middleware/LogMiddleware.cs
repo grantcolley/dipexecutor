@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DipExecutor.Utilities;
+using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace DipExecutor.Middleware
+namespace DipExecutor.Service.Middleware
 {
     public class LogMiddleware
     {

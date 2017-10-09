@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 
-namespace DipExecutor.Middleware
+namespace DipExecutor.Service.Middleware
 {
     internal static class MiddlewareExtensions
     {
