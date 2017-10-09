@@ -18,9 +18,9 @@ namespace DipRunner
         Unknown = 0,
 
         /// <summary>
-        /// The step is initialising the step including validation and 
-        /// downloading the <see cref="DipRunner.Step.TargetAssembly"/>
-        /// and its <see cref="DipRunner.Step.Dependencies"/>.
+        /// The step is initialising including validation and 
+        /// downloading the <see cref="Step.TargetAssembly"/>
+        /// and its <see cref="Step.Dependencies"/>.
         /// </summary>
         Initialise = 1,
 
@@ -31,9 +31,8 @@ namespace DipRunner
         InProgress = 2,
 
         /// <summary>
-        /// After the the steps <see cref="Step.TargetAssembly"/> and
-        /// its <see cref="Step.SubSteps"/> have been executed it is 
-        /// complete and then its <see cref="Step.TransitionSteps"/>
+        /// The <see cref="Step.TargetAssembly"/> and <see cref="Step.SubSteps"/> 
+        /// have been executed. The step is completed and then its <see cref="Step.TransitionSteps"/>
         /// are executed.
         /// </summary>
         Complete = 3

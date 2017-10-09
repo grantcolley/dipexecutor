@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DipDistributor.Middleware
+namespace DipExecutor.Middleware
 {
     public class RunMiddleware
     {
@@ -13,7 +13,7 @@ namespace DipDistributor.Middleware
         {
         }
 
-        public async Task Invoke(HttpContext context, IDistributor distributor)
+        public async Task Invoke(HttpContext context, IExecutor distributor)
         {
             string body;
             var stream = context.Request.Body;

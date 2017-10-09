@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("DipDistributor.Test")]
-namespace DipDistributor
+[assembly: InternalsVisibleTo("DipExecutor.Test")]
+namespace DipExecutor
 {
     internal enum HttpClientResponseContentType
     {

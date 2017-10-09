@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
-namespace DipDistributor.Test
+namespace DipExecutor.Test
 {
     [TestClass]
-    public class DistributorTest
+    public class ExecutorTest
     {
         [TestMethod]
         public async Task DistributeStepAsync()
@@ -26,8 +26,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var step = TestHelper.GetStep();
 
             // Act
@@ -43,8 +43,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var step = TestHelper.GetStep();
 
             // Act
@@ -58,8 +58,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var step = TestHelper.GetStep();
 
             // Act
@@ -84,8 +84,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() };
@@ -111,8 +111,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step(), new Step() };
@@ -141,8 +141,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() { StepName = "transition1" }, new Step() };
@@ -168,8 +168,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() };
@@ -195,8 +195,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.SubSteps = new[] { new Step(), new Step() };
@@ -225,8 +225,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.SubSteps = new[] { new Step() { StepName = "subStep1" }, new Step() };
@@ -243,8 +243,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.RunName = "Test.RunName";
@@ -270,8 +270,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.RunName = "Test.RunName";
@@ -293,8 +293,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.RunName = "Test";
@@ -311,8 +311,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.RunName = "Test";
@@ -330,8 +330,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
 
             var step = TestHelper.GetStep();
             step.TargetAssembly = "TestLibrary.dll";
@@ -365,8 +365,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -394,8 +394,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -425,8 +425,8 @@ namespace DipDistributor.Test
         {
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -466,8 +466,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
@@ -499,8 +499,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
@@ -535,8 +535,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
@@ -562,7 +562,7 @@ namespace DipDistributor.Test
         public async Task RunAsync_StepIsNull()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             Step step = null;
 
             // Act
@@ -576,7 +576,7 @@ namespace DipDistributor.Test
         public async Task RunAsync_Step_ValidationFalied()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var step = new Step();
 
             // Act
@@ -599,8 +599,8 @@ namespace DipDistributor.Test
                 return s;
             });
 
-            var clientFactory = new DistributorTestHttpClientFactory<Step>(messageHandler);
-            var distributor = new Distributor(clientFactory);
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var distributor = new Executor(clientFactory);
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
@@ -623,7 +623,7 @@ namespace DipDistributor.Test
         public void CreateMessage_NullMessage()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
 
             // Act
             var result = distributor.CreateMessage(null, "");
@@ -635,7 +635,7 @@ namespace DipDistributor.Test
         public void CreateMessage_EmptyMessage()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
 
             // Act
             var result = distributor.CreateMessage("");
@@ -648,7 +648,7 @@ namespace DipDistributor.Test
         public void CreateMessage_TestMessage()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
 
             // Act
             var result = distributor.CreateMessage("test");
@@ -661,7 +661,7 @@ namespace DipDistributor.Test
         public void CreateMessage_DefaultStepTestMessage()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var step = new Step();
 
             // Act
@@ -675,7 +675,7 @@ namespace DipDistributor.Test
         public void CreateMessage_DefaultStepEmptyMessage()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var step = new Step();
 
             // Act
@@ -689,7 +689,7 @@ namespace DipDistributor.Test
         public void CreateMessage_StepTestMessage()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var step = new Step()
             {
                 RunId = 1,
@@ -712,7 +712,7 @@ namespace DipDistributor.Test
         {
             // Arrange
             var step = new Step();
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
 
             // Act
             var dependencyList = distributor.GetDependencyAssemblyNames(step);
@@ -727,7 +727,7 @@ namespace DipDistributor.Test
         {
             // Arrange
             var step = new Step();
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
 
             // Act
             var dependencyList = distributor.GetDependencyAssemblyNames(step);
@@ -740,7 +740,7 @@ namespace DipDistributor.Test
         public void GetDependencyAssemblyNames_OneDependency()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var step = new Step();
             step.Dependencies = new[]
             {
@@ -759,7 +759,7 @@ namespace DipDistributor.Test
         public void GetDependencyAssemblyNames_ManyDependencies()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var step = new Step();
             step.Dependencies = new[]
             {
@@ -782,7 +782,7 @@ namespace DipDistributor.Test
         public void SetUrl_NoUrls_TwoSteps()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { };
 
@@ -801,7 +801,7 @@ namespace DipDistributor.Test
         public void SetUrl_OneUrl_TwoSteps()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1" };
 
@@ -823,7 +823,7 @@ namespace DipDistributor.Test
         public void SetUrl_TwoUrls_TwoSteps()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1", "url2" };
 
@@ -845,7 +845,7 @@ namespace DipDistributor.Test
         public void SetUrl_ThreeUrls_TwoSteps()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1", "url2", "url3" };
 
@@ -867,7 +867,7 @@ namespace DipDistributor.Test
         public void SetUrl_TwoUrls_ThreeSteps()
         {
             // Arrange
-            var distributor = new Distributor(null);
+            var distributor = new Executor(null);
             var steps = new Step[] { new Step(), new Step(), new Step() };
             var urls = new string[] { "url1", "url2" };
 

@@ -1,15 +1,15 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace DipDistributor.Test
+namespace DipExecutor.Test
 {
-    internal class DistributorTestHttpClientFactory<T> : HttpClientFactory
+    internal class ExecutorTestHttpClientFactory<T> : HttpClientFactory
     {
         private HttpClient httpClient;
         private object httpClientLock = new object();
         private TestHttpMessageHandler<T> messageHandler;
 
-        internal DistributorTestHttpClientFactory(TestHttpMessageHandler<T> messageHandler)
+        internal ExecutorTestHttpClientFactory(TestHttpMessageHandler<T> messageHandler)
         {
             this.messageHandler = messageHandler;
         }

@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\DipDistributor\DipDistributor.csproj" />
+    <ProjectReference Include="..\..\src\DipDistributor\DipExecutor.csproj" />
   </ItemGroup>
 
 </Project>

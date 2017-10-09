@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DipDistributor.Test
+namespace DipExecutor.Test
 {
     public class TestHttpMessageHandler<T> : DelegatingHandler
     {

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace DipDistributor.Test
+namespace DipExecutor.Test
 {
     public static class TestHelper
     {

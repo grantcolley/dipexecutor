@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="Distributor.cs" company="Development In Progress Ltd">
+// <copyright file="Executor.cs" company="Development In Progress Ltd">
 //     Copyright © 2017. All rights reserved.
 // </copyright>
 // <author>Grant Colley</author>
@@ -17,16 +17,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("DipRunner.Test")]
-namespace DipDistributor
+namespace DipExecutor
 {
     /// <summary>
-    /// A Distributor runs a <see cref="Step"/> asynchronously.
+    /// A Executor runs a <see cref="Step"/> asynchronously.
     /// </summary>
-    internal class Distributor : IDistributor
+    internal class Executor : IExecutor
     {
         private HttpClientFactory httpClientFactory;
 
-        internal Distributor(HttpClientFactory httpClientFactory)
+        internal Executor(HttpClientFactory httpClientFactory)
         {
             this.httpClientFactory = httpClientFactory;
         }

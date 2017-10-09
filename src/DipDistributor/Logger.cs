@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace DipDistributor
+namespace DipExecutor
 {
     internal static class Logger
     {
@@ -10,7 +10,7 @@ namespace DipDistributor
         internal static void Log(string message)
         {
             // TODO: get from config...
-            string path = @"C:\GitHub\dipdistributor\DipDistributor.txt";
+            string path = @"C:\GitHub\dipdistributor\DipExecutor.txt";
 
             // TODO: clean this stuff up. Testing only.
             lock (locker)

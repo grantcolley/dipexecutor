@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace DipDistributor.Middleware
+namespace DipExecutor.Middleware
 {
     public class PingMiddleware
     {

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="DistributorService.cs" company="Development In Progress Ltd">
+// <copyright file="ExecutorService.cs" company="Development In Progress Ltd">
 //     Copyright © 2017. All rights reserved.
 // </copyright>
 // <author>Grant Colley</author>
@@ -8,9 +8,9 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace DipDistributor
+namespace DipExecutor
 {
-    internal class DistributorService
+    internal class ExecutorService
     {
         internal void Run(string url)
         {

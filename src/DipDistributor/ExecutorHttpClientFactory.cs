@@ -1,9 +1,9 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace DipDistributor
+namespace DipExecutor
 {
-    internal class DistributorHttpClientFactory : HttpClientFactory
+    internal class ExecutorHttpClientFactory : HttpClientFactory
     {
         private static HttpClient httpClientStringContentResponse;
         private static object httpClientStringContentResponseLock = new object();

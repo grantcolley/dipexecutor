@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="IDistributor.cs" company="Development In Progress Ltd">
+// <copyright file="IExecutor.cs" company="Development In Progress Ltd">
 //     Copyright © 2017. All rights reserved.
 // </copyright>
 // <author>Grant Colley</author>
@@ -8,12 +8,12 @@
 using DipRunner;
 using System.Threading.Tasks;
 
-namespace DipDistributor
+namespace DipExecutor
 {
     /// <summary>
-    /// Distributor interface for running a <see cref="Step"/> asynchronously.
+    /// Executor interface for running a <see cref="Step"/> asynchronously.
     /// </summary>
-    public interface IDistributor
+    public interface IExecutor
     {
         /// <summary>
         /// Runs a step asynchronously. 

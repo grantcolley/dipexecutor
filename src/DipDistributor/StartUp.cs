@@ -5,14 +5,14 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
-using DipDistributor.Middleware;
+using DipExecutor.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace DipDistributor
+namespace DipExecutor
 {
     public class Startup
     {
@@ -31,7 +31,7 @@ namespace DipDistributor
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IDistributor, Distributor>();
+            services.AddTransient<IExecutor, Executor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

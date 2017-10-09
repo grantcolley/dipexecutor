@@ -5,7 +5,7 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
-namespace DipDistributor
+namespace DipExecutor
 {
     class Program
     {
@@ -23,7 +23,7 @@ namespace DipDistributor
                 url = args[0];
             }
 
-            var service = new DistributorService();
+            var service = new ExecutorService();
             service.Run(url);
         }
     }
