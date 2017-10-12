@@ -1,4 +1,6 @@
 ﻿using DipExecutor.Service;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ConsoleHost
 {
@@ -17,9 +19,14 @@ namespace ConsoleHost
             {
                 url = args[0];
             }
+            
+            var webHost = WebHost.CreateDefaultBuilder()
+                .UseUrls(url)
+                .UseExecutorStartup()
+                .Build();
 
-            var service = new ExecutorService();
-            service.Run(url);
+            var task = webHost.RunAsync();
+            task.GetAwaiter().GetResult();
         }
     }
 }
