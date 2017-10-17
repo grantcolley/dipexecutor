@@ -22,6 +22,7 @@ namespace ConsoleHost
             
             var webHost = WebHost.CreateDefaultBuilder()
                 .UseUrls(url)
+                .ConfigureLogging(builder => builder.AddExecutor())
                 .UseExecutorStartup()
                 .Build();
 

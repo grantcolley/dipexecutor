@@ -39,7 +39,8 @@ namespace DipExecutor.Service
         {
             loggerFactory
                 .AddConsole(Configuration.GetSection("Logging"))
-                .AddDebug();
+                .AddDebug()
+                .AddProvider
 
             app.Map("/run", HandleRun);
             app.Map("/getdependency", HandleFileStrean);
