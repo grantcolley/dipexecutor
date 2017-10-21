@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 
 namespace DipExecutor.Service
 {
-    internal class ExecutorHttpClientFactory : HttpClientFactory
+    public class ExecutorHttpClientFactory : HttpClientFactory
     {
         private static HttpClient httpClientStringContentResponse;
         private static object httpClientStringContentResponseLock = new object();
@@ -11,7 +11,7 @@ namespace DipExecutor.Service
         private static HttpClient httpClientStreamContentResponse;
         private static object httpClientStreamContentResponseLock = new object();
 
-        internal override HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseContentType = HttpClientResponseContentType.StringContent)
+        public override HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseContentType = HttpClientResponseContentType.StringContent)
         {
             switch(httpClientResponseContentType)
             {

@@ -12,7 +12,7 @@ namespace DipExecutor.Service.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            await context.Response.WriteAsync($"{Environment.MachineName} Alive");
+            await context.Response.WriteAsync($"{Environment.MachineName} DipExecutor Is Alive!");
         }
     }
 }

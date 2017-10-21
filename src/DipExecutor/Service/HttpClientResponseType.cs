@@ -3,7 +3,7 @@
 [assembly: InternalsVisibleTo("DipExecutor.Test")]
 namespace DipExecutor.Service
 {
-    internal enum HttpClientResponseContentType
+    public enum HttpClientResponseContentType
     {
         StreamContent,
         StringContent

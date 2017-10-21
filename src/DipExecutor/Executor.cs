@@ -24,11 +24,11 @@ namespace DipExecutor
     /// <summary>
     /// A Executor runs a <see cref="Step"/> asynchronously.
     /// </summary>
-    internal class Executor : IExecutor
+    public class Executor : IExecutor
     {
-        private HttpClientFactory httpClientFactory;
+        private IHttpClientFactory httpClientFactory;
 
-        internal Executor(HttpClientFactory httpClientFactory)
+        public Executor(IHttpClientFactory httpClientFactory)
         {
             this.httpClientFactory = httpClientFactory;
         }

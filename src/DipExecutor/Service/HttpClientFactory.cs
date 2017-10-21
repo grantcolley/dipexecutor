@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("DipExecutor.Test")]
 namespace DipExecutor.Service
 {
-    internal abstract class HttpClientFactory
+    public abstract class HttpClientFactory : IHttpClientFactory
     {
-        internal abstract HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseType = HttpClientResponseContentType.StringContent);
+        public abstract HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseType = HttpClientResponseContentType.StringContent);
     }
 }

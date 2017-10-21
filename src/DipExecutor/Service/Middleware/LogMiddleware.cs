@@ -1,5 +1,6 @@
-﻿using DipExecutor.Utilities;
+﻿using DipExecutor.Service.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -7,8 +8,11 @@ namespace DipExecutor.Service.Middleware
 {
     public class LogMiddleware
     {
-        public LogMiddleware(RequestDelegate next)
+        ILogger logger;
+
+        public LogMiddleware(RequestDelegate next, ILoggerFactory logger)
         {
+            this.logger = logger.CreateLogger<BatchingLogger>();
         }
 
         public async Task Invoke(HttpContext context)
@@ -20,7 +24,6 @@ namespace DipExecutor.Service.Middleware
                 body = await reader.ReadToEndAsync();
             }
 
-            Logger.Log(body);
         }
     }
 }

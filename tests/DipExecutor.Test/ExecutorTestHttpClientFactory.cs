@@ -4,18 +4,18 @@ using System.Net.Http.Headers;
 
 namespace DipExecutor.Test
 {
-    internal class ExecutorTestHttpClientFactory<T> : HttpClientFactory
+    public class ExecutorTestHttpClientFactory<T> : HttpClientFactory
     {
         private HttpClient httpClient;
         private object httpClientLock = new object();
         private TestHttpMessageHandler<T> messageHandler;
 
-        internal ExecutorTestHttpClientFactory(TestHttpMessageHandler<T> messageHandler)
+        public ExecutorTestHttpClientFactory(TestHttpMessageHandler<T> messageHandler)
         {
             this.messageHandler = messageHandler;
         }
 
-        internal override HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseContentType = HttpClientResponseContentType.StringContent)
+        public override HttpClient GetHttpClient(HttpClientResponseContentType httpClientResponseContentType = HttpClientResponseContentType.StringContent)
         {
             if (httpClient == null)
             {

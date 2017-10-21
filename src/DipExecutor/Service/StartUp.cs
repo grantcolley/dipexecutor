@@ -20,8 +20,6 @@ namespace DipExecutor.Service
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                //.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -31,6 +29,7 @@ namespace DipExecutor.Service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IHttpClientFactory, ExecutorHttpClientFactory>();
             services.AddTransient<IExecutor, Executor>();
         }
 
@@ -39,8 +38,7 @@ namespace DipExecutor.Service
         {
             loggerFactory
                 .AddConsole(Configuration.GetSection("Logging"))
-                .AddDebug()
-                .AddProvider
+                .AddDebug();
 
             app.Map("/run", HandleRun);
             app.Map("/getdependency", HandleFileStrean);
