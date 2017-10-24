@@ -1,6 +1,7 @@
 ﻿using DipExecutor.Service.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -24,6 +25,9 @@ namespace DipExecutor.Service.Middleware
                 body = await reader.ReadToEndAsync();
             }
 
+            var logMessage = JsonConvert.DeserializeObject<LogMessage>(body);
+
+            logger.Log<LogMessage>(logMessage.LogLevel, logMessage.EventId, logMessage, null, null);
         }
     }
 }

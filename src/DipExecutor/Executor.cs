@@ -6,8 +6,10 @@
 //-----------------------------------------------------------------------
 
 using DipExecutor.Service;
+using DipExecutor.Service.Logging;
 using DipExecutor.Utilities;
 using DipRunner;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -49,7 +51,7 @@ namespace DipExecutor
         {
             if (step == null)
             {
-                throw new Exception(CreateMessage($"Step is null. Machine Name: {Environment.MachineName}"));
+                throw new Exception($"Step is null. Machine Name: {Environment.MachineName}");
             }
 
             step.Validate();
@@ -90,13 +92,13 @@ namespace DipExecutor
             {               
                 step.Status = StepStatus.Initialise;
 
-                await LogAsync(step);
+                await LogAsync(LogLevel.Information, LogEvent.InitialiseStepAsync, step);
                 
                 return await DownloadDependenciesAsync(step).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await LogAsync(step, ex.ToString());
+                await LogAsync(LogLevel.Error, LogEvent.InitialiseStepAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -126,7 +128,7 @@ namespace DipExecutor
 
                 CreateAssemblyPath(step);
 
-                await LogAsync(step, "Downloading dependencies...");
+                await LogAsync(LogLevel.Information, LogEvent.DownloadDependenciesAsync, step, "Downloading dependencies...");
 
                 var client = httpClientFactory.GetHttpClient(HttpClientResponseContentType.StreamContent);                
                 var dependencies = new List<string>(step.Dependencies);
@@ -143,7 +145,7 @@ namespace DipExecutor
             }
             catch (Exception ex)
             {
-                await LogAsync(step, ex.ToString());
+                await LogAsync(LogLevel.Error, LogEvent.DownloadDependenciesAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -164,7 +166,7 @@ namespace DipExecutor
 
                         if (File.Exists(fullFileName))
                         {
-                            await LogAsync(step, $"File already exists: {fullFileName}");
+                            await LogAsync(LogLevel.Information, LogEvent.DownloadDependencyAsync, step, $"File already exists: {fullFileName}");
                             return true;
                         }
 
@@ -180,12 +182,12 @@ namespace DipExecutor
                     }
                 }
 
-                await LogAsync(step, $"Downloaded: {fullFileName}");
+                await LogAsync(LogLevel.Information, LogEvent.DownloadDependencyAsync, step, $"Downloaded: {fullFileName}");
                 return true;
             }
             catch(Exception ex)
             {
-                await LogAsync(step, ex.ToString());
+                await LogAsync(LogLevel.Error, LogEvent.DownloadDependencyAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -196,17 +198,17 @@ namespace DipExecutor
             {
                 step.Status = StepStatus.InProgress;
 
-                await LogAsync(step);
+                await LogAsync(LogLevel.Information, LogEvent.RunStepAsync, step);
 
                 if (string.IsNullOrWhiteSpace(step.TargetAssembly))
                 {
-                    await LogAsync(step, "TargetAssembly is missing.");
+                    await LogAsync(LogLevel.Information, LogEvent.RunStepAsync, step, "TargetAssembly is missing.");
                     return true;
                 }
 
                 if (string.IsNullOrWhiteSpace(step.TargetType))
                 {
-                    await LogAsync(step, "TargetType is missing.");
+                    await LogAsync(LogLevel.Information, LogEvent.RunStepAsync, step, "TargetType is missing.");
                     return true;
                 }
                 
@@ -223,7 +225,7 @@ namespace DipExecutor
             }
             catch (Exception ex)
             {
-                await LogAsync(step, ex.ToString());
+                await LogAsync(LogLevel.Error, LogEvent.RunStepAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -249,13 +251,13 @@ namespace DipExecutor
                     await Cleanup(step);
                 }
 
-                await LogAsync(step);
+                await LogAsync(LogLevel.Information, LogEvent.CompleteStepAsync, step);
 
                 return true;
             }
             catch (Exception ex)
             {
-                await LogAsync(step, ex.ToString());
+                await LogAsync(LogLevel.Error, LogEvent.CompleteStepAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -323,27 +325,31 @@ namespace DipExecutor
             return dependencies;
         }
 
-        internal async Task LogAsync(Step step, string message = "")
+        internal async Task LogAsync(LogLevel logLevel, int eventId, Step step, string message = "")
         {
-            var logMessage = CreateMessage(step, message);
+            var logMessage = CreateMessage(logLevel, eventId, step, message);
             var client = httpClientFactory.GetHttpClient();
             var response = await client.PostAsync(step.LogUrl, new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
             response.Dispose();
         }
 
-        internal string CreateMessage(string message)
+        internal LogMessage CreateMessage(LogLevel loglevel, int eventId, Step step, string message)
         {
-            return CreateMessage(new Step(), message);
-        }
-
-        internal string CreateMessage(Step step, string message)
-        {
-            var logMessage = $"{DateTime.Now}   {Environment.MachineName}   RunId: {step.RunId}; Run Name: {step.RunName}; StepId: {step.StepId}; Step Name: {step.StepName}; Step Status: {step.Status}";
-
-            if (!string.IsNullOrWhiteSpace(message))
+            var logMessage = new LogMessage
             {
-                logMessage += $"; Message: {message}";
-            }
+                RunId = step.RunId,
+                RunName = step.RunName,
+                StepId = step.StepId,
+                StepName = step.StepName,
+                Status = step.Status,
+                Message = message,
+                LogLevel = loglevel,
+                StepUrl = step.StepUrl,
+                LogUrl = step.LogUrl,
+                Machine = Environment.MachineName,
+                Timestamp = DateTimeOffset.Now,
+                EventId = eventId
+            };
 
             return logMessage;
         }
@@ -367,7 +373,7 @@ namespace DipExecutor
             }
             catch(Exception ex)
             {
-                await LogAsync(step, ex.Message);
+                await LogAsync(LogLevel.Error, LogEvent.Cleanup, step, ex.ToString());
             }
         }
 
@@ -378,11 +384,11 @@ namespace DipExecutor
                 if (steps == null
                     || !steps.Any())
                 {
-                    await LogAsync(step, $"RunStepsAsync - No {type} steps");
+                    await LogAsync(LogLevel.Information, LogEvent.RunStepsAsync, step, $"RunStepsAsync - No {type} steps");
                     return true;
                 }
 
-                await LogAsync(step, $"RunStepsAsync - {type} steps");
+                await LogAsync(LogLevel.Information, LogEvent.RunStepsAsync, step, $"RunStepsAsync - {type} steps");
 
                 var stepsToRun = SetUrl(steps, step.Urls);
 
@@ -394,18 +400,18 @@ namespace DipExecutor
                 
                 if (results.All(r => r.Status == StepStatus.Complete))
                 {
-                    await LogAsync(step, $"RunStepsAsync - {type} steps completed");
+                    await LogAsync(LogLevel.Information, LogEvent.RunStepsAsync, step, $"RunStepsAsync - {type} steps completed");
                     return true;
                 }
                 else
                 {
-                    await LogAsync(step, $"RunStepsAsync - Not all {type} steps completed");
+                    await LogAsync(LogLevel.Warning, LogEvent.RunStepsAsync, step, $"RunStepsAsync - Not all {type} steps completed");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                await LogAsync(step, $"RunStepsAsync - {ex.ToString()}");
+                await LogAsync(LogLevel.Error, LogEvent.RunStepsAsync, step, $"RunStepsAsync - {ex.ToString()}");
                 return false;
             }
         }
