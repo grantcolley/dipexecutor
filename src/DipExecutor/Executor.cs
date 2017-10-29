@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------
 
 using DipExecutor.Service;
-using DipExecutor.Service.Notification;
+using DipExecutor.Notification;
 using DipExecutor.Utilities;
 using DipRunner;
 using Microsoft.Extensions.Logging;

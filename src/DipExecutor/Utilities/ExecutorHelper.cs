@@ -1,4 +1,4 @@
-﻿using DipExecutor.Service.Notification;
+﻿using DipExecutor.Notification;
 using DipRunner;
 using System;
 

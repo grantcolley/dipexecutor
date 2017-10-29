@@ -1,5 +1,4 @@
 ﻿using DipExecutor.Service;
-using DipExecutor.Service.Logging;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System;

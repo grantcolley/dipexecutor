@@ -5,11 +5,7 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
-using DipExecutor.Service.Logging;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System;
 
 namespace DipExecutor.Service
 {
@@ -22,11 +18,5 @@ namespace DipExecutor.Service
         {
             return webHost.UseStartup<Startup>();
         }
-
-        //public static ILoggingBuilder AddExecutorLogging(this ILoggingBuilder builder)
-        //{
-        //    builder.Services.AddSingleton<ILoggerProvider, ExecutorLoggingProvider>();
-        //    return builder;
-        //}
     }
 }
