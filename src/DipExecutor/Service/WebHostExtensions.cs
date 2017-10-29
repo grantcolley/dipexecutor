@@ -23,22 +23,10 @@ namespace DipExecutor.Service
             return webHost.UseStartup<Startup>();
         }
 
-        public static ILoggingBuilder AddExecutor(this ILoggingBuilder builder)
-        {
-            builder.Services.AddSingleton<ILoggerProvider, ExecutorLoggingProvider>();
-            return builder;
-        }
-
-        public static ILoggingBuilder AddExecutor(this ILoggingBuilder builder, Action<ExecutorLoggerOptions> options)
-        {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            builder.AddExecutor();
-            builder.Services.Configure(options);
-            return builder;
-        }
+        //public static ILoggingBuilder AddExecutorLogging(this ILoggingBuilder builder)
+        //{
+        //    builder.Services.AddSingleton<ILoggerProvider, ExecutorLoggingProvider>();
+        //    return builder;
+        //}
     }
 }

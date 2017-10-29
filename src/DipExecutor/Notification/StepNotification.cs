@@ -1,10 +1,9 @@
 ﻿using DipRunner;
-using Microsoft.Extensions.Logging;
 using System;
 
-namespace DipExecutor.Service.Logging
+namespace DipExecutor.Notification
 {
-    public struct LogMessage
+    public struct StepNotification
     {
         public int RunId { get; set; }
         public string RunName { get; set; }
@@ -17,7 +16,7 @@ namespace DipExecutor.Service.Logging
         public string Message { get; set; }
         public string MessageGroup { get; set; }
         public DateTimeOffset Timestamp { get; set; }
-        public LogLevel LogLevel { get; set; }
-        public int EventId { get; set; }
+        public NotificationLevel LogLevel { get; set; }
+        public int NotificationEventId { get; set; }
     }
 }

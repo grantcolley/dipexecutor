@@ -13,7 +13,7 @@ namespace DipExecutor.Service.Middleware
 
         public LogMiddleware(RequestDelegate next, ILoggerFactory logger)
         {
-            this.logger = logger.CreateLogger<BatchingLogger>();
+            this.logger = logger.CreateLogger(typeof(LogMiddleware));
         }
 
         public async Task Invoke(HttpContext context)
@@ -25,9 +25,9 @@ namespace DipExecutor.Service.Middleware
                 body = await reader.ReadToEndAsync();
             }
 
-            var logMessage = JsonConvert.DeserializeObject<LogMessage>(body);
+            //var logMessage = JsonConvert.DeserializeObject<LogMessage>(body);
 
-            logger.Log<LogMessage>(logMessage.LogLevel, logMessage.EventId, logMessage, null, null);
+            //logger.Log<LogMessage>(logMessage.LogLevel, logMessage.EventId, logMessage, null, null);
         }
     }
 }

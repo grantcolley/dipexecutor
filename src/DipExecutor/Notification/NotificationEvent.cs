@@ -1,6 +1,6 @@
-﻿namespace DipExecutor.Service.Logging
+﻿namespace DipExecutor.Notification
 {
-    public class LogEvent
+    public class NotificationEvent
     {
         public const int InitialiseStepAsync = 1;
         public const int DownloadDependenciesAsync = 2;

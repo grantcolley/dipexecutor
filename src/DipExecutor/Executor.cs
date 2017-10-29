@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------
 
 using DipExecutor.Service;
-using DipExecutor.Service.Logging;
+using DipExecutor.Service.Notification;
 using DipExecutor.Utilities;
 using DipRunner;
 using Microsoft.Extensions.Logging;
@@ -28,11 +28,13 @@ namespace DipExecutor
     /// </summary>
     public class Executor : IExecutor
     {
-        private IHttpClientFactory httpClientFactory;
+        private readonly IBatchNotifier batchNotifier;
+        private readonly IHttpClientFactory httpClientFactory;
 
-        public Executor(IHttpClientFactory httpClientFactory)
+        public Executor(IHttpClientFactory httpClientFactory, IBatchNotifier batchNotifier)
         {
             this.httpClientFactory = httpClientFactory;
+            this.batchNotifier = batchNotifier;
         }
 
         /// <summary>
@@ -92,13 +94,13 @@ namespace DipExecutor
             {               
                 step.Status = StepStatus.Initialise;
 
-                await LogAsync(LogLevel.Information, LogEvent.InitialiseStepAsync, step);
+                Notify(NotificationLevel.Information, NotificationEvent.InitialiseStepAsync, step);
                 
                 return await DownloadDependenciesAsync(step).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await LogAsync(LogLevel.Error, LogEvent.InitialiseStepAsync, step, ex.ToString());
+                Notify(NotificationLevel.Error, NotificationEvent.InitialiseStepAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -128,7 +130,7 @@ namespace DipExecutor
 
                 CreateAssemblyPath(step);
 
-                await LogAsync(LogLevel.Information, LogEvent.DownloadDependenciesAsync, step, "Downloading dependencies...");
+                Notify(NotificationLevel.Information, NotificationEvent.DownloadDependenciesAsync, step, "Downloading dependencies...");
 
                 var client = httpClientFactory.GetHttpClient(HttpClientResponseContentType.StreamContent);                
                 var dependencies = new List<string>(step.Dependencies);
@@ -145,7 +147,7 @@ namespace DipExecutor
             }
             catch (Exception ex)
             {
-                await LogAsync(LogLevel.Error, LogEvent.DownloadDependenciesAsync, step, ex.ToString());
+                Notify(NotificationLevel.Error, NotificationEvent.DownloadDependenciesAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -166,7 +168,7 @@ namespace DipExecutor
 
                         if (File.Exists(fullFileName))
                         {
-                            await LogAsync(LogLevel.Information, LogEvent.DownloadDependencyAsync, step, $"File already exists: {fullFileName}");
+                            Notify(NotificationLevel.Information, NotificationEvent.DownloadDependencyAsync, step, $"File already exists: {fullFileName}");
                             return true;
                         }
 
@@ -182,12 +184,12 @@ namespace DipExecutor
                     }
                 }
 
-                await LogAsync(LogLevel.Information, LogEvent.DownloadDependencyAsync, step, $"Downloaded: {fullFileName}");
+                Notify(NotificationLevel.Information, NotificationEvent.DownloadDependencyAsync, step, $"Downloaded: {fullFileName}");
                 return true;
             }
             catch(Exception ex)
             {
-                await LogAsync(LogLevel.Error, LogEvent.DownloadDependencyAsync, step, ex.ToString());
+                Notify(NotificationLevel.Error, NotificationEvent.DownloadDependencyAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -198,17 +200,17 @@ namespace DipExecutor
             {
                 step.Status = StepStatus.InProgress;
 
-                await LogAsync(LogLevel.Information, LogEvent.RunStepAsync, step);
+                Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step);
 
                 if (string.IsNullOrWhiteSpace(step.TargetAssembly))
                 {
-                    await LogAsync(LogLevel.Information, LogEvent.RunStepAsync, step, "TargetAssembly is missing.");
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step, "TargetAssembly is missing.");
                     return true;
                 }
 
                 if (string.IsNullOrWhiteSpace(step.TargetType))
                 {
-                    await LogAsync(LogLevel.Information, LogEvent.RunStepAsync, step, "TargetType is missing.");
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step, "TargetType is missing.");
                     return true;
                 }
                 
@@ -225,7 +227,7 @@ namespace DipExecutor
             }
             catch (Exception ex)
             {
-                await LogAsync(LogLevel.Error, LogEvent.RunStepAsync, step, ex.ToString());
+                Notify(NotificationLevel.Error, NotificationEvent.RunStepAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -251,13 +253,13 @@ namespace DipExecutor
                     await Cleanup(step);
                 }
 
-                await LogAsync(LogLevel.Information, LogEvent.CompleteStepAsync, step);
+                Notify(NotificationLevel.Information, NotificationEvent.CompleteStepAsync, step);
 
                 return true;
             }
             catch (Exception ex)
             {
-                await LogAsync(LogLevel.Error, LogEvent.CompleteStepAsync, step, ex.ToString());
+                Notify(NotificationLevel.Error, NotificationEvent.CompleteStepAsync, step, ex.ToString());
                 return false;
             }
         }
@@ -325,33 +327,10 @@ namespace DipExecutor
             return dependencies;
         }
 
-        internal async Task LogAsync(LogLevel logLevel, int eventId, Step step, string message = "")
+        internal void Notify(NotificationLevel notificationLevel, int notificationEventId, Step step, string message = "")
         {
-            var logMessage = CreateMessage(logLevel, eventId, step, message);
-            var client = httpClientFactory.GetHttpClient();
-            var response = await client.PostAsync(step.LogUrl, new StringContent(JsonConvert.SerializeObject(logMessage), Encoding.UTF8, "application/json"));
-            response.Dispose();
-        }
-
-        internal LogMessage CreateMessage(LogLevel loglevel, int eventId, Step step, string message)
-        {
-            var logMessage = new LogMessage
-            {
-                RunId = step.RunId,
-                RunName = step.RunName,
-                StepId = step.StepId,
-                StepName = step.StepName,
-                Status = step.Status,
-                Message = message,
-                LogLevel = loglevel,
-                StepUrl = step.StepUrl,
-                LogUrl = step.LogUrl,
-                Machine = Environment.MachineName,
-                Timestamp = DateTimeOffset.Now,
-                EventId = eventId
-            };
-
-            return logMessage;
+            var notification = step.CreateStepNotification(notificationLevel, notificationEventId, message);
+            batchNotifier.AddNotification(notification);
         }
 
         internal async Task Cleanup(Step step)
@@ -373,7 +352,7 @@ namespace DipExecutor
             }
             catch(Exception ex)
             {
-                await LogAsync(LogLevel.Error, LogEvent.Cleanup, step, ex.ToString());
+                Notify(NotificationLevel.Error, NotificationEvent.Cleanup, step, ex.ToString());
             }
         }
 
@@ -384,11 +363,11 @@ namespace DipExecutor
                 if (steps == null
                     || !steps.Any())
                 {
-                    await LogAsync(LogLevel.Information, LogEvent.RunStepsAsync, step, $"RunStepsAsync - No {type} steps");
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - No {type} steps");
                     return true;
                 }
 
-                await LogAsync(LogLevel.Information, LogEvent.RunStepsAsync, step, $"RunStepsAsync - {type} steps");
+                Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - {type} steps");
 
                 var stepsToRun = SetUrl(steps, step.Urls);
 
@@ -400,18 +379,18 @@ namespace DipExecutor
                 
                 if (results.All(r => r.Status == StepStatus.Complete))
                 {
-                    await LogAsync(LogLevel.Information, LogEvent.RunStepsAsync, step, $"RunStepsAsync - {type} steps completed");
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - {type} steps completed");
                     return true;
                 }
                 else
                 {
-                    await LogAsync(LogLevel.Warning, LogEvent.RunStepsAsync, step, $"RunStepsAsync - Not all {type} steps completed");
+                    Notify(NotificationLevel.Warning, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - Not all {type} steps completed");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                await LogAsync(LogLevel.Error, LogEvent.RunStepsAsync, step, $"RunStepsAsync - {ex.ToString()}");
+                Notify(NotificationLevel.Error, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - {ex.ToString()}");
                 return false;
             }
         }

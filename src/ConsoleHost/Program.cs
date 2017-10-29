@@ -1,6 +1,8 @@
 ﻿using DipExecutor.Service;
+using DipExecutor.Service.Logging;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using System;
 
 namespace ConsoleHost
 {
@@ -19,10 +21,9 @@ namespace ConsoleHost
             {
                 url = args[0];
             }
-            
+
             var webHost = WebHost.CreateDefaultBuilder()
                 .UseUrls(url)
-                .ConfigureLogging(builder => builder.AddExecutor())
                 .UseExecutorStartup()
                 .Build();
 
