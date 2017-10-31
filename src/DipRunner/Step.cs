@@ -21,7 +21,7 @@ namespace DipRunner
     public class Step
     {
         private string stepUrl;
-        private string logUrl;
+        private string notificationUrl;
         private string dependencyUrl;
 
         /// <summary>
@@ -154,22 +154,22 @@ namespace DipRunner
         }
 
         /// <summary>
-        /// Gets or sets the url to be used for logging steps progress through the workflow.
+        /// Gets or sets the url to be used for notifications and logging steps progress through the workflow.
         /// </summary>
-        public string LogUrl
+        public string NotificationUrl
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(logUrl))
+                if (string.IsNullOrWhiteSpace(notificationUrl))
                 {
-                    return GetUrlAction(Urls?[0], "log");
+                    return GetUrlAction(Urls?[0], "notify");
                 }
 
-                return GetUrlAction(logUrl, "log");
+                return GetUrlAction(notificationUrl, "notify");
             }
             set
             {
-                logUrl = value;
+                notificationUrl = value;
             }
         }
 
@@ -192,7 +192,7 @@ namespace DipRunner
         /// 
         /// Validation Rules:
         /// 1. <see cref="RunName"/> and <see cref="StepName"/> are mandatory.
-        /// 2. If <see cref="Urls"/> is not populated then <see cref="StepUrl"/> and <see cref="LogUrl"/> must be populated.
+        /// 2. If <see cref="Urls"/> is not populated then <see cref="StepUrl"/> and <see cref="NotificationUrl"/> must be populated.
         /// 3. If <see cref="Urls"/> is not populated and it has <see cref="Dependencies"/> then <see cref="DependencyUrl"/> must be populated.
         /// 4. If <see cref="TargetType"/> or <see cref="TargetAssembly"/> is not provided then <see cref="SubSteps"/> 
         ///     must contain at least one Step i.e. it is possibly a step only executes its sub steps.
@@ -224,9 +224,9 @@ namespace DipRunner
                 throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Step url is missing.");
             }
 
-            if (!hasUrls && string.IsNullOrWhiteSpace(LogUrl))
+            if (!hasUrls && string.IsNullOrWhiteSpace(NotificationUrl))
             {
-                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Log url is missing.");
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - Notification url is missing.");
             }
 
             var hasDependencies = (Dependencies?.Length ?? 0) > 0;

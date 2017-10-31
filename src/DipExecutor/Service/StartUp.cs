@@ -44,7 +44,7 @@ namespace DipExecutor.Service
 
             app.Map("/run", HandleRun);
             app.Map("/getdependency", HandleFileStrean);
-            app.Map("/log", HandleLog);
+            app.Map("/notify", HandleNotification);
             app.Map("/ping", HandlePing);
         }
 
@@ -58,9 +58,9 @@ namespace DipExecutor.Service
             app.UseFileStreamMiddleware();
         }
 
-        private static void HandleLog(IApplicationBuilder app)
+        private static void HandleNotification(IApplicationBuilder app)
         {
-            app.UseLogMiddleware();
+            app.UseNotificationMiddleware();
         }
 
         private static void HandlePing(IApplicationBuilder app)

@@ -3,9 +3,13 @@
 // https://github.com/andrewlock/NetEscapades.Extensions.Logging
 //-----------------------------------------------------------------------
 
+using DipExecutor.Service;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,12 +21,15 @@ namespace DipExecutor.Notification
         private readonly TimeSpan interval;
         private readonly int? queueSize;
         private readonly int? batchSize;
+        private readonly HttpClient httpClient;
         private BlockingCollection<StepNotification> notificationQueue;
         private Task outputTask;
         private CancellationTokenSource cancellationTokenSource;
 
-        public BatchNotifier()
+        public BatchNotifier(IHttpClientFactory httpClientFactory)
         {
+            httpClient = httpClientFactory.GetHttpClient();
+
             // TODO: get this from config...
             interval = new TimeSpan(0, 0, 1);
             batchSize = null;
@@ -126,18 +133,14 @@ namespace DipExecutor.Notification
 
         private async Task WriteNotificationAsync(IEnumerable<StepNotification> notifications, CancellationToken cancellationToken)
         {
-            //var client = options.HttpClientFactory.GetHttpClient();
+            var logMessages = notifications.ToList();
+            var jsonContent = JsonConvert.SerializeObject(logMessages);
+            using (var response = await httpClient.PostAsync(notifications.First<StepNotification>().NotificationUrl, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
+            {
+                var content = await response.Content.ReadAsStringAsync();
 
-            //foreach (var group in messages.GroupBy(m => m.MessageGroup))
-            //{
-            //    var logMessages = group.ToList();
-            //    var jsonContent = JsonConvert.SerializeObject(logMessages);
-            //    using (var response = await client.PostAsync(logMessages.First<LogMessage>().LogUrl, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
-            //    {
-            //        //var content = await response.Content.ReadAsStringAsync();
-            //        //var responseStep = JsonConvert.DeserializeObject<Step>(content);
-            //    }
-            //}
+                // fire and forget?
+            }
         }
 
         private Task IntervalAsync(TimeSpan interval, CancellationToken cancellationToken)

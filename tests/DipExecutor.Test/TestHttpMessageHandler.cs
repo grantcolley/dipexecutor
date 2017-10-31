@@ -30,7 +30,7 @@ namespace DipExecutor.Test
 
             HttpContent content = null;
             
-            if (request.RequestUri.AbsolutePath.Equals("/log"))
+            if (request.RequestUri.AbsolutePath.Equals("/notify"))
             {
                 if (responseDelegate != null)
                 {

@@ -50,7 +50,7 @@ namespace DipRunner.Test
         }
 
         [TestMethod]
-        public void MandatoryField_Missing_StepUrl_LogUrl_Urls()
+        public void MandatoryField_Missing_StepUrl_NotificationUrl_Urls()
         {
             // Arrange
             var exceptionMessage = string.Empty;
@@ -73,7 +73,7 @@ namespace DipRunner.Test
         }
 
         [TestMethod]
-        public void MandatoryField_Missing_LogUrl_Urls()
+        public void MandatoryField_Missing_NotificationUrl_Urls()
         {
             // Arrange
             var exceptionMessage = string.Empty;
@@ -93,7 +93,7 @@ namespace DipRunner.Test
             }
 
             // Assert
-            Assert.IsTrue(exceptionMessage.Contains("Log url is missing"));
+            Assert.IsTrue(exceptionMessage.Contains("Notification url is missing"));
         }
 
         [TestMethod]
@@ -105,7 +105,7 @@ namespace DipRunner.Test
             step.RunName = "Run Name 1";
             step.StepName = "Step Name 1";
             step.StepUrl = "http:\\stepurl";
-            step.LogUrl = "http:\\logurl";
+            step.NotificationUrl = "http:\\notifyurl";
 
             try
             {
@@ -601,16 +601,16 @@ namespace DipRunner.Test
         }
 
         [TestMethod]
-        public void GetUrlAction_LogUrl()
+        public void GetUrlAction_NotifyUrl()
         {
             // Arrange
             var step = new Step();
             step.Urls = new[] { "http:\\url1" };
             // Act
-            var url = step.LogUrl;
+            var url = step.NotificationUrl;
 
             // Assert
-            Assert.AreEqual(url, "http:\\url1/log");
+            Assert.AreEqual(url, "http:\\url1/notify");
         }
 
         [TestMethod]
