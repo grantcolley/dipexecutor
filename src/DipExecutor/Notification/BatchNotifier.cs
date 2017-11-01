@@ -4,7 +4,6 @@
 //-----------------------------------------------------------------------
 
 using DipExecutor.Service;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,45 +14,18 @@ using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
-    public class BatchNotifier : IBatchNotifier
+    public abstract class BatchNotifier : IBatchNotifier
     {
         private readonly List<StepNotification> currentBatch = new List<StepNotification>();
-        private readonly TimeSpan interval;
-        private readonly int? queueSize;
-        private readonly int? batchSize;
-        private readonly HttpClient httpClient;
         private BlockingCollection<StepNotification> notificationQueue;
         private Task outputTask;
         private CancellationTokenSource cancellationTokenSource;
 
-        public BatchNotifier(IHttpClientFactory httpClientFactory)
-        {
-            httpClient = httpClientFactory.GetHttpClient();
+        protected TimeSpan interval;
+        protected int? queueSize;
+        protected int? batchSize;
 
-            // TODO: get this from config...
-            interval = new TimeSpan(0, 0, 1);
-            batchSize = null;
-            queueSize = null;
-
-            if (batchSize.HasValue 
-                && batchSize <= 0)
-            {
-                throw new ArgumentOutOfRangeException("BatchSize", "BatchSize must be a positive number.");
-            }
-
-            if (queueSize.HasValue
-                && queueSize <= 0)
-            {
-                throw new ArgumentOutOfRangeException("QueueSize", "QueueSize must be a positive number.");
-            }
-
-            if (interval <= TimeSpan.Zero)
-            {
-                throw new ArgumentOutOfRangeException("Interval", "Interval must be longer than zero.");
-            }
-
-            Start();
-        }
+        public abstract Task WriteNotificationAsync(IEnumerable<StepNotification> notifications, CancellationToken cancellationToken);
 
         public void AddNotification(StepNotification notification)
         {
@@ -87,8 +59,25 @@ namespace DipExecutor.Notification
             }
         }
 
-        private void Start()
+        protected void Start()
         {
+            if (batchSize.HasValue
+                && batchSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException("BatchSize", "BatchSize must be a positive number.");
+            }
+
+            if (queueSize.HasValue
+                && queueSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException("QueueSize", "QueueSize must be a positive number.");
+            }
+
+            if (interval <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException("Interval", "Interval must be longer than zero.");
+            }
+
             notificationQueue = queueSize == null ?
                 new BlockingCollection<StepNotification>(new ConcurrentQueue<StepNotification>()) :
                 new BlockingCollection<StepNotification>(new ConcurrentQueue<StepNotification>(), queueSize.Value);
@@ -128,18 +117,6 @@ namespace DipExecutor.Notification
                 }
 
                 await IntervalAsync(interval, cancellationTokenSource.Token);
-            }
-        }
-
-        private async Task WriteNotificationAsync(IEnumerable<StepNotification> notifications, CancellationToken cancellationToken)
-        {
-            var logMessages = notifications.ToList();
-            var jsonContent = JsonConvert.SerializeObject(logMessages);
-            using (var response = await httpClient.PostAsync(notifications.First<StepNotification>().NotificationUrl, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
-            {
-                var content = await response.Content.ReadAsStringAsync();
-
-                // fire and forget?
             }
         }
 

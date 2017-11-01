@@ -2,7 +2,7 @@
 
 //namespace DipExecutor.Service.Notification
 //{
-//    public class BatchNotifierOptions
+//    public class BatchOptions
 //    {
 //        private int? batchSize = 32;
 //        private int? backgroundQueueSize;
@@ -42,7 +42,7 @@
 //                backgroundQueueSize = value;
 //            }
 //        }
-        
+
 //        /// <summary>
 //        /// Gets or sets a maximum number of notifications to include in a single batch or null for no limit.
 //        /// </summary>
@@ -59,10 +59,5 @@
 //                batchSize = value;
 //            }
 //        }
-
-//        /// <summary>
-//        /// Gets or sets value indicating if the notifier accepts and queues notifications.
-//        /// </summary>
-//        public bool IsEnabled { get; set; }
 //    }
 //}
