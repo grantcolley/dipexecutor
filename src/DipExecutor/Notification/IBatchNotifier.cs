@@ -1,7 +1,7 @@
 ﻿namespace DipExecutor.Notification
 {
-    public interface IBatchNotifier
+    public interface IBatchNotifier<T>
     {
-        void AddNotification(StepNotification notification);
+        void AddNotification(T item);
     }
 }

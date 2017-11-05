@@ -27,10 +27,10 @@ namespace DipExecutor
     /// </summary>
     public class Executor : IExecutor
     {
-        private readonly IBatchNotifier batchNotifier;
+        private readonly IBatchNotifier<StepNotification> batchNotifier;
         private readonly IHttpClientFactory httpClientFactory;
 
-        public Executor(IHttpClientFactory httpClientFactory, IBatchNotifier batchNotifier)
+        public Executor(IHttpClientFactory httpClientFactory, IBatchNotifier<StepNotification> batchNotifier)
         {
             this.httpClientFactory = httpClientFactory;
             this.batchNotifier = batchNotifier;

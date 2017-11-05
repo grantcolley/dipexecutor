@@ -562,7 +562,7 @@ namespace DipExecutor.Test
         public async Task RunAsync_StepIsNull()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             Step step = null;
 
             // Act
@@ -576,7 +576,7 @@ namespace DipExecutor.Test
         public async Task RunAsync_Step_ValidationFalied()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             var step = new Step();
 
             // Act
@@ -712,7 +712,7 @@ namespace DipExecutor.Test
         {
             // Arrange
             var step = new Step();
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
 
             // Act
             var dependencyList = executor.GetDependencyAssemblyNames(step);
@@ -727,7 +727,7 @@ namespace DipExecutor.Test
         {
             // Arrange
             var step = new Step();
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
 
             // Act
             var dependencyList = executor.GetDependencyAssemblyNames(step);
@@ -740,7 +740,7 @@ namespace DipExecutor.Test
         public void GetDependencyAssemblyNames_OneDependency()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             var step = new Step();
             step.Dependencies = new[]
             {
@@ -759,7 +759,7 @@ namespace DipExecutor.Test
         public void GetDependencyAssemblyNames_ManyDependencies()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             var step = new Step();
             step.Dependencies = new[]
             {
@@ -782,7 +782,7 @@ namespace DipExecutor.Test
         public void SetUrl_NoUrls_TwoSteps()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { };
 
@@ -801,7 +801,7 @@ namespace DipExecutor.Test
         public void SetUrl_OneUrl_TwoSteps()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1" };
 
@@ -823,7 +823,7 @@ namespace DipExecutor.Test
         public void SetUrl_TwoUrls_TwoSteps()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1", "url2" };
 
@@ -845,7 +845,7 @@ namespace DipExecutor.Test
         public void SetUrl_ThreeUrls_TwoSteps()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1", "url2", "url3" };
 
@@ -867,7 +867,7 @@ namespace DipExecutor.Test
         public void SetUrl_TwoUrls_ThreeSteps()
         {
             // Arrange
-            var executor = new Executor(null, null);
+            var executor = new Executor(null, new BatchNotifierTest());
             var steps = new Step[] { new Step(), new Step(), new Step() };
             var urls = new string[] { "url1", "url2" };
 

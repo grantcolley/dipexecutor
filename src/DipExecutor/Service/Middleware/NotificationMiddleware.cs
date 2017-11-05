@@ -11,11 +11,11 @@ namespace DipExecutor.Service.Middleware
     public class NotificationMiddleware
     {
         ILogger logger;
-        IBatchNotifier batchNotifier;
+        INotificationPublisher notificationPublisher;
 
-        public NotificationMiddleware(RequestDelegate next, IBatchNotifier batchNotifier, ILoggerFactory logger)
+        public NotificationMiddleware(RequestDelegate next, INotificationPublisher notificationPublisher, ILoggerFactory logger)
         {
-            this.batchNotifier = batchNotifier;
+            this.notificationPublisher = notificationPublisher;
             this.logger = logger.CreateLogger(typeof(NotificationMiddleware));
         }
 
@@ -28,11 +28,11 @@ namespace DipExecutor.Service.Middleware
                 body = await reader.ReadToEndAsync();
             }
 
-            var stepNotification = JsonConvert.DeserializeObject<IEnumerable<StepNotification>>(body);
+            var stepNotifications = JsonConvert.DeserializeObject<List<StepNotification>>(body);
 
             //logger.Log<StepNotification>(GetStepNotificationLogLevel(stepNotification), stepNotification.NotificationEventId, stepNotification, null, null);
 
-            // Publish to registered clients here....
+            notificationPublisher.Publish(stepNotifications);
         }
 
         private LogLevel GetStepNotificationLogLevel(StepNotification stepNotification)

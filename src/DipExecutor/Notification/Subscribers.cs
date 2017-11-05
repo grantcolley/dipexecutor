@@ -6,15 +6,15 @@ namespace DipExecutor.Notification
     public class Subscribers
     {
         private readonly object lockObject;
-        private readonly List<NotificationSubscriber> subscribers;
+        private readonly List<Subscriber> subscribers;
 
         public Subscribers()
         {
             lockObject = new object();
-            subscribers = new List<NotificationSubscriber>();
+            subscribers = new List<Subscriber>();
         }
 
-        public void Add(NotificationSubscriber subscriber)
+        public void Add(Subscriber subscriber)
         {
             if (subscriber != null)
             {
@@ -28,7 +28,7 @@ namespace DipExecutor.Notification
             }
         }
 
-        public void Remove(NotificationSubscriber subscriber)
+        public void Remove(Subscriber subscriber)
         {
             if (subscriber != null)
             {
@@ -43,12 +43,12 @@ namespace DipExecutor.Notification
             }
         }
 
-        public NotificationSubscriber[] Fetch(int runId)
+        public IEnumerable<string> FetchUrls(int runId)
         {
             lock(lockObject)
             {
-                var result = subscribers.Where(s => s.RunId.Equals(runId)).ToArray();
-                return result;
+                var urls = from s in subscribers where s.RunId.Equals(runId) select s.Url;
+                return urls;
             }
         }
     }

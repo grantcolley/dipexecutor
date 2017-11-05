@@ -2,9 +2,9 @@
 
 //[assembly: InternalsVisibleTo("DipExecutor.Test")]
 //namespace DipExecutor.Notification
-//{    
+//{
 //    public abstract class BatchNotifierFactory : IBatchNotifierFactory
 //    {
-//        public abstract IBatchNotifier GetBatchNotifier();
+//        public abstract IBatchNotifier GetBatchNotifier(BatchNotifierType batchNotifierType);
 //    }
 //}

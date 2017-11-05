@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
-    public class ExecutorNotifier : BatchNotifier
+    public class ExecutorNotifier : BatchNotifier<StepNotification>
     {
         private readonly HttpClient httpClient;
 
@@ -25,7 +25,7 @@ namespace DipExecutor.Notification
             Start();
         }
 
-        public override async Task WriteNotificationAsync(IEnumerable<StepNotification> notifications, CancellationToken cancellationToken)
+        public override async Task NotifyAsync(IEnumerable<StepNotification> notifications, CancellationToken cancellationToken)
         {
             var logMessages = notifications.ToList();
             var jsonContent = JsonConvert.SerializeObject(logMessages);
@@ -35,7 +35,6 @@ namespace DipExecutor.Notification
 
                 // fire and forget?
             }
-
         }
     }
 }

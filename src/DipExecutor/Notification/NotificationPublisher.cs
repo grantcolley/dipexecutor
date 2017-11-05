@@ -3,32 +3,38 @@ using System.Linq;
 
 namespace DipExecutor.Notification
 {
-    public class NotificationPublisher
+    public class NotificationPublisher : INotificationPublisher
     {
         private readonly Subscribers subscribers;
+        private readonly IBatchNotifier<PublishNotifications> batchNotifier;
 
-        public NotificationPublisher()
+        public NotificationPublisher(IBatchNotifier<PublishNotifications> batchNotifier)
         {
             subscribers = new Subscribers();
+            this.batchNotifier = batchNotifier;
         }
 
-        public void Subscribe(NotificationSubscriber subscriber)
+        public void Subscribe(Subscriber subscriber)
         {
             subscribers.Add(subscriber);
         }
 
-        public void Unsubscribe(NotificationSubscriber subscriber)
+        public void Unsubscribe(Subscriber subscriber)
         {
             subscribers.Remove(subscriber);
         }
 
-        public void Update(List<StepNotification> notifications)
+        public void Publish(List<StepNotification> stepNotifications)
         {
-            var notifyGroups = notifications.GroupBy(n => n.RunId);
+            var notifyGroups = stepNotifications.GroupBy(n => n.RunId);
             foreach (var group in notifyGroups)
             {
-                var notify = subscribers.Fetch(group.Key);
-
+                var urls = subscribers.FetchUrls(group.Key);
+                if (urls.Any())
+                {
+                    var notifications = new PublishNotifications { Urls = urls, StepNotifications = group };
+                    batchNotifier.AddNotification(notifications);
+                }
             }
         }
     }

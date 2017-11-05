@@ -1,39 +1,31 @@
-﻿//-----------------------------------------------------------------------
-// https://github.com/aspnet/logging/blob/dev/src/Microsoft.Extensions.Logging.AzureAppServices/Internal/BatchingLoggerProvider.cs
-// https://github.com/andrewlock/NetEscapades.Extensions.Logging
-//-----------------------------------------------------------------------
-
-using DipExecutor.Service;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
-    public abstract class BatchNotifier : IBatchNotifier
+    public abstract class BatchNotifier<T> : IBatchNotifier<T>
     {
-        private readonly List<StepNotification> currentBatch = new List<StepNotification>();
-        private BlockingCollection<StepNotification> notificationQueue;
+        private readonly List<T> currentBatch = new List<T>();
+        private BlockingCollection<T> notifyQueue;
         private Task outputTask;
         private CancellationTokenSource cancellationTokenSource;
 
-        protected TimeSpan interval;
+        protected TimeSpan interval = new TimeSpan(0, 0, 1);
         protected int? queueSize;
         protected int? batchSize;
 
-        public abstract Task WriteNotificationAsync(IEnumerable<StepNotification> notifications, CancellationToken cancellationToken);
+        public abstract Task NotifyAsync(IEnumerable<T> items, CancellationToken cancellationToken);
 
-        public void AddNotification(StepNotification notification)
+        public void AddNotification(T item)
         {
-            if (!notificationQueue.IsAddingCompleted)
+            if (!notifyQueue.IsAddingCompleted)
             {
                 try
                 {
-                    notificationQueue.Add(notification, cancellationTokenSource.Token);
+                    notifyQueue.Add(item, cancellationTokenSource.Token);
                 }
                 catch
                 {
@@ -45,7 +37,7 @@ namespace DipExecutor.Notification
         internal void Stop()
         {
             cancellationTokenSource.Cancel();
-            notificationQueue.CompleteAdding();
+            notifyQueue.CompleteAdding();
 
             try
             {
@@ -78,9 +70,9 @@ namespace DipExecutor.Notification
                 throw new ArgumentOutOfRangeException("Interval", "Interval must be longer than zero.");
             }
 
-            notificationQueue = queueSize == null ?
-                new BlockingCollection<StepNotification>(new ConcurrentQueue<StepNotification>()) :
-                new BlockingCollection<StepNotification>(new ConcurrentQueue<StepNotification>(), queueSize.Value);
+            notifyQueue = queueSize == null ?
+                new BlockingCollection<T>(new ConcurrentQueue<T>()) :
+                new BlockingCollection<T>(new ConcurrentQueue<T>(), queueSize.Value);
 
             cancellationTokenSource = new CancellationTokenSource();
 
@@ -96,7 +88,7 @@ namespace DipExecutor.Notification
             {
                 var limit = batchSize ?? int.MaxValue;
 
-                while (limit > 0 && notificationQueue.TryTake(out var notification))
+                while (limit > 0 && notifyQueue.TryTake(out var notification))
                 {
                     currentBatch.Add(notification);
                     limit--;
@@ -106,7 +98,7 @@ namespace DipExecutor.Notification
                 {
                     try
                     {
-                        await WriteNotificationAsync(currentBatch, cancellationTokenSource.Token);
+                        await NotifyAsync(currentBatch, cancellationTokenSource.Token);
                     }
                     catch
                     {

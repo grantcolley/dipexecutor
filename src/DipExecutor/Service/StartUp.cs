@@ -30,9 +30,12 @@ namespace DipExecutor.Service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IBatchNotifier, BatchNotifier>();
-            services.AddTransient<IHttpClientFactory, ExecutorHttpClientFactory>();
             services.AddTransient<IExecutor, Executor>();
+            services.AddTransient<IHttpClientFactory, ExecutorHttpClientFactory>();
+            services.AddTransient<IBatchNotifier<StepNotification>, ExecutorNotifier>();
+            services.AddTransient<IBatchNotifier<PublishNotifications>, ExecutorPublisher>();
+
+            services.AddSingleton<INotificationPublisher, NotificationPublisher>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
