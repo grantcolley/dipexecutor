@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
@@ -6,6 +7,6 @@ namespace DipExecutor.Notification
     {
         void Subscribe(Subscriber subscriber);
         void Unsubscribe(Subscriber subscriber);
-        void Publish(List<StepNotification> stepNotifications);
+        Task PublishAsync(IEnumerable<StepNotification> notifications);
     }
 }

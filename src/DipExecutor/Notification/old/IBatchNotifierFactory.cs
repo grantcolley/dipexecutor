@@ -2,6 +2,6 @@
 //{
 //    public interface IBatchNotifierFactory
 //    {
-//        IBatchNotifier GetBatchNotifier();
+//        IBatchNotifier<T> GetBatchNotifier(BatchNotifierType batchNotifierType);
 //    }
 //}

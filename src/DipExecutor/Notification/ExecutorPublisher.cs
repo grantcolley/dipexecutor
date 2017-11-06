@@ -1,21 +1,17 @@
-﻿using DipExecutor.Service;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
-    public class ExecutorPublisher : BatchNotifier<PublishNotifications>
+    public class ExecutorPublisher : BatchNotifier<IEnumerable<StepNotification>>
     {
-        private readonly HttpClient httpClient;
+        private readonly INotificationPublisher notificationPublisher;
 
-        public ExecutorPublisher(IHttpClientFactory httpClientFactory)
+        public ExecutorPublisher(INotificationPublisher notificationPublisher)
         {
-            httpClient = httpClientFactory.GetHttpClient();
+            this.notificationPublisher = notificationPublisher;
 
             // TODO: get this from config...
             interval = new TimeSpan(0, 0, 1);
@@ -25,21 +21,11 @@ namespace DipExecutor.Notification
             Start();
         }
 
-        public override async Task NotifyAsync(IEnumerable<PublishNotifications> notifications, CancellationToken cancellationToken)
+        public override async Task NotifyAsync(IEnumerable<IEnumerable<StepNotification>> notifications, CancellationToken cancellationToken)
         {
-            foreach(var notification in notifications)
+            foreach(var notificationsBatch in notifications)
             {
-                var jsonContent = JsonConvert.SerializeObject(notification.StepNotifications);
-
-                foreach (var url in notification.Urls)
-                {
-                    using (var response = await httpClient.PostAsync(url, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-
-                        // fire and forget?
-                    }
-                }
+                await notificationPublisher.PublishAsync(notificationsBatch);
             }
         }
     }

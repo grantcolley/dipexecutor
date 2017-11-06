@@ -1,17 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using DipExecutor.Service;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
     public class NotificationPublisher : INotificationPublisher
     {
         private readonly Subscribers subscribers;
-        private readonly IBatchNotifier<PublishNotifications> batchNotifier;
+        private readonly HttpClient httpClient;
 
-        public NotificationPublisher(IBatchNotifier<PublishNotifications> batchNotifier)
+        public NotificationPublisher(IHttpClientFactory httpClientFactory)
         {
             subscribers = new Subscribers();
-            this.batchNotifier = batchNotifier;
+            httpClient = httpClientFactory.GetHttpClient();
         }
 
         public void Subscribe(Subscriber subscriber)
@@ -24,16 +28,25 @@ namespace DipExecutor.Notification
             subscribers.Remove(subscriber);
         }
 
-        public void Publish(List<StepNotification> stepNotifications)
+        public async Task PublishAsync(IEnumerable<StepNotification> notifications)
         {
-            var notifyGroups = stepNotifications.GroupBy(n => n.RunId);
+            var notifyGroups = notifications.GroupBy(n => n.RunId);
             foreach (var group in notifyGroups)
             {
                 var urls = subscribers.FetchUrls(group.Key);
                 if (urls.Any())
                 {
-                    var notifications = new PublishNotifications { Urls = urls, StepNotifications = group };
-                    batchNotifier.AddNotification(notifications);
+                    var jsonContent = JsonConvert.SerializeObject(group);
+                    
+                    foreach (var url in urls)
+                    {
+                        using (var response = await httpClient.PostAsync(url, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+
+                            // fire and forget?
+                        }
+                    }
                 }
             }
         }

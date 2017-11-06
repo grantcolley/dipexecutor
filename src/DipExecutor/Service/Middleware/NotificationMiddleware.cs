@@ -32,7 +32,7 @@ namespace DipExecutor.Service.Middleware
 
             //logger.Log<StepNotification>(GetStepNotificationLogLevel(stepNotification), stepNotification.NotificationEventId, stepNotification, null, null);
 
-            notificationPublisher.Publish(stepNotifications);
+            notificationPublisher.PublishAsync(stepNotifications);
         }
 
         private LogLevel GetStepNotificationLogLevel(StepNotification stepNotification)

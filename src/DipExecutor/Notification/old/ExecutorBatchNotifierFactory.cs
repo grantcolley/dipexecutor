@@ -11,7 +11,7 @@
 //            this.httpClientFactory = httpClientFactory;
 //        }
 
-//        public override IBatchNotifier GetBatchNotifier()
+//        public override IBatchNotifier<T> GetBatchNotifier<T>(BatchNotifierType batchNotifierType)
 //        {
 //            return new ExecutorNotifier(httpClientFactory);
 //        }

@@ -5,6 +5,6 @@
 //{
 //    public abstract class BatchNotifierFactory : IBatchNotifierFactory
 //    {
-//        public abstract IBatchNotifier GetBatchNotifier(BatchNotifierType batchNotifierType);
+//        public abstract IBatchNotifier<T> GetBatchNotifier(BatchNotifierType batchNotifierType);
 //    }
 //}
