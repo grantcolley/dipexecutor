@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace DipExecutor.Service
 {
@@ -33,7 +34,8 @@ namespace DipExecutor.Service
             services.AddTransient<IExecutor, Executor>();
             services.AddTransient<IHttpClientFactory, ExecutorHttpClientFactory>();
             services.AddTransient<IBatchNotifier<StepNotification>, ExecutorNotifier>();
-            services.AddTransient<IBatchNotifier<PublishNotifications>, ExecutorPublisher>();
+
+            services.AddTransient<IBatchNotifier<IEnumerable<StepNotification>>, ExecutorPublisher>();
 
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
         }
