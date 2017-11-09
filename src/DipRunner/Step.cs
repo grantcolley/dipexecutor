@@ -21,6 +21,7 @@ namespace DipRunner
     public class Step
     {
         private string stepUrl;
+        private string logUrl;
         private string notificationUrl;
         private string dependencyUrl;
 
@@ -154,7 +155,7 @@ namespace DipRunner
         }
 
         /// <summary>
-        /// Gets or sets the url to be used for notifications and logging steps progress through the workflow.
+        /// Gets or sets the url to be used for notifications of a steps progress through the workflow.
         /// </summary>
         public string NotificationUrl
         {
@@ -170,6 +171,26 @@ namespace DipRunner
             set
             {
                 notificationUrl = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the url to be used for logging a steps progress through the workflow.
+        /// </summary>
+        public string LoggingUrl
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(logUrl))
+                {
+                    return GetUrlAction(Urls?[0], "log");
+                }
+
+                return GetUrlAction(logUrl, "log");
+            }
+            set
+            {
+                logUrl = value;
             }
         }
 

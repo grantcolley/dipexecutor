@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace DipExecutor.Service.Middleware
 {
-    public class NotificationMiddleware
+    public class LoggingMiddleware
     {
         private readonly IBatchNotifier<IEnumerable<StepNotification>> batchNotifier;
 
-        public NotificationMiddleware(RequestDelegate next, IBatchNotifierFactory<IEnumerable<StepNotification>> batchNotifierFactory)
+        public LoggingMiddleware(RequestDelegate next, IBatchNotifierFactory<IEnumerable<StepNotification>> batchNotifierFactory)
         {
-            this.batchNotifier = batchNotifierFactory.GetBatchNotifier(BatchNotifierType.ExecutorPublisher);
+            this.batchNotifier = batchNotifierFactory.GetBatchNotifier(BatchNotifierType.ExecutorLogging);
         }
 
         public async Task Invoke(HttpContext context)
@@ -26,7 +26,7 @@ namespace DipExecutor.Service.Middleware
             }
 
             var stepNotifications = JsonConvert.DeserializeObject<List<StepNotification>>(body);
-            
+
             batchNotifier.AddNotification(stepNotifications);
         }
     }

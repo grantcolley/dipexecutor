@@ -12,6 +12,7 @@ namespace DipExecutor.Notification
         public StepStatus Status { get; set; }
         public string StepUrl { get; set; }
         public string NotificationUrl { get; set; }
+        public string LoggingUrl { get; set; }
         public string Machine { get; set; }
         public string Message { get; set; }
         public string MessageGroup { get; set; }

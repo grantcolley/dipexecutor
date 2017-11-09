@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
-    public class ExecutorPublisher : BatchNotifier<IEnumerable<StepNotification>>
+    public class ExecutorPublisher : BatchNotifier<IEnumerable<StepNotification>>, IBatchNotifier<IEnumerable<StepNotification>>
     {
         private readonly INotificationPublisher notificationPublisher;
 

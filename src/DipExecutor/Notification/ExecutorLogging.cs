@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
-    public class ExecutorLogging : BatchNotifier<StepNotification>, IBatchNotifier<StepNotification>
+    public class ExecutorLogging : BatchNotifier<IEnumerable<StepNotification>>, IBatchNotifier<IEnumerable<StepNotification>>
     {
         private readonly ILogger logger;
 
@@ -23,9 +23,10 @@ namespace DipExecutor.Notification
             Start();
         }
 
-        public override async Task NotifyAsync(IEnumerable<StepNotification> notifications, CancellationToken cancellationToken)
+        public override async Task NotifyAsync(IEnumerable<IEnumerable<StepNotification>> notifications, CancellationToken cancellationToken)
         {
-            foreach (var stepNotification in notifications)
+            var flattenedList = notifications.SelectMany(n => n);
+            foreach (var stepNotification in flattenedList)
             {
                 logger.Log<StepNotification>(GetStepNotificationLogLevel(stepNotification), stepNotification.NotificationEventId, stepNotification, null, null);
             }

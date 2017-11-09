@@ -33,11 +33,9 @@ namespace DipExecutor.Service
         {
             services.AddTransient<IExecutor, Executor>();
             services.AddTransient<IHttpClientFactory, ExecutorHttpClientFactory>();
-            services.AddTransient<IBatchNotifierFactory<StepNotification>, BatchStepNotificationFactory>();
-
-            services.AddTransient<IBatchNotifier<IEnumerable<StepNotification>>, ExecutorPublisher>();
-
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
+            services.AddTransient<IBatchNotifierFactory<StepNotification>, BatchStepNotificationFactory>();
+            services.AddTransient<IBatchNotifierFactory<IEnumerable<StepNotification>>, BatchStepNotificationListFactory>();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,6 +48,7 @@ namespace DipExecutor.Service
             app.Map("/run", HandleRun);
             app.Map("/getdependency", HandleFileStrean);
             app.Map("/notify", HandleNotification);
+            app.Map("/log", HandleLogging);
             app.Map("/ping", HandlePing);
         }
 
@@ -66,6 +65,11 @@ namespace DipExecutor.Service
         private static void HandleNotification(IApplicationBuilder app)
         {
             app.UseNotificationMiddleware();
+        }
+
+        private static void HandleLogging(IApplicationBuilder app)
+        {
+            app.UseLoggingMiddleware();
         }
 
         private static void HandlePing(IApplicationBuilder app)

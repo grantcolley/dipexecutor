@@ -19,6 +19,11 @@ namespace DipExecutor.Service.Middleware
             return builder.UseMiddleware<NotificationMiddleware>();
         }
 
+        internal static IApplicationBuilder UseLoggingMiddleware(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<LoggingMiddleware>();
+        }
+
         internal static IApplicationBuilder UsePingMiddleware(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<PingMiddleware>();

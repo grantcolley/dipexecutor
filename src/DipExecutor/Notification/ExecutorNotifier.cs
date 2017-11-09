@@ -35,6 +35,13 @@ namespace DipExecutor.Notification
 
                 // fire and forget?
             }
+
+            using (var response = await httpClient.PostAsync(logMessages.First<StepNotification>().LoggingUrl, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                // fire and forget?
+            }
         }
     }
 }

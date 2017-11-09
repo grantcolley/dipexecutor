@@ -15,9 +15,6 @@ namespace DipExecutor.Notification
         {
             switch (batchNotifierType)
             {
-                case BatchNotifierType.ExecutorLogging:
-                    return new ExecutorLogging(null);
-
                 case BatchNotifierType.ExecutorNotifier:
                     return new ExecutorNotifier(httpClientFactory);
             }
