@@ -30,10 +30,10 @@ namespace DipExecutor
         private readonly IBatchNotifier<StepNotification> batchNotifier;
         private readonly IHttpClientFactory httpClientFactory;
 
-        public Executor(IHttpClientFactory httpClientFactory, IBatchNotifier<StepNotification> batchNotifier)
+        public Executor(IHttpClientFactory httpClientFactory, IBatchNotifierFactory<StepNotification> batchNotifierFactory)
         {
             this.httpClientFactory = httpClientFactory;
-            this.batchNotifier = batchNotifier;
+            this.batchNotifier = batchNotifierFactory.GetBatchNotifier(BatchNotifierType.ExecutorNotifier);
         }
 
         /// <summary>

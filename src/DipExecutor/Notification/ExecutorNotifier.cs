@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
-    public class ExecutorNotifier : BatchNotifier<StepNotification>
+    public class ExecutorNotifier : BatchNotifier<StepNotification>, IBatchNotifier<StepNotification>
     {
         private readonly HttpClient httpClient;
 
@@ -29,7 +29,7 @@ namespace DipExecutor.Notification
         {
             var logMessages = notifications.ToList();
             var jsonContent = JsonConvert.SerializeObject(logMessages);
-            using (var response = await httpClient.PostAsync(notifications.First<StepNotification>().NotificationUrl, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
+            using (var response = await httpClient.PostAsync(logMessages.First<StepNotification>().NotificationUrl, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
             {
                 var content = await response.Content.ReadAsStringAsync();
 

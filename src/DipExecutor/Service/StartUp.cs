@@ -33,7 +33,7 @@ namespace DipExecutor.Service
         {
             services.AddTransient<IExecutor, Executor>();
             services.AddTransient<IHttpClientFactory, ExecutorHttpClientFactory>();
-            services.AddTransient<IBatchNotifier<StepNotification>, ExecutorNotifier>();
+            services.AddTransient<IBatchNotifierFactory<StepNotification>, BatchStepNotificationFactory>();
 
             services.AddTransient<IBatchNotifier<IEnumerable<StepNotification>>, ExecutorPublisher>();
 
