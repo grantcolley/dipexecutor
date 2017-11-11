@@ -1,4 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ExecutorLogging.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +21,6 @@ namespace DipExecutor.Notification
         public ExecutorLogging(ILoggerFactory logger)
         {
             this.logger = logger.CreateLogger(typeof(ExecutorLogging));
-
-            // TODO: get this from config...
-            interval = new TimeSpan(0, 0, 1);
-            batchSize = null;
-            queueSize = null;
 
             Start();
         }

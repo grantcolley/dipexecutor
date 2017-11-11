@@ -1,4 +1,11 @@
-﻿using DipRunner;
+﻿//-----------------------------------------------------------------------
+// <copyright file="RunMiddleware.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using DipRunner;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.IO;

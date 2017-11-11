@@ -1,4 +1,6 @@
-﻿using System;
+﻿// https://github.com/aspnet/logging/blob/dev/src/Microsoft.Extensions.Logging.AzureAppServices/Internal/BatchingLoggerProvider.cs
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,9 +15,9 @@ namespace DipExecutor.Notification
         private Task outputTask;
         private CancellationTokenSource cancellationTokenSource;
 
-        protected TimeSpan interval = new TimeSpan(0, 0, 1);
-        protected int? queueSize;
-        protected int? batchSize;
+        protected TimeSpan interval = new TimeSpan(0, 0, 0, 1);
+        protected int? queueSize = default(int?);
+        protected int? batchSize = default(int?);
 
         public abstract Task NotifyAsync(IEnumerable<T> items, CancellationToken cancellationToken);
 

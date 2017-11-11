@@ -1,4 +1,11 @@
-﻿using DipExecutor.Service;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ExecutorNotifier.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using DipExecutor.Service;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,11 +23,6 @@ namespace DipExecutor.Notification
         public ExecutorNotifier(IHttpClientFactory httpClientFactory)
         {
             httpClient = httpClientFactory.GetHttpClient();
-
-            // TODO: get this from config...
-            interval = new TimeSpan(0, 0, 1);
-            batchSize = null;
-            queueSize = null;
 
             Start();
         }

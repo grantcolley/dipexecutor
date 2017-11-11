@@ -1,4 +1,11 @@
-﻿using DipExecutor.Service;
+﻿//-----------------------------------------------------------------------
+// <copyright file="NotificationPublisher.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using DipExecutor.Service;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;

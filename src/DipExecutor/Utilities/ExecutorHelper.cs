@@ -1,4 +1,11 @@
-﻿using DipExecutor.Notification;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ExecutorHelper.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using DipExecutor.Notification;
 using DipRunner;
 using System;
 

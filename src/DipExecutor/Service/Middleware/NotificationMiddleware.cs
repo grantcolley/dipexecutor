@@ -1,4 +1,11 @@
-﻿using DipExecutor.Notification;
+﻿//-----------------------------------------------------------------------
+// <copyright file="NotificationMiddleware.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using DipExecutor.Notification;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Collections.Generic;

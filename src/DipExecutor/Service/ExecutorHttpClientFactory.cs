@@ -1,4 +1,11 @@
-﻿using System.Net.Http;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ExecutorHttpClientFactory.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace DipExecutor.Service

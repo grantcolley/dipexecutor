@@ -1,4 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿//-----------------------------------------------------------------------
+// <copyright file="FileStreamMiddleware.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Threading.Tasks;
 

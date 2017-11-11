@@ -1,6 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+﻿//-----------------------------------------------------------------------
+// <copyright file="BatchNotifierFactory.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
 
-[assembly: InternalsVisibleTo("DipExecutor.Test")]
 namespace DipExecutor.Notification
 {
     public abstract class BatchNotifierFactory<T> : IBatchNotifierFactory<T>

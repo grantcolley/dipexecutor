@@ -1,4 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿//-----------------------------------------------------------------------
+// <copyright file="MiddlewareExtensions.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using Microsoft.AspNetCore.Builder;
 
 namespace DipExecutor.Service.Middleware
 {
