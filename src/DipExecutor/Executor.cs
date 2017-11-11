@@ -17,8 +17,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
-//[assembly: InternalsVisibleTo("DipRunner.Test")]
+[assembly: InternalsVisibleTo("DipExecutor.Test")]
 namespace DipExecutor
 {
     /// <summary>
