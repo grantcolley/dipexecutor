@@ -3,7 +3,7 @@ using System;
 
 namespace DipExecutor.Test
 {
-    public class TestExecutorBatchStepNotificationFactory : BatchNotifierFactory<StepNotification>
+    public class TestBatchStepNotificationFactory : BatchNotifierFactory<StepNotification>
     {
         public override IBatchNotifier<StepNotification> GetBatchNotifier(BatchNotifierType batchNotifierType)
         {

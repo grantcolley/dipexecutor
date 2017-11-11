@@ -9,7 +9,14 @@ namespace DipExecutor.Test
     {
         public static Step GetStep()
         {
-            return new Step() { Urls = new[] { "http://localhost:5000/" } };
+            return new Step()
+            {
+                RunId = 101,
+                RunName = "Test Run",
+                StepId = 111,
+                StepName = "Test Step",
+                Urls = new[] { "http://localhost:5000/" }
+            };
         }
 
         public static Step GetSteps(string runName, out IList<Step> steps)

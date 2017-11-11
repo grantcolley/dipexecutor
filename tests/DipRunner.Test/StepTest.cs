@@ -97,6 +97,31 @@ namespace DipRunner.Test
         }
 
         [TestMethod]
+        public void MandatoryField_Missing_LogUrl_Urls()
+        {
+            // Arrange
+            var exceptionMessage = string.Empty;
+            var step = new Step();
+            step.RunName = "Run Name 1";
+            step.StepName = "Step Name 1";
+            step.StepUrl = "http:\\stepurl";
+            step.NotificationUrl = "http:\\notificationurl";
+
+            try
+            {
+                // Act
+                step.Validate();
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            // Assert
+            Assert.IsTrue(exceptionMessage.Contains("Log url is missing"));
+        }
+
+        [TestMethod]
         public void MandatoryField_Missing_TargetAssembly_TargetType_SubSteps()
         {
             // Arrange
@@ -106,6 +131,7 @@ namespace DipRunner.Test
             step.StepName = "Step Name 1";
             step.StepUrl = "http:\\stepurl";
             step.NotificationUrl = "http:\\notifyurl";
+            step.LogUrl = "http:\\logurl";
 
             try
             {
@@ -611,6 +637,19 @@ namespace DipRunner.Test
 
             // Assert
             Assert.AreEqual(url, "http:\\url1/notify");
+        }
+
+        [TestMethod]
+        public void GetUrlAction_LogUrl()
+        {
+            // Arrange
+            var step = new Step();
+            step.Urls = new[] { "http:\\url1" };
+            // Act
+            var url = step.LogUrl;
+
+            // Assert
+            Assert.AreEqual(url, "http:\\url1/log");
         }
 
         [TestMethod]

@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using DipRunner;
+using DipExecutor.Notification;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var step = TestHelper.GetStep();
 
             // Act
@@ -38,20 +39,34 @@ namespace DipExecutor.Test
             Assert.AreEqual(result.Status, StepStatus.Complete);
         }
 
-        //[TestMethod]
-        //public async Task LogAsync()
-        //{
-        //    // Arrange
-        //    var messageHandler = new TestHttpMessageHandler<Step>();
-        //    var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-        //    var executor = new Executor(clientFactory);
-        //    var step = TestHelper.GetStep();
+        [TestMethod]
+        public async Task Notify()
+        {
+            // Arrange
+            var notified = false;
 
-        //    // Act
-        //    await executor.LogAsync(LogLevel.Information, step, "test");
+            var messageHandler = new TestHttpMessageHandler<Step>((s, absolutePath) =>
+            {
+                if (absolutePath.Equals("/notify"))
+                {
+                    notified = true;
+                }
 
-        //    // Assert
-        //}
+                return s;
+            });
+
+            var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
+            var executor = new Executor(clientFactory, new BatchStepNotificationFactory(clientFactory));
+            var step = TestHelper.GetStep();
+
+            // Act
+            executor.Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step, "test");
+
+            await Task.Delay(3000);
+
+            // Assert
+            Assert.IsTrue(notified);
+        }
 
         [TestMethod]
         public async Task CompleteStepAsync()
@@ -59,7 +74,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var step = TestHelper.GetStep();
 
             // Act
@@ -85,7 +100,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() };
@@ -112,7 +127,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step(), new Step() };
@@ -142,7 +157,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() { StepName = "transition1" }, new Step() };
@@ -169,7 +184,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.TransitionSteps = new[] { new Step() };
@@ -196,7 +211,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.SubSteps = new[] { new Step(), new Step() };
@@ -226,7 +241,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.SubSteps = new[] { new Step() { StepName = "subStep1" }, new Step() };
@@ -244,7 +259,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.RunName = "Test.RunName";
@@ -271,7 +286,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.RunName = "Test.RunName";
@@ -294,7 +309,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.RunName = "Test";
@@ -312,7 +327,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.RunName = "Test";
@@ -331,7 +346,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
 
             var step = TestHelper.GetStep();
             step.TargetAssembly = "TestLibrary.dll";
@@ -366,7 +381,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -395,7 +410,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -426,7 +441,7 @@ namespace DipExecutor.Test
             // Arrange
             var messageHandler = new TestHttpMessageHandler<Step>();
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var httpClient = clientFactory.GetHttpClient();
 
             var step = TestHelper.GetStep();
@@ -467,7 +482,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
@@ -500,7 +515,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
@@ -536,7 +551,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
@@ -562,7 +577,7 @@ namespace DipExecutor.Test
         public async Task RunAsync_StepIsNull()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             Step step = null;
 
             // Act
@@ -576,7 +591,7 @@ namespace DipExecutor.Test
         public async Task RunAsync_Step_ValidationFalied()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             var step = new Step();
 
             // Act
@@ -600,7 +615,7 @@ namespace DipExecutor.Test
             });
 
             var clientFactory = new ExecutorTestHttpClientFactory<Step>(messageHandler);
-            var executor = new Executor(clientFactory, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(clientFactory, new TestBatchStepNotificationFactory());
             var httpClient = clientFactory.GetHttpClient();
 
             IList<Step> steps;
@@ -631,88 +646,13 @@ namespace DipExecutor.Test
         //    // Assert
         //}
 
-        //[TestMethod]
-        //public void CreateMessage_EmptyMessage()
-        //{
-        //    // Arrange
-        //    var executor = new Executor(null);
-
-        //    // Act
-        //    var result = executor.CreateMessage("");
-
-        //    // Assert
-        //    Assert.IsTrue(result.Contains("   RunId: 0; Run Name: ; StepId: 0; Step Name: ; Step Status: Unknown"));
-        //}
-
-        //[TestMethod]
-        //public void CreateMessage_TestMessage()
-        //{
-        //    // Arrange
-        //    var executor = new Executor(null);
-
-        //    // Act
-        //    var result = executor.CreateMessage("test");
-
-        //    // Assert
-        //    Assert.IsTrue(result.Contains("   RunId: 0; Run Name: ; StepId: 0; Step Name: ; Step Status: Unknown; Message: test"));
-        //}
-
-        //[TestMethod]
-        //public void CreateMessage_DefaultStepTestMessage()
-        //{
-        //    // Arrange
-        //    var executor = new Executor(null);
-        //    var step = new Step();
-
-        //    // Act
-        //    var result = executor.CreateMessage(step, "test");
-
-        //    // Assert
-        //    Assert.IsTrue(result.Contains("   RunId: 0; Run Name: ; StepId: 0; Step Name: ; Step Status: Unknown; Message: test"));
-        //}
-
-        //[TestMethod]
-        //public void CreateMessage_DefaultStepEmptyMessage()
-        //{
-        //    // Arrange
-        //    var executor = new Executor(null);
-        //    var step = new Step();
-
-        //    // Act
-        //    var result = executor.CreateMessage(step, "test");
-
-        //    // Assert
-        //    Assert.IsTrue(result.Contains("   RunId: 0; Run Name: ; StepId: 0; Step Name: ; Step Status: Unknown"));
-        //}
-
-        //[TestMethod]
-        //public void CreateMessage_StepTestMessage()
-        //{
-        //    // Arrange
-        //    var executor = new Executor(null);
-        //    var step = new Step()
-        //    {
-        //        RunId = 1,
-        //        RunName = "Test Run",
-        //        StepId = 2,
-        //        StepName = "Step Name",
-        //        Status = StepStatus.InProgress
-        //    };
-
-        //    // Act
-        //    var result = executor.CreateMessage(step, "test");
-
-        //    // Assert
-        //    Assert.IsTrue(result.Contains("   RunId: 1; Run Name: Test Run; StepId: 2; Step Name: Step Name; Step Status: InProgress; Message: test"));
-        //}
-
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException))]
         public void GetDependencyAssemblyNames_Dependencies_Null()
         {
             // Arrange
             var step = new Step();
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
 
             // Act
             var dependencyList = executor.GetDependencyAssemblyNames(step);
@@ -727,7 +667,7 @@ namespace DipExecutor.Test
         {
             // Arrange
             var step = new Step();
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
 
             // Act
             var dependencyList = executor.GetDependencyAssemblyNames(step);
@@ -740,7 +680,7 @@ namespace DipExecutor.Test
         public void GetDependencyAssemblyNames_OneDependency()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             var step = new Step();
             step.Dependencies = new[]
             {
@@ -759,7 +699,7 @@ namespace DipExecutor.Test
         public void GetDependencyAssemblyNames_ManyDependencies()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             var step = new Step();
             step.Dependencies = new[]
             {
@@ -782,7 +722,7 @@ namespace DipExecutor.Test
         public void SetUrl_NoUrls_TwoSteps()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { };
 
@@ -801,7 +741,7 @@ namespace DipExecutor.Test
         public void SetUrl_OneUrl_TwoSteps()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1" };
 
@@ -823,7 +763,7 @@ namespace DipExecutor.Test
         public void SetUrl_TwoUrls_TwoSteps()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1", "url2" };
 
@@ -845,7 +785,7 @@ namespace DipExecutor.Test
         public void SetUrl_ThreeUrls_TwoSteps()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             var steps = new Step[] { new Step(), new Step() };
             var urls = new string[] { "url1", "url2", "url3" };
 
@@ -867,7 +807,7 @@ namespace DipExecutor.Test
         public void SetUrl_TwoUrls_ThreeSteps()
         {
             // Arrange
-            var executor = new Executor(null, new TestExecutorBatchStepNotificationFactory());
+            var executor = new Executor(null, new TestBatchStepNotificationFactory());
             var steps = new Step[] { new Step(), new Step(), new Step() };
             var urls = new string[] { "url1", "url2" };
 
