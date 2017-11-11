@@ -1,4 +1,11 @@
-﻿using System.IO;
+﻿//-----------------------------------------------------------------------
+// <copyright file="AssemblyLoader.cs" company="Development In Progress Ltd">
+//     Copyright © 2017. All rights reserved.
+// </copyright>
+// <author>Grant Colley</author>
+//-----------------------------------------------------------------------
+
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -18,7 +25,7 @@ namespace DipExecutor.Utilities
             this.dependencies = dependencies;
         }
 
-        public Assembly LoadFromMemoryStream(string fileName)
+        internal Assembly LoadFromMemoryStream(string fileName)
         {
             var apiApplicationFileInfo = new FileInfo(fileName);
             var asl = new AssemblyLoader(apiApplicationFileInfo.DirectoryName, dependencies);
