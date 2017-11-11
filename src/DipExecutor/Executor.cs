@@ -15,11 +15,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-[assembly: InternalsVisibleTo("DipRunner.Test")]
+//[assembly: InternalsVisibleTo("DipRunner.Test")]
 namespace DipExecutor
 {
     /// <summary>
