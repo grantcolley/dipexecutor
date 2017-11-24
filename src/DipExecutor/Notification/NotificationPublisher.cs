@@ -16,23 +16,14 @@ namespace DipExecutor.Notification
 {
     public class NotificationPublisher : INotificationPublisher
     {
-        private readonly Subscribers subscribers;
         private readonly HttpClient httpClient;
+        private readonly INotificationHub notificationHub;
 
-        public NotificationPublisher(IHttpClientFactory httpClientFactory)
+        public NotificationPublisher(IHttpClientFactory httpClientFactory, INotificationHub notificationHub)
         {
-            subscribers = new Subscribers();
             httpClient = httpClientFactory.GetHttpClient();
-        }
 
-        public void Subscribe(Subscriber subscriber)
-        {
-            subscribers.Add(subscriber);
-        }
-
-        public void Unsubscribe(Subscriber subscriber)
-        {
-            subscribers.Remove(subscriber);
+            this.notificationHub = notificationHub;
         }
 
         public async Task PublishAsync(IEnumerable<StepNotification> notifications)
@@ -40,21 +31,8 @@ namespace DipExecutor.Notification
             var notifyGroups = notifications.GroupBy(n => n.RunId);
             foreach (var group in notifyGroups)
             {
-                var urls = subscribers.FetchUrls(group.Key);
-                if (urls.Any())
-                {
-                    var jsonContent = JsonConvert.SerializeObject(group);
-                    
-                    foreach (var url in urls)
-                    {
-                        using (var response = await httpClient.PostAsync(url, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
-                        {
-                            var content = await response.Content.ReadAsStringAsync();
-
-                            // fire and forget?
-                        }
-                    }
-                }
+                var jsonContent = JsonConvert.SerializeObject(group);
+                //notificationHub.
             }
         }
     }

@@ -1,15 +1,16 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="Subscriber.cs" company="Development In Progress Ltd">
+// <copyright file="INotificationHub.cs" company="Development In Progress Ltd">
 //     Copyright © 2017. All rights reserved.
 // </copyright>
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
+using System.Threading.Tasks;
+
 namespace DipExecutor.Notification
 {
-    public class Subscriber
+    public interface INotificationHub
     {
-        public int RunId { get; set; }
-        public string ConnectionId { get; set; }
+        Task SendAsync(string connectionId, string method, string message);
     }
 }

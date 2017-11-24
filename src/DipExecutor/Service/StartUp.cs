@@ -31,7 +31,9 @@ namespace DipExecutor.Service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
             services.AddTransient<IExecutor, Executor>();
+            services.AddSingleton<INotificationHub, NotificationHub>();
             services.AddTransient<IHttpClientFactory, ExecutorHttpClientFactory>();
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
             services.AddTransient<IBatchNotifierFactory<StepNotification>, BatchStepNotificationFactory>();
@@ -44,6 +46,8 @@ namespace DipExecutor.Service
             loggerFactory
                 .AddConsole(Configuration.GetSection("Logging"))
                 .AddDebug();
+
+            app.UseSignalR(routes => { routes.MapHub<NotificationHub>("signalhub"); });
 
             app.Map("/run", HandleRun);
             app.Map("/getdependency", HandleFileStrean);
