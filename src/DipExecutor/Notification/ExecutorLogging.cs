@@ -18,9 +18,9 @@ namespace DipExecutor.Notification
     {
         private readonly ILogger logger;
 
-        public ExecutorLogging(ILoggerFactory logger)
+        public ExecutorLogging(ILoggerFactory loggerFactory)
         {
-            this.logger = logger.CreateLogger(typeof(ExecutorLogging));
+            logger = loggerFactory.CreateLogger<ExecutorLogging>();
 
             Start();
         }
