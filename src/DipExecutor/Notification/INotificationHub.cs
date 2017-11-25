@@ -11,6 +11,7 @@ namespace DipExecutor.Notification
 {
     public interface INotificationHub
     {
+        Task NotifyAsync(int runId, string message);
         Task SendAsync(string connectionId, string method, string message);
     }
 }

@@ -31,8 +31,8 @@ namespace DipExecutor.Notification
             var notifyGroups = notifications.GroupBy(n => n.RunId);
             foreach (var group in notifyGroups)
             {
-                var jsonContent = JsonConvert.SerializeObject(group);
-                //notificationHub.
+                var message = JsonConvert.SerializeObject(group);
+                await notificationHub.NotifyAsync(group.Key, message);
             }
         }
     }

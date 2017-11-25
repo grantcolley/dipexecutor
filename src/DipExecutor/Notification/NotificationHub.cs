@@ -20,6 +20,15 @@ namespace DipExecutor.Notification
             subscribers = new Subscribers();
         }
 
+        public async Task NotifyAsync(int runId, string message)
+        {
+            var notifySubscribers = subscribers.GetByRunId(runId.ToString());
+            foreach (var subscriber in notifySubscribers)
+            {
+                await SendAsync(subscriber.ConnectionId, "send", message);
+            }
+        }
+
         public Task SendAsync(string connectionId, string method, string message)
         {
             return Clients.Client(connectionId).InvokeAsync(method, message);
