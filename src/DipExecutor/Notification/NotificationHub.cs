@@ -25,7 +25,7 @@ namespace DipExecutor.Notification
             var notifySubscribers = subscribers.GetByRunId(runId.ToString());
             foreach (var subscriber in notifySubscribers)
             {
-                await SendAsync(subscriber.ConnectionId, "send", message);
+                await SendAsync(subscriber.ConnectionId, "sendasync", message);
             }
         }
 

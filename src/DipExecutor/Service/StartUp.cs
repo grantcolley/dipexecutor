@@ -47,7 +47,7 @@ namespace DipExecutor.Service
                 .AddConsole(Configuration.GetSection("Logging"))
                 .AddDebug();
 
-            app.UseSignalR(routes => { routes.MapHub<NotificationHub>("signalhub"); });
+            app.UseSignalR(routes => { routes.MapHub<NotificationHub>("notificationhub"); });
 
             app.Map("/run", HandleRun);
             app.Map("/getdependency", HandleFileStrean);
