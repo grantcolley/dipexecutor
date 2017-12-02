@@ -33,9 +33,9 @@ namespace DipExecutor.Service
         {
             services.AddSignalR();
             services.AddTransient<IExecutor, Executor>();
-            services.AddSingleton<INotificationHub, NotificationHub>();
+            services.AddSingleton<INotificationPublisherContext, NotificationPublisherContext>();
             services.AddTransient<IHttpClientFactory, ExecutorHttpClientFactory>();
-            services.AddSingleton<INotificationPublisher, NotificationPublisher>();
+            services.AddTransient<INotificationPublisher, NotificationPublisher>();
             services.AddTransient<IBatchNotifierFactory<StepNotification>, BatchStepNotificationFactory>();
             services.AddTransient<IBatchNotifierFactory<IEnumerable<StepNotification>>, BatchStepNotificationListFactory>();            
         }

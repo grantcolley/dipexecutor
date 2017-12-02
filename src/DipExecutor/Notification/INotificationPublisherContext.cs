@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="INotificationHub.cs" company="Development In Progress Ltd">
+// <copyright file="INotificationPublisherContext.cs" company="Development In Progress Ltd">
 //     Copyright © 2017. All rights reserved.
 // </copyright>
 // <author>Grant Colley</author>
@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 
 namespace DipExecutor.Notification
 {
-    public interface INotificationHub
+    public interface INotificationPublisherContext
     {
         Task NotifyAsync(int runId, string message);
-        Task SendAsync(string connectionId, string method, string message);
     }
 }

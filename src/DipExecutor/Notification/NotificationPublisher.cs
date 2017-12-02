@@ -17,9 +17,9 @@ namespace DipExecutor.Notification
     public class NotificationPublisher : INotificationPublisher
     {
         private readonly HttpClient httpClient;
-        private readonly INotificationHub notificationHub;
+        private readonly INotificationPublisherContext notificationHub;
 
-        public NotificationPublisher(IHttpClientFactory httpClientFactory, INotificationHub notificationHub)
+        public NotificationPublisher(IHttpClientFactory httpClientFactory, INotificationPublisherContext notificationHub)
         {
             httpClient = httpClientFactory.GetHttpClient();
 
