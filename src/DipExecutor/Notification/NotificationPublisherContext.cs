@@ -21,7 +21,10 @@ namespace DipExecutor.Notification
 
         public async Task NotifyAsync(int runId, string message)
         {
-            await context.Clients.Group(runId.ToString()).InvokeAsync("NotifyAsync", message);
+            var clients = context.Clients;
+            var groups = context.Groups;
+
+            await context.Clients.Group(runId.ToString()).InvokeAsync("Send", message);
         }
     }
 }

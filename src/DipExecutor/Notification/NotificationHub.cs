@@ -13,16 +13,16 @@ namespace DipExecutor.Notification
 {
     public class NotificationHub : Hub
     {
-        public async Task NotifyAsync(string message)
+        public void Send(string name, string message)
         {
-            return await message;
+            Clients.All.InvokeAsync(name, message);
         }
 
         public override async Task OnConnectedAsync()
         {
             var runId = Context.Connection.GetHttpContext().Request.Query["runid"];
             await Groups.AddAsync(Context.ConnectionId, runId);
-            await base.OnConnectedAsync();
+            await Clients.Client(Context.ConnectionId).InvokeAsync("Connected", $"Connected and listening for notifications from Run Id {runId}");
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
