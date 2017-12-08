@@ -7,6 +7,7 @@
 
 using DipExecutor.Notification;
 using DipExecutor.Service.Middleware;
+using DipRunner;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

@@ -5,6 +5,7 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
+using DipRunner;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

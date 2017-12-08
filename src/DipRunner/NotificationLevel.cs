@@ -5,7 +5,7 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
-namespace DipExecutor.Notification
+namespace DipRunner
 {
     public enum NotificationLevel
     {

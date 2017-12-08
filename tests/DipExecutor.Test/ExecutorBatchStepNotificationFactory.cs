@@ -1,4 +1,5 @@
 ﻿using DipExecutor.Notification;
+using DipRunner;
 using System;
 
 namespace DipExecutor.Test

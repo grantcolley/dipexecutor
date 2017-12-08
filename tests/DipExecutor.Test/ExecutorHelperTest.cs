@@ -30,7 +30,7 @@ namespace DipExecutor.Test
             Assert.AreEqual(stepNotification.StepUrl, step.StepUrl);
             Assert.AreEqual(stepNotification.StepUrl, step.StepUrl);
             Assert.AreEqual(stepNotification.NotificationUrl, step.NotificationUrl);
-            Assert.AreEqual(stepNotification.LoggingUrl, step.LogUrl);
+            Assert.AreEqual(stepNotification.LogUrl, step.LogUrl);
             Assert.AreEqual(stepNotification.Message, message);
             Assert.AreEqual(stepNotification.NotificationLevel, NotificationLevel.Error);
             Assert.AreEqual(stepNotification.NotificationEventId, NotificationEvent.RunStepAsync);

@@ -26,7 +26,7 @@ namespace DipExecutor.Utilities
                 NotificationLevel = notificationLevel,
                 StepUrl = step.StepUrl,
                 NotificationUrl = step.NotificationUrl,
-                LoggingUrl = step.LogUrl,
+                LogUrl = step.LogUrl,
                 Machine = Environment.MachineName,
                 Timestamp = DateTimeOffset.Now,
                 NotificationEventId = notificationEventId

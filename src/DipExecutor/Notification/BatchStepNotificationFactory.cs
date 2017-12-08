@@ -6,6 +6,7 @@
 //-----------------------------------------------------------------------
 
 using DipExecutor.Service;
+using DipRunner;
 
 namespace DipExecutor.Notification
 {

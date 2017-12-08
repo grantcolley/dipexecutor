@@ -6,6 +6,7 @@
 //-----------------------------------------------------------------------
 
 using DipExecutor.Service;
+using DipRunner;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace DipExecutor.Notification
                 // fire and forget?
             }
 
-            using (var response = await httpClient.PostAsync(logMessages.First<StepNotification>().LoggingUrl, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
+            using (var response = await httpClient.PostAsync(logMessages.First<StepNotification>().LogUrl, new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json")))
             {
                 var content = await response.Content.ReadAsStringAsync();
 

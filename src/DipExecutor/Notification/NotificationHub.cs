@@ -13,11 +13,6 @@ namespace DipExecutor.Notification
 {
     public class NotificationHub : Hub
     {
-        public void Send(string name, string message)
-        {
-            Clients.All.InvokeAsync(name, message);
-        }
-
         public override async Task OnConnectedAsync()
         {
             var runId = Context.Connection.GetHttpContext().Request.Query["runid"];

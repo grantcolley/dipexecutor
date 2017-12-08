@@ -5,6 +5,7 @@
 // <author>Grant Colley</author>
 //-----------------------------------------------------------------------
 
+using DipRunner;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

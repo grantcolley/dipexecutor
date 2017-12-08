@@ -6,6 +6,7 @@
 //-----------------------------------------------------------------------
 
 using DipExecutor.Service;
+using DipRunner;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,8 +32,7 @@ namespace DipExecutor.Notification
             var notifyGroups = notifications.GroupBy(n => n.RunId);
             foreach (var group in notifyGroups)
             {
-                var message = JsonConvert.SerializeObject(group);
-                await notificationHub.NotifyAsync(group.Key, message);
+                await notificationHub.NotifyAsync(group.Key, group);
             }
         }
     }
