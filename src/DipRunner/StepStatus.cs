@@ -35,6 +35,11 @@ namespace DipRunner
         /// have been executed. The step is completed and then its <see cref="Step.TransitionSteps"/>
         /// are executed.
         /// </summary>
-        Complete = 3
+        Complete = 3,
+
+        /// <summary>
+        /// The step errored and failed to complete.
+        /// </summary>
+        Error = 4
     }
 }
