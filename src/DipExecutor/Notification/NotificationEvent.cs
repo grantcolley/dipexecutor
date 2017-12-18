@@ -9,6 +9,7 @@ namespace DipExecutor.Notification
 {
     public class NotificationEvent
     {
+        public const int RunAsync = 0;
         public const int InitialiseStepAsync = 1;
         public const int DownloadDependenciesAsync = 2;
         public const int DownloadDependencyAsync = 3;
