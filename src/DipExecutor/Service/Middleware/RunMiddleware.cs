@@ -31,7 +31,10 @@ namespace DipExecutor.Service.Middleware
 
             var step = JsonConvert.DeserializeObject<Step>(body);
             var response = await executor.RunAsync(step);
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(response), Encoding.UTF8);
+            if (response != null)
+            {
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(response), Encoding.UTF8);
+            }
         }
     }
 }

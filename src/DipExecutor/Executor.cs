@@ -52,12 +52,20 @@ namespace DipExecutor
         {
             if (step == null)
             {
-                throw new Exception($"Step is null. Machine Name: {Environment.MachineName}");
+                return null;
             }
 
-            step.Validate();
+            try
+            {
+                step.Validate();
 
-            return await ProcessStepAsync(step).ConfigureAwait(false);
+                return await ProcessStepAsync(step).ConfigureAwait(false);
+            }
+            catch(Exception ex)
+            {
+                Notify(NotificationLevel.Error, NotificationEvent.RunStepAsync, step, ex.ToString());
+                return null;
+            }
         }
 
         internal async Task<Step> ProcessStepAsync(Step step)
@@ -341,13 +349,16 @@ namespace DipExecutor
 
             try
             {
-                foreach (var file in Directory.GetFiles(step.AssemblyPath))
+                if (Directory.Exists(step.AssemblyPath))
                 {
-                    File.SetAttributes(file, FileAttributes.Normal);
-                    File.Delete(file);
-                }
+                    foreach (var file in Directory.GetFiles(step.AssemblyPath))
+                    {
+                        File.SetAttributes(file, FileAttributes.Normal);
+                        File.Delete(file);
+                    }
 
-                Directory.Delete(step.AssemblyPath);
+                    Directory.Delete(step.AssemblyPath);
+                }
             }
             catch(Exception ex)
             {
