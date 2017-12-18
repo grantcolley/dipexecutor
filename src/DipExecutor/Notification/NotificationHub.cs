@@ -17,7 +17,7 @@ namespace DipExecutor.Notification
         {
             var runId = Context.Connection.GetHttpContext().Request.Query["runid"];
             await Groups.AddAsync(Context.ConnectionId, runId);
-            await Clients.Client(Context.ConnectionId).InvokeAsync("Connected", $"Connected and listening for notifications from Run Id {runId}");
+            await Clients.Client(Context.ConnectionId).InvokeAsync("Connected", $"Connected and listening for notifications from Run Id {runId}. ConnectionId {Context.ConnectionId}");
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
