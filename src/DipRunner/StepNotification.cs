@@ -21,7 +21,7 @@ namespace DipRunner
         public override string ToString()
         {
             var step = $"RunId: {RunId}\nRunName: {RunName}\nStepId: {StepId}\nStepName: {StepName}\nStatus: {Status}\nStepUrl: {StepUrl}\nNotificationUrl: {NotificationUrl}\nLogUrl: {LogUrl}";
-            return $"{step}\nMachine: {Machine}\nMessage: {Message}\n MessageGroup: {MessageGroup}\nTimestamp: {Timestamp.ToString("dd/MM/yyyy hh:mm:ss.fff tt")}\nNotificationLevel: {NotificationLevel}\nNotificationEventId: {NotificationEventId}";
+            return $"{step}\nMachine: {Machine}\nMessage: {Message}\nMessageGroup: {MessageGroup}\nTimestamp: {Timestamp.ToString("dd/MM/yyyy hh:mm:ss.fff tt")}\nNotificationLevel: {NotificationLevel}\nNotificationEventId: {NotificationEventId}";
         }
     }
 }
