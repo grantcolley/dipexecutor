@@ -163,19 +163,20 @@ namespace DipExecutor
         {
             try
             {
-                string fullFileName = string.Empty;
+                string fileName = string.Empty;
 
                 using (var response = await client.PostAsync(step.DependencyUrl, new StringContent(filePath)))
                 {
                     using (var stream = await response.Content.ReadAsStreamAsync())
                     {
-                        var fileName = filePath.Split('\\');
+                        var filePathSplit = filePath.Split('\\');
+                        fileName = filePathSplit[filePathSplit.Length-1];
 
-                        fullFileName = Path.Combine(step.AssemblyPath, fileName[fileName.Length - 1]);
+                        var fullFileName = Path.Combine(step.AssemblyPath, fileName);
 
                         if (File.Exists(fullFileName))
                         {
-                            Notify(NotificationLevel.Information, NotificationEvent.DownloadDependencyAsync, step, $"File already exists: {fullFileName}");
+                            Notify(NotificationLevel.Information, NotificationEvent.DownloadDependencyAsync, step, $"File already exists: {fileName}");
                             return true;
                         }
 
@@ -191,7 +192,7 @@ namespace DipExecutor
                     }
                 }
 
-                Notify(NotificationLevel.Information, NotificationEvent.DownloadDependencyAsync, step, $"Downloaded: {fullFileName}");
+                Notify(NotificationLevel.Information, NotificationEvent.DownloadDependencyAsync, step, $"Downloaded: {fileName}");
                 return true;
             }
             catch(Exception ex)
@@ -211,16 +212,20 @@ namespace DipExecutor
 
                 if (string.IsNullOrWhiteSpace(step.TargetAssembly))
                 {
-                    Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step, "TargetAssembly is missing.");
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step, "No TargetAssembly");
                     return true;
                 }
 
                 if (string.IsNullOrWhiteSpace(step.TargetType))
                 {
-                    Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step, "TargetType is missing.");
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step, "No TargetType");
                     return true;
                 }
-                
+                else
+                {
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepAsync, step, $"Executing {step.TargetType}");
+                }
+
                 var dependencies = GetDependencyAssemblyNames(step);
 
                 var assemblyLoader = new AssemblyLoader(step.AssemblyPath, dependencies);
@@ -373,11 +378,10 @@ namespace DipExecutor
                 if (steps == null
                     || !steps.Any())
                 {
-                    Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - No {type} steps");
                     return true;
                 }
 
-                Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - {type} steps");
+                Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $". Running {steps.Count()} {type} step(s)");
 
                 var stepsToRun = SetUrl(steps, step.Urls);
 
@@ -389,12 +393,12 @@ namespace DipExecutor
                 
                 if (results.All(r => r.Status == StepStatus.Complete))
                 {
-                    Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - {type} steps completed");
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $". {steps.Count()} {type} steps completed");
                     return true;
                 }
                 else
                 {
-                    Notify(NotificationLevel.Warning, NotificationEvent.RunStepsAsync, step, $"RunStepsAsync - Not all {type} steps completed");
+                    Notify(NotificationLevel.Error, NotificationEvent.RunStepsAsync, step, $"{results.Count(r => r.Status != StepStatus.Complete)} {type} steps failed to complete");
                     return false;
                 }
             }
