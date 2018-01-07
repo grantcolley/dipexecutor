@@ -131,7 +131,6 @@ namespace DipExecutor
             {
                 if ((step.Dependencies?.Length ?? 0).Equals(0))
                 {
-                    step.AssemblyPath = Directory.GetCurrentDirectory();
                     return true;
                 }
 
@@ -381,7 +380,7 @@ namespace DipExecutor
                     return true;
                 }
 
-                Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $". Running {steps.Count()} {type} step(s)");
+                Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $" Running {steps.Count()} {type} step(s)");
 
                 var stepsToRun = SetUrl(steps, step.Urls);
 
@@ -393,7 +392,7 @@ namespace DipExecutor
                 
                 if (results.All(r => r.Status == StepStatus.Complete))
                 {
-                    Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $". {steps.Count()} {type} steps completed");
+                    Notify(NotificationLevel.Information, NotificationEvent.RunStepsAsync, step, $" {steps.Count()} {type} steps completed");
                     return true;
                 }
                 else
