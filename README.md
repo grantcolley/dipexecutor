@@ -5,6 +5,8 @@ A distributed processing platform.
 *	###### Net Core 2.0 and .Net Standard 2.0, SignalR, WPF
 #####
 
+![Executor Monitor](https://github.com/grantcolley/executormonitor/tree/master/README-images/executormonitor.png "Executor Monitor")
+
 #### Table of Contents
 * [Components](#components)
 * [How It Works](#how-it-works)
