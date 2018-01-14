@@ -19,7 +19,7 @@ A distributed processing platform.
 Create a class that implements the [IRunner](https://github.com/grantcolley/dipexecutor/blob/master/src/DipRunner/IRunner.cs) interface. The RunAsync method is the entry point for executing your code.
 
 ```C#
-    public class CustomCode : IRunner
+    public class Counterparties : IRunner
     {
         public async Task<Step> RunAsync(Step step)
         {
@@ -28,7 +28,7 @@ Create a class that implements the [IRunner](https://github.com/grantcolley/dipe
     }
 ```
 
-Define one or more steps to process. Each step can execute a specified target type. A step may contain sub steps. These are executed in parallel after the step's target type has been executed. Finally, a step can also contain transition steps. Transition steps are executed in parallel after the step's target type and sub steps have completed.
+Define one or more steps to process. These steps form a workflow known as a run. Each [Step](https://github.com/grantcolley/dipexecutor/blob/master/src/DipRunner/Step.cs) can execute a specified target type. A step may contain sub steps. These are executed in parallel after the step's target type has been executed. Finally, a step can also contain transition steps. Transition steps are executed in parallel after the step's target type and sub steps have completed.
 
 ```C#         
             var counterparties = new Step();
@@ -37,7 +37,7 @@ Define one or more steps to process. Each step can execute a specified target ty
             counterparties.StepId = 1;
             counterparties.StepName = "Counterparties";
             counterparties.TargetAssembly = "Conterparty.dll";
-            counterparties.TargetType = "Counterparty.GetCounterparties";
+            counterparties.TargetType = "Counterparty.Counterparties";
             counterparties.Payload = "args";
             counterparties.Urls = new[] { "http://localhost:5000" };
             counterparties.Dependencies = new string[]
@@ -92,15 +92,9 @@ Define one or more steps to process. Each step can execute a specified target ty
             ifrs9.TransitionSteps = new Step[] { modelling };
 ```
 
-Run
-A run is one or more steps that can be executed as a workflow. A run has a root step, which can contain sub steps and transition steps which defines the workflow.
-
-Executor
-The Executor “runs” a step. Running a step involves:
-        ///     1. Initialise the step, including downloading dependencies.
-        ///     2. Executes the step target type, including dynamically load and 
-        ///         initialising an instance of the target type and calling its 
-        ///         RunAsync method. 
-        ///     3. Running the steps sub steps.
-        ///     4. Running the steps transition steps on completion of above.
+The Executor receives a step tp process. Processing a step involves the following actions:
+1. Initialise the step, including downloading dependencies.
+2. Executes the step target type, including dynamically load and initialising an instance of the target type and calling its RunAsync method. 
+3. Run the steps sub steps in parallel.
+4. On completion of the above, run the steps transition steps in parallel.
 
