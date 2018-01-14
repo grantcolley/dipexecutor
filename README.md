@@ -105,7 +105,7 @@ The [client](https://github.com/grantcolley/executormonitor/tree/master/Developm
             }
 ```
 
-The [DipExecutor.dll](https://github.com/grantcolley/dipexecutor/tree/master/src/DipExecutor/Service) exposes a WebHost with endpoints. A hosting application such as a [console app](https://github.com/grantcolley/dipexecutor/blob/master/src/ExecutorHost/Program.cs), service etc. can create an instance of the WebHost e.g.
+The [dipexecutor.dll](https://github.com/grantcolley/dipexecutor/tree/master/src/DipExecutor/Service) exposes a WebHost with endpoints. A hosting application such as a [console app](https://github.com/grantcolley/dipexecutor/blob/master/src/ExecutorHost/Program.cs), service etc. can create an instance of the WebHost e.g.
 
 ```C#  
             var webHost = WebHost.CreateDefaultBuilder()
