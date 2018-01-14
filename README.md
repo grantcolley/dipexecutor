@@ -98,13 +98,14 @@ The [client](https://github.com/grantcolley/executormonitor/tree/master/Developm
             var jsonContent = JsonConvert.SerializeObject(counterparties);
             using (var client = new HttpClient())
             {
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var response = await client.PostAsync(counterparties.StepUrl, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var response = await client.PostAsync(counterparties.StepUrl, 
+                                            new StringContent(jsonContent, Encoding.UTF8, "application/json"));
             }
 ```
 
-The [DipExecutor.dll](https://github.com/grantcolley/dipexecutor/tree/master/src/DipExecutor/Service) exposes a WebHost with endpoints. A hosting application such as a [console app](https://github.com/grantcolley/dipexecutor/tree/master/src/ExecutorHost), service etc. can create an instance of the WebHost e.g.
+The [DipExecutor.dll](https://github.com/grantcolley/dipexecutor/tree/master/src/DipExecutor/Service) exposes a WebHost with endpoints. A hosting application such as a [console app](https://github.com/grantcolley/dipexecutor/blob/master/src/ExecutorHost/Program.cs), service etc. can create an instance of the WebHost e.g.
 
 ```C#  
             var webHost = WebHost.CreateDefaultBuilder()
