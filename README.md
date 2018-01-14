@@ -2,7 +2,7 @@
 A distributed processing platform.
 
 ##### Technologies
-*	###### Net Core 2.0 and .Net Standard 2.0
+*	###### Net Core 2.0 and .Net Standard 2.0, SignalR, WPF
 #####
 
 #### Table of Contents
@@ -92,9 +92,35 @@ Define one or more steps to process. These steps form a workflow known as a run.
             ifrs9.TransitionSteps = new Step[] { modelling };
 ```
 
-The Executor receives a step tp process. Processing a step involves the following actions:
+The [client](https://github.com/grantcolley/executormonitor/tree/master/DevelopmentInProgress.ExecutorMonitor.Wpf) makes a call to the executor, passing the root step to process.
+
+```C#  
+            var jsonContent = JsonConvert.SerializeObject(counterparties);
+            using (var client = new HttpClient())
+            {
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var response = await client.PostAsync(counterparties.StepUrl, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+            }
+```
+
+The [DipExecutor.dll](https://github.com/grantcolley/dipexecutor/tree/master/src/DipExecutor/Service) exposes a WebHost with endpoints. A hosting application such as a [console app](https://github.com/grantcolley/dipexecutor/tree/master/src/ExecutorHost), service etc. can create an instance of the WebHost e.g.
+
+```C#  
+            var webHost = WebHost.CreateDefaultBuilder()
+                .UseUrls("http://+:5000")
+                .UseExecutorStartup()
+                .Build();
+                
+            var task = webHost.RunAsync();
+            task.GetAwaiter().GetResult();
+```
+
+The [Executor](https://github.com/grantcolley/dipexecutor/blob/master/src/DipExecutor/Executor.cs) receives a step to process. Processing the step involves the following actions:
 1. Initialise the step, including downloading dependencies.
-2. Executes the step target type, including dynamically load and initialising an instance of the target type and calling its RunAsync method. 
+2. Executes the step target type by dynamically loading and initialising an instance of the target type and calling its RunAsync method. 
 3. Run the steps sub steps in parallel.
 4. On completion of the above, run the steps transition steps in parallel.
+
+Throughout the processing the executor will send [notifications](https://github.com/grantcolley/dipexecutor/tree/master/src/DipExecutor/Notification) of the steps progress.
 
