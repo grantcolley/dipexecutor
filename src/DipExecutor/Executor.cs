@@ -340,6 +340,11 @@ namespace DipExecutor
 
         internal void Notify(NotificationLevel notificationLevel, int notificationEventId, Step step, string message = "")
         {
+            if (notificationLevel == NotificationLevel.Error)
+            {
+                step.Status = StepStatus.Error;
+            }
+
             var notification = step.CreateStepNotification(notificationLevel, notificationEventId, message);
             batchNotifier.AddNotification(notification);
         }

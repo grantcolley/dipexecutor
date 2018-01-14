@@ -276,7 +276,7 @@ namespace DipRunner
                 && (Dependencies == null
                 || Dependencies.Length == 0))
             {
-                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType and TargetAssembly is missing then at least one dependency required i.e. the target assembly");
+                throw new Exception($"RunId: { RunId } Run Name: {RunName} StepId {StepId} Step Name {StepName} - If TargetType and TargetAssembly is provided then at least one dependency required i.e. the target assembly");
             }
 
             if (walkTree)

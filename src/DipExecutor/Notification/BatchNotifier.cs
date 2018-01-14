@@ -31,7 +31,7 @@ namespace DipExecutor.Notification
                 }
                 catch
                 {
-                    //cancellation token canceled or CompleteAdding called
+                    //cancellation token cancelled or CompleteAdding called
                 }
             }
         }
