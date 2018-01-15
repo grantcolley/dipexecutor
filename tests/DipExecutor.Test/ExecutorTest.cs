@@ -528,7 +528,7 @@ namespace DipExecutor.Test
             var result = await executor.ProcessStepAsync(step);
 
             // Assert
-            Assert.IsTrue(result.Status.Equals(StepStatus.Initialise));
+            Assert.IsTrue(result.Status.Equals(StepStatus.Error));
             Assert.IsTrue(!File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
             Assert.IsTrue(!File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
 
@@ -564,7 +564,7 @@ namespace DipExecutor.Test
             var result = await executor.ProcessStepAsync(step);
 
             // Assert
-            Assert.IsTrue(result.Status.Equals(StepStatus.InProgress));
+            Assert.IsTrue(result.Status.Equals(StepStatus.Error));
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestLibrary.dll")));
             Assert.IsTrue(File.Exists(Path.Combine(step.AssemblyPath, "TestDependency.dll")));
 
@@ -573,7 +573,6 @@ namespace DipExecutor.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
         public async Task RunAsync_StepIsNull()
         {
             // Arrange
@@ -584,10 +583,10 @@ namespace DipExecutor.Test
             var result = await executor.RunAsync(step);
 
             // Assert
+            Assert.IsNull(result);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
         public async Task RunAsync_Step_ValidationFalied()
         {
             // Arrange
@@ -598,6 +597,7 @@ namespace DipExecutor.Test
             var result = await executor.RunAsync(step);
 
             // Assert
+            Assert.IsNull(result);
         }
 
         [TestMethod]

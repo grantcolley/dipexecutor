@@ -261,7 +261,7 @@ namespace DipRunner.Test
             }
 
             // Assert
-            Assert.IsTrue(exceptionMessage.Contains("If TargetType and TargetAssembly is missing then at least one dependency required i.e. the target assembly"));
+            Assert.IsTrue(exceptionMessage.Contains("If TargetType and TargetAssembly is provided then at least one dependency required i.e. the target assembly"));
         }
 
         [TestMethod]
