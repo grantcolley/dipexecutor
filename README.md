@@ -1,6 +1,8 @@
 # DipExecutor 
 A distributed processing platform.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/nq42gnkuvixttu7c/branch/master?svg=true)](https://ci.appveyor.com/project/grantcolley/dipexecutor/branch/master)
+
 ##### Technologies
 *	###### Net Core 2.0 and .Net Standard 2.0, SignalR, WPF
 #####
